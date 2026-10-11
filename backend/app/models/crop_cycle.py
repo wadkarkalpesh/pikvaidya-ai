@@ -1,11 +1,12 @@
 from datetime import date, datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 from sqlalchemy import String, Date, DateTime, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.models.farm import Farm
+    from app.models.diagnosis import Diagnosis
 
 
 class CropCycle(Base):
@@ -32,3 +33,9 @@ class CropCycle(Base):
 
     # Relationships
     farm: Mapped["Farm"] = relationship("Farm", back_populates="crop_cycles")
+    diagnoses: Mapped[List["Diagnosis"]] = relationship(
+        "Diagnosis",
+        back_populates="crop_cycle",
+        cascade="all, delete-orphan"
+    )
+

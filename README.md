@@ -151,6 +151,11 @@ uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000 --reload
 | **Crops** | `GET` | `/api/v1/crops/{crop_id}` | Get crop cycle details (Ownership protected) | Yes (Bearer) |
 | **Crops** | `PUT` | `/api/v1/crops/{crop_id}` | Update crop cycle details (Ownership protected) | Yes (Bearer) |
 | **Crops** | `DELETE` | `/api/v1/crops/{crop_id}` | Delete crop cycle (Ownership protected) | Yes (Bearer) |
+| **Diagnostics** | `POST` | `/api/v1/crops/{crop_id}/diagnoses` | Upload leaf image with environmental telemetry & receive AI disease diagnosis | Yes (Bearer) |
+| **Diagnostics** | `GET` | `/api/v1/crops/{crop_id}/diagnoses` | List diagnostic history for specific crop cycle | Yes (Bearer) |
+| **Diagnostics** | `GET` | `/api/v1/diagnostics` | List all historical diagnoses for authenticated farmer | Yes (Bearer) |
+| **Diagnostics** | `GET` | `/api/v1/diagnostics/{diagnosis_id}` | Retrieve detailed diagnosis report with bilingual advice & severity | Yes (Bearer) |
+| **Diagnostics** | `DELETE` | `/api/v1/diagnostics/{diagnosis_id}` | Delete diagnosis record and unlink stored image asset | Yes (Bearer) |
 
 ---
 
@@ -166,27 +171,35 @@ $env:PYTHONPATH="backend"; .\backend\venv\Scripts\pytest.exe backend\tests -v
 PYTHONPATH=backend pytest backend/tests -v
 ```
 
-All 26 test cases cover:
+All 37 test cases cover:
 - Authentication, token issuance, password security, duplicate detection
 - Multi-tenant farm creation, isolation, and access control
 - Crop cycle lifecycle management and ownership validation
+- Diagnostic image upload validation (magic bytes, size limits, SHA-256 deduplication)
+- AI pathological inference, bilingual advisory generation (Marathi & English)
+- Multi-tenant isolation and tenancy access protection across diagnostic records
 
 ---
 
-## Sprint 1 Completion Checklist
+## Phase 1 & 2 Completion Checklist
 
 - [x] Monorepo structure with clear boundaries (`backend`, `frontend`, `ai`, `data`, `docs`, `infra`)
-- [x] PostgreSQL schema with SQLAlchemy 2.x models (`User`, `Farm`, `CropCycle`)
-- [x] Alembic migration configuration and initial version (`001_initial_schema.py`)
+- [x] PostgreSQL schema with SQLAlchemy 2.x models (`User`, `Farm`, `CropCycle`, `Diagnosis`)
+- [x] Alembic migration versions (`001_initial_schema.py`, `002_add_diagnostics_schema.py`)
 - [x] Secure JWT authentication, OAuth2 compatibility, and `bcrypt` password hashing
 - [x] Farmer profile management API (`GET /profile`, `PUT /profile`)
 - [x] Farm management API with ownership verification (`POST`, `GET`, `PUT`, `DELETE /farms`)
 - [x] Crop cycle management API with cross-user isolation (`POST`, `GET`, `PUT`, `DELETE /crops`)
-- [x] 26 automated unit and integration tests with pytest passing cleanly
+- [x] Media ingestion service with MIME/magic-byte validation, hashing, and date-partitioned storage
+- [x] Decoupled AI pathology inference service adapter with bilingual advisory
+- [x] Crop diagnostics API with full CRUD and multi-tenant access protection
+- [x] 37 automated unit and integration tests passing cleanly (100% pass rate)
+
 - [x] Docker Compose definition for PostgreSQL with persistent volumes
 - [x] Comprehensive documentation and environment templates
 
 ---
+
 
 ## Future Development Roadmap
 

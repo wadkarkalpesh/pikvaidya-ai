@@ -70,3 +70,6 @@ venv.bak/
 .vscode/
 *.swp
 *.swo
+
+# Media uploads
+uploads/

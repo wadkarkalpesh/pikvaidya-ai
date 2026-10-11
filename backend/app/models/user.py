@@ -7,6 +7,7 @@ from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.models.farm import Farm
+    from app.models.diagnosis import Diagnosis
 
 
 class UserRole(str, enum.Enum):
@@ -45,5 +46,10 @@ class User(Base):
     farms: Mapped[List["Farm"]] = relationship(
         "Farm",
         back_populates="owner",
+        cascade="all, delete-orphan"
+    )
+    diagnoses: Mapped[List["Diagnosis"]] = relationship(
+        "Diagnosis",
+        back_populates="user",
         cascade="all, delete-orphan"
     )

@@ -13,6 +13,12 @@ from app.schemas.crop_cycle import (
     CropCycleUpdate,
     CropCycleResponse,
 )
+from app.schemas.diagnosis import (
+    DiagnosisBase,
+    DiagnosisCreate,
+    DiagnosisSummaryResponse,
+    DiagnosisDetailResponse,
+)
 
 __all__ = [
     "Token",
@@ -31,4 +37,9 @@ __all__ = [
     "CropCycleCreate",
     "CropCycleUpdate",
     "CropCycleResponse",
+    "DiagnosisBase",
+    "DiagnosisCreate",
+    "DiagnosisSummaryResponse",
+    "DiagnosisDetailResponse",
 ]
+

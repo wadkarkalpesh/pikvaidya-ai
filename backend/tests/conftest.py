@@ -12,6 +12,7 @@ from app.core.security import get_password_hash, create_access_token
 from app.models.user import User, UserRole
 from app.models.farm import Farm
 from app.models.crop_cycle import CropCycle
+from app.models.diagnosis import Diagnosis, DiagnosisStatus, DiagnosisSeverity
 
 # In-memory SQLite engine for tests
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -132,3 +133,9 @@ def test_crop(db: Session, test_farm: Farm) -> CropCycle:
     db.commit()
     db.refresh(crop)
     return crop
+
+
+@pytest.fixture(scope="function")
+def sample_jpeg_bytes() -> bytes:
+    # Minimal valid JPEG binary buffer with correct magic header
+    return b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00`\x00`\x00\x00\xff\xdb\x00C\x00" + b"\x00" * 64 + b"\xff\xd9"
