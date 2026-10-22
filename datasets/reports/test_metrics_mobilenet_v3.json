@@ -1,0 +1,140 @@
+{
+  "model_architecture": "MobileNetV3-Large",
+  "checkpoint": "models\\sugarcane\\mobilenet_v3\\best_model.pth",
+  "test_samples": 351,
+  "classification_performance": {
+    "accuracy": 0.8405,
+    "macro_precision": 0.8626,
+    "macro_recall": 0.8422,
+    "macro_f1": 0.8342,
+    "per_class": {
+      "Healthy": {
+        "precision": 0.8772,
+        "recall": 0.6944,
+        "f1_score": 0.7752,
+        "support": 72
+      },
+      "Mosaic": {
+        "precision": 0.6333,
+        "recall": 1.0,
+        "f1_score": 0.7755,
+        "support": 57
+      },
+      "RedRot": {
+        "precision": 0.8824,
+        "recall": 0.9494,
+        "f1_score": 0.9146,
+        "support": 79
+      },
+      "Rust": {
+        "precision": 1.0,
+        "recall": 0.6471,
+        "f1_score": 0.7857,
+        "support": 68
+      },
+      "Yellow": {
+        "precision": 0.92,
+        "recall": 0.92,
+        "f1_score": 0.92,
+        "support": 75
+      }
+    },
+    "confusion_matrix": [
+      [
+        50,
+        21,
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        57,
+        0,
+        0,
+        0
+      ],
+      [
+        2,
+        0,
+        75,
+        0,
+        2
+      ],
+      [
+        5,
+        7,
+        9,
+        44,
+        3
+      ],
+      [
+        0,
+        5,
+        1,
+        0,
+        69
+      ]
+    ]
+  },
+  "calibration": {
+    "expected_calibration_error_ece": 0.039,
+    "is_well_calibrated": true,
+    "bin_details": [
+      {
+        "bin_range": "0.3-0.4",
+        "sample_count": 3,
+        "avg_confidence": 0.3678,
+        "accuracy": 0.0,
+        "calibration_gap": 0.3678
+      },
+      {
+        "bin_range": "0.4-0.5",
+        "sample_count": 15,
+        "avg_confidence": 0.4567,
+        "accuracy": 0.4667,
+        "calibration_gap": 0.01
+      },
+      {
+        "bin_range": "0.5-0.6",
+        "sample_count": 23,
+        "avg_confidence": 0.5562,
+        "accuracy": 0.5217,
+        "calibration_gap": 0.0345
+      },
+      {
+        "bin_range": "0.6-0.7",
+        "sample_count": 24,
+        "avg_confidence": 0.6514,
+        "accuracy": 0.4167,
+        "calibration_gap": 0.2348
+      },
+      {
+        "bin_range": "0.7-0.8",
+        "sample_count": 33,
+        "avg_confidence": 0.7566,
+        "accuracy": 0.7879,
+        "calibration_gap": 0.0313
+      },
+      {
+        "bin_range": "0.8-0.9",
+        "sample_count": 68,
+        "avg_confidence": 0.8563,
+        "accuracy": 0.8824,
+        "calibration_gap": 0.026
+      },
+      {
+        "bin_range": "0.9-1.0",
+        "sample_count": 185,
+        "avg_confidence": 0.9556,
+        "accuracy": 0.973,
+        "calibration_gap": 0.0173
+      }
+    ]
+  },
+  "field_testing_summary": {
+    "all_samples_are_authentic_field": true,
+    "field_accuracy": 0.8405,
+    "field_macro_f1": 0.8342
+  }
+}

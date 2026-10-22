@@ -1,0 +1,6 @@
+True\Pred,Healthy,Mosaic,RedRot,Rust,Yellow
+Healthy,50,21,0,0,1
+Mosaic,0,57,0,0,0
+RedRot,2,0,75,0,2
+Rust,5,7,9,44,3
+Yellow,0,5,1,0,69

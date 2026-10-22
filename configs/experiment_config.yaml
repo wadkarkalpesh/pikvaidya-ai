@@ -1,0 +1,89 @@
+# PikVaidya AI — Experiment Configuration Registry
+# Target Crop: Sugarcane (ऊस) — 5 Audited Pathology Classes
+
+dataset:
+  name: "sugarcane_audited"
+  processed_dir: "datasets/processed/sugarcane"
+  train_manifest: "datasets/processed/sugarcane/train_manifest.csv"
+  val_manifest: "datasets/processed/sugarcane/val_manifest.csv"
+  test_manifest: "datasets/processed/sugarcane/test_manifest.csv"
+  class_mapping: "datasets/processed/sugarcane/class_mapping.json"
+  num_classes: 5
+  classes:
+    - "Healthy"
+    - "Mosaic"
+    - "RedRot"
+    - "Rust"
+    - "Yellow"
+  image_size: 224
+  field_testing_only: true
+
+experiments:
+  model_a:
+    arch: "efficientnet_b0"
+    display_name: "Model A (EfficientNet-B0)"
+    pretrained: true
+    dropout: 0.3
+    learning_rate: 0.0005
+    weight_decay: 0.0001
+    batch_size: 32
+    epochs: 10
+    gradcam_layer: "features[-1]"
+
+  model_b:
+    arch: "mobilenet_v3"
+    display_name: "Model B (MobileNetV3-Large)"
+    pretrained: true
+    dropout: 0.2
+    learning_rate: 0.0005
+    weight_decay: 0.0001
+    batch_size: 32
+    epochs: 10
+    gradcam_layer: "features[-1]"
+
+  baseline:
+    arch: "resnet50"
+    display_name: "Optional Baseline (ResNet-50)"
+    pretrained: true
+    dropout: 0.0
+    learning_rate: 0.0003
+    weight_decay: 0.0001
+    batch_size: 32
+    epochs: 10
+    gradcam_layer: "layer4[-1]"
+
+training_defaults:
+  loss: "CrossEntropyLoss"
+  label_smoothing: 0.1
+  optimizer: "AdamW"
+  scheduler: "CosineAnnealingLR"
+  early_stopping_patience: 4
+  seed: 42
+
+evaluation:
+  metrics:
+    - "accuracy"
+    - "macro_precision"
+    - "macro_recall"
+    - "macro_f1"
+    - "per_class_f1"
+    - "confusion_matrix"
+  calibration:
+    method: "Expected Calibration Error (ECE)"
+    num_bins: 10
+  field_test:
+    enabled: true
+    separate_slice_eval: true
+
+explainability:
+  method: "Grad-CAM"
+  overlay_alpha: 0.5
+  output_dir: "datasets/reports/gradcam"
+
+artifacts:
+  base_dir: "models/sugarcane"
+  required_files:
+    - "best_model.pth"
+    - "class_mapping.json"
+    - "training_history.json"
+    - "config.json"

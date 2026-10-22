@@ -21,6 +21,11 @@ class Settings(BaseSettings):
     MAX_UPLOAD_SIZE_MB: int = 10
     ALLOWED_IMAGE_EXTENSIONS: List[str] = [".jpg", ".jpeg", ".png", ".webp"]
 
+    # Machine Learning Model Serving
+    MODEL_CHECKPOINT_PATH: str = "models/sugarcane/efficientnet_b0/best_model.pth"
+    MODEL_ARCH_NAME: str = "EfficientNet-B0"
+    MODEL_VERSION: str = "EfficientNet-B0-v1.0"
+
     # CORS
     CORS_ORIGINS: List[str] = ["*"]
     

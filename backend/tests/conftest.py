@@ -137,5 +137,11 @@ def test_crop(db: Session, test_farm: Farm) -> CropCycle:
 
 @pytest.fixture(scope="function")
 def sample_jpeg_bytes() -> bytes:
-    # Minimal valid JPEG binary buffer with correct magic header
-    return b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00`\x00`\x00\x00\xff\xdb\x00C\x00" + b"\x00" * 64 + b"\xff\xd9"
+    """Provides a valid, properly encoded JPEG image byte buffer decodable by PIL."""
+    import io
+    from PIL import Image
+    img = Image.new("RGB", (224, 224), color=(34, 139, 34))
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG")
+    return buf.getvalue()
+

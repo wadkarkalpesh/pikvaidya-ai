@@ -1,0 +1,45 @@
+{
+  "audit_timestamp": "2026-10-22T20:14:31.422386",
+  "total_crops_audited": 5,
+  "crops_available_on_disk": [
+    "sugarcane"
+  ],
+  "crops_archived_in_zips": [
+    "tomato",
+    "soybean"
+  ],
+  "crops_pending_download": [
+    "onion",
+    "cotton"
+  ],
+  "sugarcane_audit": {
+    "total_files": 2521,
+    "unreadable": 0,
+    "exact_duplicates_md5": 210,
+    "near_duplicates_dhash": 225,
+    "unique_images": 2311,
+    "classes": {
+      "Healthy": 522,
+      "Mosaic": 462,
+      "RedRot": 518,
+      "Rust": 514,
+      "Yellow": 505
+    }
+  },
+  "tomato_audit": {
+    "plantvillage_color_images": 54499,
+    "plantdoc_field_images": 756,
+    "classes_count": 10
+  },
+  "soybean_audit": {
+    "healthy_images_available": 5155,
+    "disease_classes_found": 0,
+    "status": "DEFECTIVE (No disease data)"
+  },
+  "recommendation": {
+    "first_crop_choice": "Sugarcane",
+    "rationale": "Sugarcane is 100% extracted locally on disk (2,521 images), has an ideal class balance (ratio 1.13x), 4 distinct major Indian diseases + healthy, in-field photographic fidelity, and zero unreadable images. While 210 exact duplicates must be pruned, it presents zero friction for immediate baseline modeling.",
+    "second_crop_choice": "Tomato",
+    "second_choice_notes": "Ideal for follow-up multi-class transfer learning once class weighting handles the 14.36x imbalance."
+  }
+}

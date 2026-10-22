@@ -18,6 +18,7 @@ from app.schemas.diagnosis import (
     DiagnosisCreate,
     DiagnosisSummaryResponse,
     DiagnosisDetailResponse,
+    PredictResponse,
 )
 
 __all__ = [
@@ -41,5 +42,6 @@ __all__ = [
     "DiagnosisCreate",
     "DiagnosisSummaryResponse",
     "DiagnosisDetailResponse",
+    "PredictResponse",
 ]
 

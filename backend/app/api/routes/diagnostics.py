@@ -1,18 +1,143 @@
+import io
+from pathlib import Path
 from typing import List, Optional
+from PIL import Image
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.db.session import get_db
 from app.dependencies import get_current_active_user
 from app.models.user import User
 from app.models.farm import Farm
 from app.models.crop_cycle import CropCycle
 from app.models.diagnosis import Diagnosis, DiagnosisStatus
-from app.schemas.diagnosis import DiagnosisDetailResponse, DiagnosisSummaryResponse
+from app.schemas.diagnosis import (
+    DiagnosisDetailResponse,
+    DiagnosisSummaryResponse,
+    PredictResponse,
+)
 from app.services.storage import storage_service
 from app.services.ai_service import ai_service
+from app.services.model_service import (
+    model_service,
+    ModelNotLoadedError,
+    UnsupportedCropError,
+    InferenceError,
+)
 
 router = APIRouter()
+
+
+@router.post(
+    "/diagnose/predict",
+    response_model=PredictResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Direct ML model inference endpoint for crop disease diagnosis",
+)
+@router.post(
+    "/diagnostics/predict",
+    response_model=PredictResponse,
+    status_code=status.HTTP_200_OK,
+    include_in_schema=False,
+)
+async def predict_crop_disease(
+    file: UploadFile = File(..., description="Crop leaf photograph (JPEG, PNG, WEBP)"),
+    crop: str = Form("sugarcane", description="Target crop (default: sugarcane)"),
+    generate_gradcam: bool = Form(False, description="Generate Grad-CAM activation heatmap"),
+    save_heatmap: bool = Form(True, description="Persist generated heatmap to disk"),
+):
+    """Direct model-serving endpoint. Validates file integrity, evaluates PyTorch
+
+    model inference, and optionally generates Grad-CAM visual lesion heatmaps.
+    """
+    if not file.filename:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Filename cannot be empty.",
+        )
+
+    # 1. Validate file extension
+    ext = Path(file.filename).suffix.lower()
+    if ext not in settings.ALLOWED_IMAGE_EXTENSIONS:
+        allowed = ", ".join(settings.ALLOWED_IMAGE_EXTENSIONS)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unsupported file extension '{ext}'. Allowed extensions are: {allowed}",
+        )
+
+    # 2. Validate header & magic bytes
+    header = await file.read(16)
+    if len(header) < 4:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Empty or corrupted file uploaded.",
+        )
+
+    is_valid_header = False
+    if header.startswith(b"\xff\xd8\xff") and ext in [".jpg", ".jpeg"]:
+        is_valid_header = True
+    elif header.startswith(b"\x89PNG\r\n\x1a\n") and ext == ".png":
+        is_valid_header = True
+    elif header.startswith(b"RIFF") and len(header) >= 12 and header[8:12] == b"WEBP" and ext == ".webp":
+        is_valid_header = True
+
+    if not is_valid_header:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File content header does not match a valid image format (JPEG, PNG, WEBP).",
+        )
+
+    # 3. Read complete content and check file size limit
+    rest_content = await file.read()
+    full_content = header + rest_content
+    max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
+    if len(full_content) > max_bytes:
+        raise HTTPException(
+            status_code=413,
+            detail=f"File exceeds maximum allowed size of {settings.MAX_UPLOAD_SIZE_MB}MB.",
+        )
+
+    # 4. Validate decodability with PIL
+    try:
+        with Image.open(io.BytesIO(full_content)) as img:
+            img.verify()
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or corrupted image content.",
+        )
+
+    # 5. Run inference through singleton ModelServingService
+    try:
+        result = model_service.predict(
+            image=full_content,
+            crop=crop,
+            generate_gradcam=generate_gradcam,
+            save_heatmap=save_heatmap,
+        )
+        return result
+    except UnsupportedCropError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    except ModelNotLoadedError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Model serving error: {e}",
+        )
+    except InferenceError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Inference failure: {e}",
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unexpected model execution failure: {e}",
+        )
+
 
 
 def _get_user_crop(crop_id: int, user_id: int, db: Session) -> CropCycle:

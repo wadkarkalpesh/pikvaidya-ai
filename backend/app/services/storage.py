@@ -84,7 +84,7 @@ class StorageService:
         max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
         if len(full_content) > max_bytes:
             raise HTTPException(
-                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                status_code=413,
                 detail=f"File exceeds maximum allowed size of {settings.MAX_UPLOAD_SIZE_MB}MB.",
             )
 

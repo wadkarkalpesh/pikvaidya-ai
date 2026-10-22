@@ -1,0 +1,20 @@
+{
+  "model_architecture": "EfficientNet-B0",
+  "epochs": 1,
+  "batch_size": 32,
+  "initial_learning_rate": 0.0005,
+  "optimizer": "AdamW",
+  "scheduler": "CosineAnnealingLR",
+  "loss_function": "CrossEntropyLoss(label_smoothing=0.1)",
+  "num_classes": 5,
+  "classes": [
+    "Healthy",
+    "Mosaic",
+    "RedRot",
+    "Rust",
+    "Yellow"
+  ],
+  "device": "cpu",
+  "duration_seconds": 338.85,
+  "best_val_macro_f1": 0.9336
+}

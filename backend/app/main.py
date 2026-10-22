@@ -1,8 +1,25 @@
+import logging
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import api_router
 from app.core.config import settings
+from app.services.model_service import model_service
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifecycle manager: Pre-loads the primary ML model once at application startup."""
+    try:
+        model_service.load_model()
+        logger.info(f"Model successfully loaded at application startup: {model_service.model_version}")
+    except Exception as e:
+        logger.warning(f"Could not pre-load model at application startup: {e}")
+    yield
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -11,6 +28,7 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # Set all CORS enabled origins

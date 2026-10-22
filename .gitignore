@@ -69,3 +69,14 @@ wandb/
 
 # Uploads & Media
 uploads/
+
+# Datasets & Large Archives
+data/raw/*
+!data/raw/.gitkeep
+!data/raw/README.md
+data/processed/*
+!data/processed/.gitkeep
+*.zip
+*.tar
+*.tar.gz
+*.7z

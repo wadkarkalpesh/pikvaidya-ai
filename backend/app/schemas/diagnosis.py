@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict, Any
 from pydantic import BaseModel, ConfigDict
 from app.models.diagnosis import DiagnosisSeverity, DiagnosisStatus
 
@@ -64,3 +64,17 @@ class DiagnosisDetailResponse(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PredictResponse(BaseModel):
+    crop: str
+    predicted_class: str
+    confidence: float
+    class_scores: Dict[str, float]
+    model_version: str
+    explanation_status: str
+    heatmap_path: Optional[str] = None
+    details: Optional[Dict[str, Any]] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
