@@ -58,14 +58,16 @@ dist/
 .next/
 .out/
 
-# AI / ML models & caches (future)
+# AI / ML models & caches
 *.h5
 *.pkl
 *.pt
-*.pth
 *.onnx
 checkpoints/
 wandb/
+
+# Include trained model weights
+!models/**/*.pth
 
 # Uploads & Media
 uploads/
@@ -74,6 +76,8 @@ uploads/
 data/raw/*
 !data/raw/.gitkeep
 !data/raw/README.md
+!data/raw/*.pdf
+!data/raw/sugarcane/
 data/processed/*
 !data/processed/.gitkeep
 *.zip
