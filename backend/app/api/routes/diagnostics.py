@@ -1,9 +1,12 @@
 import io
+import logging
 from pathlib import Path
 from typing import List, Optional
 from PIL import Image
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from sqlalchemy.orm import Session
+
+logger = logging.getLogger(__name__)
 
 from app.core.config import settings
 from app.db.session import get_db
@@ -123,19 +126,22 @@ async def predict_crop_disease(
             detail=str(e),
         )
     except ModelNotLoadedError as e:
+        logger.error(f"Model serving error: {e}")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Model serving error: {e}",
+            detail="Model serving error: Diagnostic model is currently unavailable.",
         )
     except InferenceError as e:
+        logger.error(f"Inference failure: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Inference failure: {e}",
+            detail="Inference failure: Failed to execute model forward pass.",
         )
     except Exception as e:
+        logger.error(f"Unexpected model execution failure: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Unexpected model execution failure: {e}",
+            detail="An unexpected internal error occurred during model execution.",
         )
 
 

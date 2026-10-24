@@ -102,3 +102,46 @@ def test_me_with_valid_token(client: TestClient, auth_headers: dict, test_user):
     assert data["id"] == test_user.id
     assert data["email"] == test_user.email
     assert data["name"] == test_user.name
+
+
+def test_me_with_expired_token(client: TestClient, test_user):
+    from datetime import timedelta
+    from app.core.security import create_access_token
+    expired_token = create_access_token(test_user.id, expires_delta=timedelta(minutes=-30))
+    response = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {expired_token}"})
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Could not validate credentials"
+
+
+def test_me_with_invalid_signature_token(client: TestClient, test_user):
+    import jwt
+    from datetime import datetime, timedelta, timezone
+    forged_token = jwt.encode(
+        {"sub": str(test_user.id), "exp": datetime.now(timezone.utc) + timedelta(minutes=15)},
+        "completely-wrong-secret-key-12345678",
+        algorithm="HS256"
+    )
+    response = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {forged_token}"})
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Could not validate credentials"
+
+
+def test_me_with_malformed_token(client: TestClient):
+    response = client.get("/api/v1/auth/me", headers={"Authorization": "Bearer not-a-valid-jwt-token"})
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Could not validate credentials"
+
+
+def test_me_with_non_integer_sub(client: TestClient):
+    import jwt
+    from datetime import datetime, timedelta, timezone
+    from app.core.config import settings
+    token = jwt.encode(
+        {"sub": "not-an-integer", "exp": datetime.now(timezone.utc) + timedelta(minutes=15)},
+        settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM
+    )
+    response = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Could not validate credentials"
+

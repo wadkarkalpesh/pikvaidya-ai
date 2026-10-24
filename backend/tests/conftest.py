@@ -37,6 +37,21 @@ def db() -> Generator[Session, None, None]:
         Base.metadata.drop_all(bind=engine)
 
 
+@pytest.fixture(autouse=True, scope="function")
+def cleanup_test_uploads():
+    """Ensures test runs do not leave orphaned image files in uploads directory."""
+    yield
+    from pathlib import Path
+    diag_dir = Path("uploads/diagnostics")
+    if diag_dir.exists():
+        for f in diag_dir.glob("*/*"):
+            if f.is_file():
+                try:
+                    f.unlink()
+                except OSError:
+                    pass
+
+
 @pytest.fixture(scope="function")
 def client(db: Session) -> Generator[TestClient, None, None]:
     def override_get_db():

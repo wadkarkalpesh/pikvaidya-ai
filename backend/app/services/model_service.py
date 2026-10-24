@@ -58,15 +58,15 @@ class ModelServingService:
         ])
 
     def _resolve_project_root(self) -> Path:
-        """Finds the root directory of the project where models/ resides."""
+        """Finds the root directory of the project where ML models/ resides."""
         # Check current working directory
         cwd = Path.cwd()
-        if (cwd / "models").exists():
+        if (cwd / "models" / "sugarcane").exists():
             return cwd
-        # Check parent hierarchy
+        # Check parent hierarchy (avoiding backend/app/models false match)
         current = Path(__file__).resolve()
         for parent in current.parents:
-            if (parent / "models").exists():
+            if (parent / "models" / "sugarcane").exists():
                 return parent
         return cwd
 
