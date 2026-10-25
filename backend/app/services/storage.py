@@ -1,10 +1,12 @@
 import hashlib
+import io
 import os
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Tuple
 from fastapi import HTTPException, UploadFile, status
+from PIL import Image
 from app.core.config import settings
 
 # Supported MIME signatures (Magic bytes)
@@ -53,11 +55,11 @@ class StorageService:
             detail="File content header does not match a valid image format (JPEG, PNG, WEBP).",
         )
 
-    async def save_diagnostic_image(self, file: UploadFile) -> Tuple[str, str, str]:
-        """Validates, hashes, and stores an uploaded diagnostic image.
-
+    async def validate_upload_content(self, file: UploadFile) -> Tuple[bytes, str, str]:
+        """Validates filename, extension, magic byte header, size cap, and raster decodability.
+        
         Returns:
-            Tuple of (relative_storage_path, original_filename, sha256_hash)
+            Tuple of (full_content_bytes, extension, filename)
         """
         if not file.filename:
             raise HTTPException(
@@ -76,17 +78,34 @@ class StorageService:
             )
         self.validate_image_header(header, ext)
 
-        # Reset read pointer or read remainder
         rest_content = await file.read()
         full_content = header + rest_content
 
-        # Size check
         max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
         if len(full_content) > max_bytes:
             raise HTTPException(
                 status_code=413,
                 detail=f"File exceeds maximum allowed size of {settings.MAX_UPLOAD_SIZE_MB}MB.",
             )
+
+        try:
+            with Image.open(io.BytesIO(full_content)) as img:
+                img.verify()
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid or corrupted image content.",
+            )
+
+        return full_content, ext, file.filename
+
+    async def save_diagnostic_image(self, file: UploadFile) -> Tuple[str, str, str, bytes]:
+        """Validates, hashes, and stores an uploaded diagnostic image.
+
+        Returns:
+            Tuple of (relative_storage_path, original_filename, sha256_hash, full_content_bytes)
+        """
+        full_content, ext, original_filename = await self.validate_upload_content(file)
 
         # Compute SHA256
         sha256_hash = hashlib.sha256(full_content).hexdigest()
@@ -103,7 +122,8 @@ class StorageService:
             f.write(full_content)
 
         relative_path = str(destination.relative_to(self.base_dir)).replace("\\", "/")
-        return relative_path, file.filename, sha256_hash
+        return relative_path, original_filename, sha256_hash, full_content
+
 
     def remove_file(self, relative_path: str) -> bool:
         full_path = self.base_dir / relative_path

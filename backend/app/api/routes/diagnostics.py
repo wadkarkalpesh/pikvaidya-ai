@@ -28,6 +28,7 @@ from app.services.model_service import (
     UnsupportedCropError,
     InferenceError,
 )
+from app.services.diagnostic_service import diagnostic_service
 
 router = APIRouter()
 
@@ -51,75 +52,20 @@ async def predict_crop_disease(
     save_heatmap: bool = Form(True, description="Persist generated heatmap to disk"),
 ):
     """Direct model-serving endpoint. Validates file integrity, evaluates PyTorch
-
-    model inference, and optionally generates Grad-CAM visual lesion heatmaps.
+    model inference, applies confidence safety evaluation, and optionally generates
+    Grad-CAM visual lesion heatmaps. Unauthenticated, ephemeral, and does not touch
+    the farmer database.
     """
-    if not file.filename:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Filename cannot be empty.",
-        )
-
-    # 1. Validate file extension
-    ext = Path(file.filename).suffix.lower()
-    if ext not in settings.ALLOWED_IMAGE_EXTENSIONS:
-        allowed = ", ".join(settings.ALLOWED_IMAGE_EXTENSIONS)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Unsupported file extension '{ext}'. Allowed extensions are: {allowed}",
-        )
-
-    # 2. Validate header & magic bytes
-    header = await file.read(16)
-    if len(header) < 4:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Empty or corrupted file uploaded.",
-        )
-
-    is_valid_header = False
-    if header.startswith(b"\xff\xd8\xff") and ext in [".jpg", ".jpeg"]:
-        is_valid_header = True
-    elif header.startswith(b"\x89PNG\r\n\x1a\n") and ext == ".png":
-        is_valid_header = True
-    elif header.startswith(b"RIFF") and len(header) >= 12 and header[8:12] == b"WEBP" and ext == ".webp":
-        is_valid_header = True
-
-    if not is_valid_header:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="File content header does not match a valid image format (JPEG, PNG, WEBP).",
-        )
-
-    # 3. Read complete content and check file size limit
-    rest_content = await file.read()
-    full_content = header + rest_content
-    max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
-    if len(full_content) > max_bytes:
-        raise HTTPException(
-            status_code=413,
-            detail=f"File exceeds maximum allowed size of {settings.MAX_UPLOAD_SIZE_MB}MB.",
-        )
-
-    # 4. Validate decodability with PIL
     try:
-        with Image.open(io.BytesIO(full_content)) as img:
-            img.verify()
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid or corrupted image content.",
-        )
-
-    # 5. Run inference through singleton ModelServingService
-    try:
-        result = model_service.predict(
-            image=full_content,
+        result = await diagnostic_service.run_standalone_prediction(
+            file=file,
             crop=crop,
             generate_gradcam=generate_gradcam,
             save_heatmap=save_heatmap,
         )
         return result
+    except HTTPException:
+        raise
     except UnsupportedCropError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -143,7 +89,6 @@ async def predict_crop_disease(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected internal error occurred during model execution.",
         )
-
 
 
 def _get_user_crop(crop_id: int, user_id: int, db: Session) -> CropCycle:
@@ -194,68 +139,48 @@ async def create_crop_diagnosis(
     temperature: Optional[float] = Form(None, description="Ambient temperature (°C)"),
     humidity: Optional[float] = Form(None, description="Relative humidity (%)"),
     soil_moisture: Optional[float] = Form(None, description="Soil moisture level (%)"),
+    generate_gradcam: bool = Form(False, description="Generate Grad-CAM activation heatmap"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    """Submits a crop leaf photograph, validates image integrity, executes
-
-    AI pathological inference, and records the localized advisory.
+    """Submits a crop leaf photograph for an authenticated farmer's crop cycle.
+    Validates crop ownership and image integrity, verifies genuine model availability,
+    executes PyTorch inference with confidence safety gating, optionally generates Grad-CAM,
+    and records the persistent diagnosis in the database.
     """
-    crop = _get_user_crop(crop_id, current_user.id, db)
-
-    # Validate and store media file
-    storage_path, original_filename, image_hash = await storage_service.save_diagnostic_image(file)
-
-    # Perform AI disease & pest pathology inference
     try:
-        inference = await ai_service.analyze_crop_image(
-            image_path=storage_path,
-            crop_name=crop.crop,
+        diagnosis = await diagnostic_service.run_authenticated_crop_diagnosis(
+            crop_id=crop_id,
+            user_id=current_user.id,
+            file=file,
+            notes=notes,
             temperature=temperature,
             humidity=humidity,
             soil_moisture=soil_moisture,
+            generate_gradcam=generate_gradcam,
+            db=db,
+        )
+        return diagnosis
+    except HTTPException:
+        raise
+    except UnsupportedCropError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    except ModelNotLoadedError as e:
+        logger.error(f"Model serving error during authenticated diagnosis: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Model serving error: Diagnostic model is currently unavailable.",
+        )
+    except InferenceError as e:
+        logger.error(f"Inference failure during authenticated diagnosis: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Inference failure: Failed to execute model forward pass.",
         )
 
-        diagnosis = Diagnosis(
-            user_id=current_user.id,
-            crop_cycle_id=crop.id,
-            image_path=storage_path,
-            image_filename=original_filename,
-            image_hash=image_hash,
-            crop_name=crop.crop,
-            disease_name_en=inference.disease_name_en,
-            disease_name_mr=inference.disease_name_mr,
-            pathogen_type=inference.pathogen_type,
-            confidence=inference.confidence,
-            severity=inference.severity,
-            affected_area_percentage=inference.affected_area_percentage,
-            symptoms_en=inference.symptoms_en,
-            symptoms_mr=inference.symptoms_mr,
-            recommendations_en=inference.recommendations_en,
-            recommendations_mr=inference.recommendations_mr,
-            temperature=temperature,
-            humidity=humidity,
-            soil_moisture=soil_moisture,
-            status=DiagnosisStatus.COMPLETED,
-            notes=notes,
-        )
-    except Exception:
-        # Mark as failed if inference encounters an unrecoverable failure
-        diagnosis = Diagnosis(
-            user_id=current_user.id,
-            crop_cycle_id=crop.id,
-            image_path=storage_path,
-            image_filename=original_filename,
-            image_hash=image_hash,
-            crop_name=crop.crop,
-            status=DiagnosisStatus.FAILED,
-            notes=notes,
-        )
-
-    db.add(diagnosis)
-    db.commit()
-    db.refresh(diagnosis)
-    return diagnosis
 
 
 @router.get(

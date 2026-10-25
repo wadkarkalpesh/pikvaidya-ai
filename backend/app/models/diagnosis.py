@@ -22,6 +22,8 @@ class DiagnosisSeverity(str, enum.Enum):
     MILD = "MILD"
     MODERATE = "MODERATE"
     SEVERE = "SEVERE"
+    UNAVAILABLE = "UNAVAILABLE"
+    UNVALIDATED = "UNVALIDATED"
 
 
 class Diagnosis(Base):
@@ -39,6 +41,7 @@ class Diagnosis(Base):
     image_path: Mapped[str] = mapped_column(String(500), nullable=False)
     image_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     image_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    heatmap_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
     # Crop snapshot
     crop_name: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -55,10 +58,12 @@ class Diagnosis(Base):
     affected_area_percentage: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
 
     # Advisory & bilingual explanations
+    advisory_status: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     symptoms_en: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     symptoms_mr: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     recommendations_en: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     recommendations_mr: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
 
     # Environmental context telemetry
     temperature: Mapped[Optional[float]] = mapped_column(Float, nullable=True)

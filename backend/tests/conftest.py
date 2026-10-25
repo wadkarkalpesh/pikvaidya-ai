@@ -139,6 +139,21 @@ def test_farm(db: Session, test_user: User) -> Farm:
 def test_crop(db: Session, test_farm: Farm) -> CropCycle:
     crop = CropCycle(
         farm_id=test_farm.id,
+        crop="Sugarcane",
+        variety="Co 86032",
+        growth_stage="Grand Growth",
+        status="active",
+    )
+    db.add(crop)
+    db.commit()
+    db.refresh(crop)
+    return crop
+
+
+@pytest.fixture(scope="function")
+def unsupported_crop(db: Session, test_farm: Farm) -> CropCycle:
+    crop = CropCycle(
+        farm_id=test_farm.id,
         crop="Cotton",
         variety="Bt Cotton 659",
         growth_stage="Vegetative",
@@ -148,6 +163,7 @@ def test_crop(db: Session, test_farm: Farm) -> CropCycle:
     db.commit()
     db.refresh(crop)
     return crop
+
 
 
 @pytest.fixture(scope="function")

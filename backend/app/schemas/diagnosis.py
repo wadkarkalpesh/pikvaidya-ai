@@ -38,6 +38,7 @@ class DiagnosisDetailResponse(BaseModel):
     image_path: str
     image_filename: str
     image_hash: str
+    heatmap_path: Optional[str] = None
     
     # AI Diagnosis Fields
     disease_name_en: Optional[str] = None
@@ -47,7 +48,8 @@ class DiagnosisDetailResponse(BaseModel):
     severity: Optional[DiagnosisSeverity] = None
     affected_area_percentage: Optional[float] = None
     
-    # Bilingual Advisory
+    # Bilingual Advisory & Safety Status
+    advisory_status: Optional[str] = None
     symptoms_en: Optional[str] = None
     symptoms_mr: Optional[str] = None
     recommendations_en: Optional[str] = None
@@ -74,7 +76,9 @@ class PredictResponse(BaseModel):
     model_version: str
     explanation_status: str
     heatmap_path: Optional[str] = None
+    advisory_status: Optional[str] = None
     details: Optional[Dict[str, Any]] = None
 
     model_config = ConfigDict(from_attributes=True)
+
 
