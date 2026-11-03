@@ -1,5 +1,17 @@
-"""PikVaidya AI — Explainable AI (XAI) and Grad-CAM Visual Interpretability."""
+"""
+PikVaidya AI — Explainability Package
+"""
 
-from src.explainability.gradcam import GradCAM, apply_colormap_on_image
+from src.explainability.gradcam import GradCAM
+from src.explainability.visualization import (
+    jet_colormap,
+    apply_colormap_on_image,
+    create_explanation_summary,
+)
 
-__all__ = ["GradCAM", "apply_colormap_on_image"]
+__all__ = [
+    "GradCAM",
+    "jet_colormap",
+    "apply_colormap_on_image",
+    "create_explanation_summary",
+]

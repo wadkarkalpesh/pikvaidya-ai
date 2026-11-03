@@ -3,6 +3,7 @@ from app.models.user import User, UserRole
 from app.models.farm import Farm
 from app.models.crop_cycle import CropCycle
 from app.models.diagnosis import Diagnosis, DiagnosisStatus, DiagnosisSeverity
+from app.models.disease import DiseaseInformation
 
 __all__ = [
     "Base",
@@ -13,4 +14,5 @@ __all__ = [
     "Diagnosis",
     "DiagnosisStatus",
     "DiagnosisSeverity",
+    "DiseaseInformation",
 ]

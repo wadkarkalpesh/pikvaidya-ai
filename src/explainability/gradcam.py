@@ -1,96 +1,187 @@
 #!/usr/bin/env python3
 """
-PikVaidya AI — Explainable AI (Grad-CAM) Visual Explanations
-===========================================================
-Generates Gradient-weighted Class Activation Maps (Grad-CAM) for vision backbones:
- - EfficientNet-B0 (last conv feature map)
- - MobileNetV3 (last conv feature map)
- - ResNet-50 (layer4 residual block)
-Overlays visual heatmaps to verify lesion localization for Indian farmers.
+PikVaidya AI — Explainable AI (Grad-CAM) Core Engine
+===================================================
+Implementation of Gradient-weighted Class Activation Mapping (Grad-CAM)
+for deep convolutional architectures in agricultural pathology diagnosis:
+  - EfficientNet-B0 (target: final conv stage 'features[-1]')
+  - MobileNetV3-Large (target: final conv stage 'features[-1]')
+  - ResNet-50 (target: residual block 'layer4[-1]')
+
+Formulation:
+  alpha_k^c = (1 / Z) * sum_i sum_j (d Y^c / d A_{i,j}^k)
+  L_{Grad-CAM}^c = ReLU( sum_k alpha_k^c * A^k )
+
+Features:
+  - Supports both predicted-class and user-specified target-class saliency
+  - Compatible with CUDA GPU acceleration and CPU fallback
+  - Memory-leak prevention with explicit hook registration handles & context manager
+  - Numerical stability checks (finite values, min-max normalization in [0, 1])
+  - Non-destructive execution: leaves underlying model weights untouched
 """
 
+import sys
 from pathlib import Path
-from typing import Optional, Tuple
-from PIL import Image
+from typing import Dict, List, Optional, Tuple, Union
 import numpy as np
 import torch
 import torch.nn as nn
-import torchvision.transforms as T
+from PIL import Image
+
+# Re-export visualization helper for backward compatibility
+from src.explainability.visualization import apply_colormap_on_image
 
 
 class GradCAM:
-    """Hooks into target convolutional layer to compute class activation maps."""
-    def __init__(self, model: nn.Module, target_layer: nn.Module):
-        self.model = model.eval()
-        self.target_layer = target_layer
-        self.gradients = None
-        self.activations = None
-        
-        # Register forward and backward hooks
-        self.target_layer.register_forward_hook(self._forward_hook)
-        self.target_layer.register_full_backward_hook(self._backward_hook)
+    """
+    Computes Gradient-weighted Class Activation Mapping (Grad-CAM) heatmaps
+    by hooking into intermediate convolutional feature layers.
+    """
 
-    def _forward_hook(self, module, input, output):
+    def __init__(self, model: nn.Module, target_layer: Optional[nn.Module] = None):
+        """
+        Initializes GradCAM with model and target convolutional layer.
+        
+        Args:
+            model: PyTorch classification model (e.g. EfficientNet-B0).
+            target_layer: Target nn.Module layer. If None, automatically detects
+                          target_conv_layer attribute or falls back to model.features[-1].
+        """
+        self.model = model
+        self.model.eval()
+
+        # Identify target convolutional layer
+        if target_layer is not None:
+            self.target_layer = target_layer
+        elif hasattr(model, "target_conv_layer") and model.target_conv_layer is not None:
+            self.target_layer = model.target_conv_layer
+        elif hasattr(model, "features"):
+            self.target_layer = model.features[-1]
+        elif hasattr(model, "layer4"):
+            self.target_layer = model.layer4[-1]
+        else:
+            raise ValueError(
+                "Could not automatically detect target convolutional layer. "
+                "Please explicitly specify 'target_layer'."
+            )
+
+        self.target_layer_name = self._resolve_layer_name(model, self.target_layer)
+        self.activations: Optional[torch.Tensor] = None
+        self.gradients: Optional[torch.Tensor] = None
+
+        # Register forward and backward hooks with tracking handles
+        self.f_handle = self.target_layer.register_forward_hook(self._forward_hook)
+        self.b_handle = self.target_layer.register_full_backward_hook(self._backward_hook)
+
+    @staticmethod
+    def _resolve_layer_name(model: nn.Module, target_layer: nn.Module) -> str:
+        """Finds the string attribute path of the target layer within the model."""
+        for name, module in model.named_modules():
+            if module is target_layer:
+                return name
+        return "target_conv_layer"
+
+    def _forward_hook(self, module: nn.Module, input: Tuple[torch.Tensor, ...], output: torch.Tensor):
+        """Forward hook capturing feature map activations."""
         self.activations = output.detach()
 
-    def _backward_hook(self, module, grad_input, grad_output):
+    def _backward_hook(self, module: nn.Module, grad_input: Tuple[torch.Tensor, ...], grad_output: Tuple[torch.Tensor, ...]):
+        """Backward hook capturing gradients flowing back from target class score."""
         self.gradients = grad_output[0].detach()
 
-    def generate_cam(self, input_tensor: torch.Tensor, target_class: Optional[int] = None) -> np.ndarray:
-        """Computes normalized Grad-CAM heatmap for the input tensor."""
+    def remove_hooks(self):
+        """Removes registered PyTorch hooks to avoid memory leaks and overhead."""
+        if hasattr(self, "f_handle") and self.f_handle is not None:
+            self.f_handle.remove()
+            self.f_handle = None
+        if hasattr(self, "b_handle") and self.b_handle is not None:
+            self.b_handle.remove()
+            self.b_handle = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.remove_hooks()
+
+    def generate_cam(
+        self,
+        input_tensor: torch.Tensor,
+        target_class: Optional[int] = None,
+        return_details: bool = False
+    ) -> Union[np.ndarray, Tuple[np.ndarray, int, float, torch.Tensor]]:
+        """
+        Generates normalized Grad-CAM heatmap for a single input image tensor.
+
+        Args:
+            input_tensor: 4D tensor (1, C, H, W) or 3D tensor (C, H, W).
+            target_class: Integer index of target class. If None, uses argmax(logits).
+            return_details: If False (default), returns normalized 2D numpy array cam_mask.
+                            If True, returns tuple (cam_mask, pred_class, pred_conf, probs).
+
+        Returns:
+            cam_mask OR (cam_mask, pred_class, pred_conf, probs)
+        """
+        if input_tensor.dim() == 3:
+            input_tensor = input_tensor.unsqueeze(0)
+
+        device = next(self.model.parameters()).device
+        input_tensor = input_tensor.to(device)
+
+        # Clear existing gradients
         self.model.zero_grad()
-        output = self.model(input_tensor)
+        self.activations = None
+        self.gradients = None
 
-        if target_class is None:
-            target_class = torch.argmax(output, dim=1).item()
+        # Execute forward pass with gradients enabled
+        with torch.enable_grad():
+            input_tensor.requires_grad_(True)
+            logits = self.model(input_tensor)
+            probs = torch.softmax(logits, dim=1).squeeze(0)
+            pred_class = int(torch.argmax(logits, dim=1).item())
+            pred_conf = float(probs[pred_class].item())
 
-        score = output[0, target_class]
-        score.backward()
+            # Select target class score
+            selected_class = pred_class if target_class is None else int(target_class)
+            score = logits[0, selected_class]
 
-        # Global average pooling of gradients: alpha_k
-        weights = torch.mean(self.gradients, dim=(2, 3), keepdim=True)
-        # Weighted combination of forward activation maps
-        cam = torch.sum(weights * self.activations, dim=1, keepdim=True)
-        # Apply ReLU to focus only on features with a positive influence on the target class
-        cam = torch.clamp(cam, min=0)
+            # Backward pass to obtain gradients at target layer
+            score.backward(retain_graph=False)
 
-        cam = cam.squeeze().cpu().numpy()
-        # Normalize to [0, 1]
-        cam_min, cam_max = cam.min(), cam.max()
+        if self.activations is None or self.gradients is None:
+            raise RuntimeError(
+                f"Failed to capture activations or gradients at target layer '{self.target_layer_name}'. "
+                "Ensure target layer is exercised during the forward and backward passes."
+            )
+
+        # Global average pooling of gradients: alpha_k = (1/Z) * sum_i sum_j (d Y^c / d A_{i,j}^k)
+        weights = torch.mean(self.gradients, dim=(2, 3), keepdim=True)  # Shape: (1, C, 1, 1)
+
+        # Weighted combination of forward activation maps: sum_k alpha_k * A^k
+        cam = torch.sum(weights * self.activations, dim=1, keepdim=True)  # Shape: (1, 1, H, W)
+
+        # Apply ReLU to retain only positive influences on target score
+        cam = torch.clamp(cam, min=0.0)
+
+        # Convert to numpy
+        cam_np = cam.squeeze().cpu().numpy()
+
+        # Handle zero-variance / non-finite values safely
+        if not np.all(np.isfinite(cam_np)):
+            cam_np = np.nan_to_num(cam_np, nan=0.0, posinf=1.0, neginf=0.0)
+
+        cam_min, cam_max = float(cam_np.min()), float(cam_np.max())
         if cam_max > cam_min:
-            cam = (cam - cam_min) / (cam_max - cam_min)
+            cam_norm = (cam_np - cam_min) / (cam_max - cam_min)
         else:
-            cam = np.zeros_like(cam)
+            cam_norm = np.zeros_like(cam_np, dtype=np.float32)
 
-        return cam
+        # Memory cleanup
+        self.model.zero_grad()
+        if input_tensor.grad is not None:
+            input_tensor.grad.detach_()
+            input_tensor.grad.zero_()
 
-
-def apply_colormap_on_image(
-    original_img: Image.Image,
-    cam_mask: np.ndarray,
-    output_path: Optional[Path] = None,
-    alpha: float = 0.5
-) -> Image.Image:
-    """Resizes CAM mask, converts to RGB heatmap, and overlays onto the original PIL image."""
-    orig_w, orig_h = original_img.size
-    # Resize CAM to match original image dimensions using PIL
-    mask_img = Image.fromarray((cam_mask * 255).astype(np.uint8)).resize((orig_w, orig_h), Image.Resampling.BILINEAR)
-    mask_arr = np.array(mask_img, dtype=float) / 255.0
-
-    # Synthetic JET colormap in pure NumPy
-    # Red for high activation, Yellow for mid, Blue for low
-    r = np.clip(1.5 - np.abs(2.0 * mask_arr - 1.0), 0.0, 1.0)
-    g = np.clip(1.5 - np.abs(2.0 * mask_arr - 0.5), 0.0, 1.0)
-    b = np.clip(1.5 - np.abs(2.0 * mask_arr - 0.0), 0.0, 1.0)
-    heatmap = np.stack([r, g, b], axis=-1) * 255.0
-
-    orig_arr = np.array(original_img.convert("RGB"), dtype=float)
-    blended = (1.0 - alpha) * orig_arr + alpha * heatmap
-    blended = np.clip(blended, 0, 255).astype(np.uint8)
-    blended_img = Image.fromarray(blended)
-
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        blended_img.save(output_path)
-
-    return blended_img
+        if return_details:
+            return cam_norm, pred_class, pred_conf, probs.detach().cpu()
+        return cam_norm

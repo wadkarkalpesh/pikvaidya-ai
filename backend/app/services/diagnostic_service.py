@@ -13,6 +13,7 @@ from app.models.farm import Farm
 from app.models.crop_cycle import CropCycle
 from app.schemas.diagnosis import PredictResponse
 from app.services.storage import storage_service
+from app.services.segmentation_service import segmentation_service
 from app.services.model_service import (
     model_service,
     UnsupportedCropError,
@@ -47,6 +48,16 @@ EXPERT_REVIEW_NOTICE_MR = (
     "कृषी विज्ञान केंद्रातील (KVK) शास्त्रज्ञांकडून प्रत्यक्ष पानांची खात्री करून घेणे बंधनकारक आहे.]"
 )
 
+PPE_NOTICE_EN = (
+    "Mandatory PPE Notice: Wear chemical-resistant nitrile gloves, particulate face mask, and eye protection "
+    "during pesticide handling and spraying under Insecticides Rules, 1971."
+)
+
+PPE_NOTICE_MR = (
+    "अनिवार्य सुरक्षा सूचना: कीटकनाशक नियम १९७१ नुसार औषध मिसळताना व फवारताना रासायनिक हातमोजे, "
+    "मास्क आणि संरक्षणात्मक चष्मा वापरणे बंधनकारक आहे."
+)
+
 # Authoritative agricultural knowledge base for supported sugarcane pathologies
 # Citations: ICAR-Sugarcane Breeding Institute (SBI) & CIBRC Approved Package of Practices
 SUGARCANE_PATHOLOGY_KNOWLEDGE: Dict[str, Dict[str, Any]] = {
@@ -55,6 +66,7 @@ SUGARCANE_PATHOLOGY_KNOWLEDGE: Dict[str, Dict[str, Any]] = {
         "disease_name_mr": "ऊसावरील तांबडे कूज / लाल सड",
         "pathogen_type": "Fungal (Colletotrichum falcatum)",
         "authoritative_source": "ICAR-SBI Disease Management Protocols & CIBRC Fungicide Compendium",
+        "phi_days": 30,
         "symptoms_en": (
             "Red discoloration of internal vascular bundles with transverse white patches; "
             "spindle-shaped lesions along leaf midrib with dark borders."
@@ -72,11 +84,15 @@ SUGARCANE_PATHOLOGY_KNOWLEDGE: Dict[str, Dict[str, Any]] = {
         ),
         "chemical_en": (
             "Treat seed setts prior to planting with Carbendazim 50% WP @ 1g/L water sett dip for 15-20 minutes. "
-            "No chemical spray can cure established internal stalk infection in standing cane."
+            "No chemical spray can cure established internal stalk infection in standing cane. "
+            "Pre-Harvest Interval (PHI): 30 days before harvest. "
+            f"{PPE_NOTICE_EN}"
         ),
         "chemical_mr": (
             "लागवडीपूर्वी बेणे प्रक्रियेसाठी कार्बेन्डाझिम ५०% डब्ल्यूपी १ ग्रॅम/लीटर पाण्यात मिसळून १५-२० मिनिटे बेणे बुडवून ठेवा. "
-            "उभ्या उसातील आतील लाल सडवर कोणतीही रासायनिक फवारणी लागू पडत नाही."
+            "उभ्या उसातील आतील लाल सडवर कोणतीही रासायनिक फवारणी लागू पडत नाही. "
+            "काढणीपूर्वीचा कालावधी (PHI): किमान ३० दिवस. "
+            f"{PPE_NOTICE_MR}"
         ),
     },
     "Rust": {
@@ -84,6 +100,7 @@ SUGARCANE_PATHOLOGY_KNOWLEDGE: Dict[str, Dict[str, Any]] = {
         "disease_name_mr": "ऊसावरील तांबेरा रोग",
         "pathogen_type": "Fungal (Puccinia kuehnii)",
         "authoritative_source": "CIBRC Registered Fungicide Protocols for Sugarcane & ICAR-SBI",
+        "phi_days": 30,
         "symptoms_en": (
             "Small, elongate yellowish flecks that enlarge, turn reddish-brown, and rupture "
             "into powdery fungal pustules on lower leaf surfaces."
@@ -100,11 +117,14 @@ SUGARCANE_PATHOLOGY_KNOWLEDGE: Dict[str, Dict[str, Any]] = {
         ),
         "chemical_en": (
             "Apply foliar spray of Mancozeb 75% WP @ 2g/L water or Propiconazole 25% EC @ 1ml/L water at first onset "
-            "of rust pustules. Spray volume: 500-750 L/ha using a knapsack sprayer with hollow cone nozzle."
+            "of rust pustules. Spray volume: 500-750 L/ha using a knapsack sprayer with hollow cone nozzle. "
+            "Pre-Harvest Interval (PHI): 30 days. "
+            f"{PPE_NOTICE_EN}"
         ),
         "chemical_mr": (
             "तांबेऱ्याची लक्षणे दिसताच मॅन्कोझेब ७५% डब्ल्यूपी २ ग्रॅम/लीटर किंवा प्रोपिकोनाझोल २५% ईसी १ मिली/लीटर फवारा. "
-            "फवारणीसाठी प्रति हेक्टरी ५०० ते ७५० लिटर पाणी वापरावे."
+            "फवारणीसाठी प्रति हेक्टरी ५०० ते ७५० लिटर पाणी वापरावे. काढणीपूर्वीचा कालावधी (PHI): ३० दिवस. "
+            f"{PPE_NOTICE_MR}"
         ),
     },
     "Mosaic": {
@@ -112,6 +132,7 @@ SUGARCANE_PATHOLOGY_KNOWLEDGE: Dict[str, Dict[str, Any]] = {
         "disease_name_mr": "ऊसावरील मोझॅक विषाणू रोग",
         "pathogen_type": "Viral (Potyvirus transmitted by aphids)",
         "authoritative_source": "ICAR-SBI Viral Disease Management Protocol",
+        "phi_days": 21,
         "symptoms_en": (
             "Contrasting chlorotic streaks and patches of normal dark green and pale green/yellow on the leaf blade."
         ),
@@ -128,24 +149,28 @@ SUGARCANE_PATHOLOGY_KNOWLEDGE: Dict[str, Dict[str, Any]] = {
         ),
         "chemical_en": (
             "Chemicals cannot cure viral titers in infected plants. To suppress aphid vectors (Rhopalosiphum maidis), "
-            "apply Imidacloprid 17.8% SL @ 0.3ml/L water if vector populations exceed economic threshold levels."
+            "apply Imidacloprid 17.8% SL @ 0.3ml/L water if vector populations exceed economic threshold levels. "
+            "Pre-Harvest Interval (PHI): 21 days. "
+            f"{PPE_NOTICE_EN}"
         ),
         "chemical_mr": (
             "विषाणू रोगावर कोणतेही रासायनिक औषध नाही. रसशोषक मावा किडीच्या नियंत्रणासाठी इमिडाक्लोप्रिड १७.८% एसएल "
-            "०.३ मिली/लीटर पाण्यात मिसळून फवारा."
+            "०.३ मिली/लीटर पाण्यात मिसळून फवारा. काढणीपूर्वीचा कालावधी (PHI): २१ दिवस. "
+            f"{PPE_NOTICE_MR}"
         ),
     },
     "Yellow": {
         "disease_name_en": "Sugarcane Yellow Leaf Disease (SCYLV)",
         "disease_name_mr": "ऊसावरील पिवळे पान रोग (यलो लीफ)",
-        "pathogen_type": "Viral (Luteovirus transmitted by sugarcane aphid)",
-        "authoritative_source": "ICAR-SBI Sugarcane Disease Guidelines",
+        "pathogen_type": "Viral (Luteovirus transmitted by aphids)",
+        "authoritative_source": "ICAR-SBI Yellow Leaf Management Advisory",
+        "phi_days": 21,
         "symptoms_en": (
-            "Intense yellowing of the midrib on leaves 3-6, progressing outwards across the leaf blade "
-            "followed by premature drying and canopy decline."
+            "Prominent yellowing of the leaf midrib on lower surface, spreading outward to laminar tissue; "
+            "shortening of terminal internodes and bunchy top appearance."
         ),
         "symptoms_mr": (
-            "पानांच्या मधल्या शिरा तीव्र पिवळ्या पडणे आणि हळूहळू संपूर्ण पान पिवळे पडून टोकाकडून वाळणे."
+            "पानाच्या मधल्या शिरेचा खालचा भाग ठळक पिवळा पडणे आणि हा पिवळेपणा संपूर्ण पानावर पसरणे; शेंडा आकसणे."
         ),
         "cultural_en": (
             "Maintain balanced potassium and nitrogen fertigation. Avoid waterlogging and moisture stress. "
@@ -169,6 +194,7 @@ SUGARCANE_PATHOLOGY_KNOWLEDGE: Dict[str, Dict[str, Any]] = {
         "disease_name_mr": "निरोगी पीक पाने",
         "pathogen_type": "None",
         "authoritative_source": "Standard Agronomic Good Agricultural Practices (GAP)",
+        "phi_days": None,
         "symptoms_en": (
             "No pathological symptoms or foliar lesions detected. Foliage exhibits uniform chlorophyll pigmentation "
             "and normal vascular architecture."
@@ -214,12 +240,13 @@ class DiagnosticService:
     
     Orchestrates:
     1. Multi-tier image file integrity & raster validation.
-    2. Crop support checking (only genuine trained models are executed).
-    3. PyTorch model inference & Grad-CAM visual lesion explainability.
-    4. Conservative confidence threshold gating to suppress risky chemical prescriptions.
-    5. Severity estimation safety policy (explicitly reports unvalidated/unavailable).
-    6. Authoritative agronomic advisory generation with ICAR/CIBRC citations and statutory disclaimers.
-    7. Multi-tenant ownership verification and database persistence.
+    2. Out-of-distribution (OOD) foliar quality verification (rejects non-leaf uploads).
+    3. Crop support checking (only genuine trained models are executed).
+    4. PyTorch model inference & Grad-CAM visual lesion explainability.
+    5. Conservative confidence threshold gating to suppress risky chemical prescriptions.
+    6. Empirical foliar lesion segmentation & severity quantification.
+    7. Authoritative agronomic advisory generation with ICAR/CIBRC citations and statutory disclaimers.
+    8. Multi-tenant ownership verification and database persistence.
     """
 
     SUPPORTED_CROPS: Dict[str, str] = {
@@ -232,7 +259,6 @@ class DiagnosticService:
         Raises UnsupportedCropError with structured explanation if unavailable.
         """
         normalized = crop_name.strip().lower()
-        # Direct or substring check (e.g., "Sugarcane", "co 86032 sugarcane")
         for supported_key in self.SUPPORTED_CROPS:
             if supported_key in normalized:
                 return supported_key
@@ -251,6 +277,8 @@ class DiagnosticService:
         confidence: float,
         class_scores: Dict[str, float],
         heatmap_path: Optional[str] = None,
+        severity: Optional[DiagnosisSeverity] = None,
+        affected_area_percentage: Optional[float] = None,
     ) -> DiagnosticInferenceResult:
         """Applies confidence-aware safety evaluation and conservative agronomic gating.
         
@@ -261,7 +289,8 @@ class DiagnosticService:
         
         Severity policy:
         - Healthy: HEALTHY (0.0% area).
-        - Diseased: UNAVAILABLE (None area), as no image segmentation model is deployed.
+        - Diseased: If provided from empirical segmentation and high confidence, uses computed severity;
+          otherwise defaults safely to UNAVAILABLE.
         """
         conf_high = settings.CONFIDENCE_THRESHOLD_HIGH
         conf_mod = settings.CONFIDENCE_THRESHOLD_MODERATE
@@ -308,14 +337,17 @@ class DiagnosticService:
                 f"{STATUTORY_DISCLAIMER_MR}"
             )
 
+            # Use empirical segmentation if provided, else safe default
+            final_severity = severity if severity is not None else DiagnosisSeverity.UNAVAILABLE
+            final_area = affected_area_percentage if affected_area_percentage is not None else None
+
             return DiagnosticInferenceResult(
                 disease_name_en=knowledge["disease_name_en"],
                 disease_name_mr=knowledge["disease_name_mr"],
                 pathogen_type=knowledge["pathogen_type"],
                 confidence=round(confidence, 4),
-                # Explicitly unvalidated severity: no pixel-level lesion segmentation model exists
-                severity=DiagnosisSeverity.UNAVAILABLE,
-                affected_area_percentage=None,
+                severity=final_severity,
+                affected_area_percentage=final_area,
                 symptoms_en=knowledge["symptoms_en"],
                 symptoms_mr=knowledge["symptoms_mr"],
                 recommendations_en=rec_en,
@@ -438,12 +470,26 @@ class DiagnosticService:
         full_content, ext, filename = await storage_service.validate_upload_content(file)
         normalized_crop = self.check_crop_support(crop)
 
-        # Run inference through PyTorch singleton
+        # 1. Foliar vegetation validation (OOD Defense)
+        pil_img = Image.open(io.BytesIO(full_content)).convert("RGB")
+        is_valid, cov_ratio, val_msg = segmentation_service.validate_foliar_quality(pil_img)
+        if not is_valid:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=val_msg,
+            )
+
+        # 2. Run inference through PyTorch singleton
         pred = model_service.predict(
             image=full_content,
             crop=normalized_crop,
             generate_gradcam=generate_gradcam,
             save_heatmap=save_heatmap,
+        )
+
+        # 3. Empirically estimate foliar lesion severity
+        emp_severity, emp_area = segmentation_service.estimate_foliar_severity(
+            pil_img, pred["predicted_class"]
         )
 
         safety_eval = self.evaluate_safety_and_advisory(
@@ -470,6 +516,11 @@ class DiagnosticService:
                 "pathogen_type": safety_eval.pathogen_type,
                 "severity": safety_eval.severity.value,
                 "affected_area_percentage": safety_eval.affected_area_percentage,
+                "foliar_segmentation": {
+                    "foliar_coverage_ratio": round(cov_ratio, 4),
+                    "empirical_affected_area_percentage": emp_area,
+                    "empirical_severity": emp_severity.value,
+                },
                 "recommendations_en": safety_eval.recommendations_en,
                 "recommendations_mr": safety_eval.recommendations_mr,
                 "statutory_disclaimer": STATUTORY_DISCLAIMER_EN,
@@ -491,10 +542,11 @@ class DiagnosticService:
         """Executes full authenticated workflow:
         1. Checks crop cycle ownership.
         2. Validates image integrity and stores media file.
-        3. Verifies crop model availability (rejects unsupported crops).
-        4. Runs genuine PyTorch inference and optional Grad-CAM explainability.
-        5. Applies confidence-aware safety gating.
-        6. Persists Diagnosis record to database.
+        3. Verifies crop foliage quality (rejects non-foliar uploads).
+        4. Verifies crop model availability (rejects unsupported crops).
+        5. Runs genuine PyTorch inference and optional Grad-CAM explainability.
+        6. Applies confidence-aware safety gating.
+        7. Persists Diagnosis record to database.
         """
         # 1. Verify crop ownership
         crop = (
@@ -522,13 +574,27 @@ class DiagnosticService:
             await storage_service.save_diagnostic_image(file)
         )
 
-        # 4. Run model inference & safety evaluation
+        # 4. Foliar vegetation validation (OOD Defense)
+        pil_img = Image.open(io.BytesIO(full_content)).convert("RGB")
+        is_valid, cov_ratio, val_msg = segmentation_service.validate_foliar_quality(pil_img)
+        if not is_valid:
+            storage_service.remove_file(storage_path)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=val_msg,
+            )
+
+        # 5. Run model inference & safety evaluation
         try:
             pred = model_service.predict(
                 image=full_content,
                 crop=normalized_crop,
                 generate_gradcam=generate_gradcam,
                 save_heatmap=True,
+            )
+
+            emp_severity, emp_area = segmentation_service.estimate_foliar_severity(
+                pil_img, pred["predicted_class"]
             )
 
             safety_eval = self.evaluate_safety_and_advisory(
@@ -566,7 +632,6 @@ class DiagnosticService:
             )
         except Exception as e:
             logger.error(f"Inference failure during authenticated diagnosis: {e}", exc_info=True)
-            # Record failed diagnostic attempt cleanly in database
             diagnosis = Diagnosis(
                 user_id=user_id,
                 crop_cycle_id=crop.id,

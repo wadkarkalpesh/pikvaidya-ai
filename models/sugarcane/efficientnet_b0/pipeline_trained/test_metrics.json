@@ -1,0 +1,122 @@
+{
+  "model_architecture": "EfficientNet-B0",
+  "checkpoint": "models\\sugarcane\\efficientnet_b0\\pipeline_trained\\best_model.pth",
+  "test_samples": 351,
+  "overall": {
+    "accuracy": 0.7635,
+    "macro_precision": 0.773,
+    "macro_recall": 0.7638,
+    "macro_f1": 0.7649,
+    "weighted_f1": 0.7649
+  },
+  "per_class": {
+    "Healthy": {
+      "precision": 0.8382,
+      "recall": 0.7917,
+      "f1_score": 0.8143,
+      "support": 72
+    },
+    "Mosaic": {
+      "precision": 0.7069,
+      "recall": 0.7193,
+      "f1_score": 0.713,
+      "support": 57
+    },
+    "RedRot": {
+      "precision": 0.6413,
+      "recall": 0.7468,
+      "f1_score": 0.6901,
+      "support": 79
+    },
+    "Rust": {
+      "precision": 0.7973,
+      "recall": 0.8676,
+      "f1_score": 0.831,
+      "support": 68
+    },
+    "Yellow": {
+      "precision": 0.8814,
+      "recall": 0.6933,
+      "f1_score": 0.7761,
+      "support": 75
+    }
+  },
+  "confusion_matrix": [
+    [
+      57,
+      7,
+      6,
+      1,
+      1
+    ],
+    [
+      5,
+      41,
+      8,
+      1,
+      2
+    ],
+    [
+      4,
+      3,
+      59,
+      10,
+      3
+    ],
+    [
+      1,
+      2,
+      5,
+      59,
+      1
+    ],
+    [
+      1,
+      5,
+      14,
+      3,
+      52
+    ]
+  ],
+  "historical_comparison": {
+    "historical_accuracy": 0.9395,
+    "historical_macro_f1": 0.9343,
+    "delta_accuracy": -0.176,
+    "delta_macro_f1": -0.1694,
+    "comparable_splits": true,
+    "notes": "Both models evaluated on deduplicated 5-class held-out test split of the audited sugarcane dataset."
+  },
+  "misclassifications_count": 83,
+  "per_class_metrics": {
+    "Healthy": {
+      "precision": 0.8382,
+      "recall": 0.7917,
+      "f1_score": 0.8143,
+      "support": 72
+    },
+    "Mosaic": {
+      "precision": 0.7069,
+      "recall": 0.7193,
+      "f1_score": 0.713,
+      "support": 57
+    },
+    "RedRot": {
+      "precision": 0.6413,
+      "recall": 0.7468,
+      "f1_score": 0.6901,
+      "support": 79
+    },
+    "Rust": {
+      "precision": 0.7973,
+      "recall": 0.8676,
+      "f1_score": 0.831,
+      "support": 68
+    },
+    "Yellow": {
+      "precision": 0.8814,
+      "recall": 0.6933,
+      "f1_score": 0.7761,
+      "support": 75
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "class_to_idx": {
+    "Healthy": 0,
+    "Mosaic": 1,
+    "RedRot": 2,
+    "Rust": 3,
+    "Yellow": 4
+  },
+  "idx_to_class": {
+    "0": "Healthy",
+    "1": "Mosaic",
+    "2": "RedRot",
+    "3": "Rust",
+    "4": "Yellow"
+  }
+}

@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 logger = logging.getLogger(__name__)
 
 from app.core.config import settings
+from app.core.rate_limit import inference_rate_limiter
 from app.db.session import get_db
 from app.dependencies import get_current_active_user
 from app.models.user import User
@@ -37,12 +38,14 @@ router = APIRouter()
     "/diagnose/predict",
     response_model=PredictResponse,
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(inference_rate_limiter.check)],
     summary="Direct ML model inference endpoint for crop disease diagnosis",
 )
 @router.post(
     "/diagnostics/predict",
     response_model=PredictResponse,
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(inference_rate_limiter.check)],
     include_in_schema=False,
 )
 async def predict_crop_disease(
@@ -182,7 +185,6 @@ async def create_crop_diagnosis(
         )
 
 
-
 @router.get(
     "/crops/{crop_id}/diagnoses",
     response_model=List[DiagnosisSummaryResponse],
@@ -232,7 +234,6 @@ def get_diagnosis_detail(
     current_user: User = Depends(get_current_active_user),
 ):
     """Fetch complete diagnostic report including bilingual symptoms, severity,
-
     and treatment recommendations.
     """
     return _get_user_diagnosis(diagnosis_id, current_user.id, db)

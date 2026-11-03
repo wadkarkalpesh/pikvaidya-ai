@@ -1,0 +1,12 @@
+{
+  "model_architecture": "efficientnet_b0",
+  "checkpoint": "E:\\PikVaidya AI\\models\\sugarcane\\efficientnet_b0\\pipeline_trained\\best_model.pth",
+  "target_layer": "features[-1]",
+  "execution_device": "CPU",
+  "total_processed": 25,
+  "total_errors": 0,
+  "correct_count": 15,
+  "misclassified_count": 10,
+  "csv_report": "E:\\PikVaidya AI\\outputs\\pipeline\\gradcam\\reports\\batch_explanation_report.csv",
+  "errors": []
+}

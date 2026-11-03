@@ -12,6 +12,7 @@ if str(_backend_dir) not in sys.path:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import api_router
+from app.api.routes.diseases import router as diseases_router
 from app.core.config import settings
 from app.services.model_service import model_service
 
@@ -51,8 +52,11 @@ if settings.CORS_ORIGINS:
     )
 
 
-# Include API Router
+# Include API Router (under /api/v1)
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+# Also mount diseases router under /api for unversioned direct access
+app.include_router(diseases_router, prefix="/api", include_in_schema=False)
 
 
 @app.get("/", tags=["System"])

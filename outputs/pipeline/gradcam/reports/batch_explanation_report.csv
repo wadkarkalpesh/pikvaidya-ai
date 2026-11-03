@@ -1,0 +1,26 @@
+image_name,actual_class,predicted_class,confidence,correct_prediction,target_layer,execution_device,gradcam_output_path
+healthy (135).jpeg,Healthy,Healthy,0.8165,True,features[-1],CPU,outputs\pipeline\gradcam\overlays\healthy (135)_overlay.png
+healthy (291).jpeg,Healthy,Healthy,0.8144,True,features[-1],CPU,outputs\pipeline\gradcam\overlays\healthy (291)_overlay.png
+healthy (87).jpeg,Healthy,Healthy,0.7733,True,features[-1],CPU,outputs\pipeline\gradcam\overlays\healthy (87)_overlay.png
+mosaic (288).jpeg,Mosaic,Mosaic,0.8332,True,features[-1],CPU,outputs\pipeline\gradcam\overlays\mosaic (288)_overlay.png
+mosaic (398).jpeg,Mosaic,Mosaic,0.8144,True,features[-1],CPU,outputs\pipeline\gradcam\overlays\mosaic (398)_overlay.png
+mosaic (336).jpeg,Mosaic,Mosaic,0.7984,True,features[-1],CPU,outputs\pipeline\gradcam\overlays\mosaic (336)_overlay.png
+redrot (315).jpeg,RedRot,RedRot,0.9008,True,features[-1],CPU,outputs\pipeline\gradcam\overlays\redrot (315)_overlay.png
+redrot (9).jpeg,RedRot,RedRot,0.8141,True,features[-1],CPU,outputs\pipeline\gradcam\overlays\redrot (9)_overlay.png
+redrot (365).jpeg,RedRot,RedRot,0.7309,True,features[-1],CPU,outputs\pipeline\gradcam\overlays\redrot (365)_overlay.png
+rust (274).jpeg,Rust,Rust,0.9503,True,features[-1],CPU,outputs\pipeline\gradcam\overlays\rust (274)_overlay.png
+rust (228).jpeg,Rust,Rust,0.9124,True,features[-1],CPU,outputs\pipeline\gradcam\overlays\rust (228)_overlay.png
+rust (339).jpeg,Rust,Rust,0.8675,True,features[-1],CPU,outputs\pipeline\gradcam\overlays\rust (339)_overlay.png
+yellow (462).jpeg,Yellow,Yellow,0.9836,True,features[-1],CPU,outputs\pipeline\gradcam\overlays\yellow (462)_overlay.png
+yellow (415).jpeg,Yellow,Yellow,0.8541,True,features[-1],CPU,outputs\pipeline\gradcam\overlays\yellow (415)_overlay.png
+yellow (176).jpeg,Yellow,Yellow,0.8430,True,features[-1],CPU,outputs\pipeline\gradcam\overlays\yellow (176)_overlay.png
+healthy (409).jpeg,Healthy,Mosaic,0.3864,False,features[-1],CPU,outputs\pipeline\gradcam\overlays\healthy (409)_overlay.png
+healthy (250).jpeg,Healthy,Yellow,0.5107,False,features[-1],CPU,outputs\pipeline\gradcam\overlays\healthy (250)_overlay.png
+healthy (464).jpeg,Healthy,Mosaic,0.3431,False,features[-1],CPU,outputs\pipeline\gradcam\overlays\healthy (464)_overlay.png
+healthy (505).jpeg,Healthy,RedRot,0.4862,False,features[-1],CPU,outputs\pipeline\gradcam\overlays\healthy (505)_overlay.png
+healthy (402).jpeg,Healthy,RedRot,0.4841,False,features[-1],CPU,outputs\pipeline\gradcam\overlays\healthy (402)_overlay.png
+healthy (480).jpeg,Healthy,Mosaic,0.3072,False,features[-1],CPU,outputs\pipeline\gradcam\overlays\healthy (480)_overlay.png
+healthy (20).jpeg,Healthy,RedRot,0.3107,False,features[-1],CPU,outputs\pipeline\gradcam\overlays\healthy (20)_overlay.png
+healthy (504).jpeg,Healthy,RedRot,0.5022,False,features[-1],CPU,outputs\pipeline\gradcam\overlays\healthy (504)_overlay.png
+healthy (507).jpeg,Healthy,RedRot,0.4700,False,features[-1],CPU,outputs\pipeline\gradcam\overlays\healthy (507)_overlay.png
+healthy (450).jpeg,Healthy,Mosaic,0.2882,False,features[-1],CPU,outputs\pipeline\gradcam\overlays\healthy (450)_overlay.png
