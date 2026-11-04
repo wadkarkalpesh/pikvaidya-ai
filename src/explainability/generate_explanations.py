@@ -89,7 +89,7 @@ def find_checkpoint(user_path: Optional[str] = None) -> Path:
 def load_model_from_checkpoint(
     checkpoint_path: Path,
     device: torch.device,
-    model_name: str = "efficientnet_b0"
+    model_name: Optional[str] = None
 ) -> Tuple[nn.Module, Dict[int, str], Dict[str, int]]:
     """Loads model architecture and restores weights from checkpoint."""
     logger.info(f"Loading checkpoint: {checkpoint_path}")
@@ -105,6 +105,16 @@ def load_model_from_checkpoint(
         class_names = ["Healthy", "Mosaic", "RedRot", "Rust", "Yellow"]
         idx_to_class = {i: c for i, c in enumerate(class_names)}
         class_to_idx = {c: i for i, c in enumerate(class_names)}
+
+    # Resolve architecture
+    if not model_name:
+        ckpt_arch = checkpoint.get("model_name", "").lower()
+        if "mobilenet" in ckpt_arch:
+            model_name = "mobilenet_v3"
+        elif "resnet" in ckpt_arch:
+            model_name = "resnet50"
+        else:
+            model_name = "efficientnet_b0"
 
     num_classes = len(idx_to_class)
     model = build_model(model_name, num_classes=num_classes, pretrained=False)

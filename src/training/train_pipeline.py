@@ -129,6 +129,7 @@ def evaluate_split(
 def run_pipeline_training(
     manifest_dir: Path,
     output_dir: Path,
+    arch: str = "efficientnet_b0",
     seed: int = 42,
     batch_size: int = 32,
     head_epochs: int = 3,
@@ -158,13 +159,7 @@ def run_pipeline_training(
             device = torch.device("cpu")
             device_str = "CPU (Fallback: torch compiled without CUDA)"
 
-    print("\n" + "=" * 80)
-    print("  PIKVAIDYA AI: COMPLETE MODEL TRAINING PIPELINE")
-    print(f"  Architecture: EfficientNet-B0 | Hardware: {device_str}")
-    print(f"  Artifact Output: {output_dir.resolve()}")
-    print("=" * 80)
-
-    # 2. Load Manifests & Datasets
+    # 2. Build Model with Pretrained ImageNet Weights
     mapping_path = manifest_dir / "class_mapping.json"
     with open(mapping_path, "r", encoding="utf-8") as fp:
         mapping = json.load(fp)
@@ -172,6 +167,17 @@ def run_pipeline_training(
     class_names = [mapping["idx_to_class"][str(i)] for i in range(len(class_to_idx))]
     num_classes = len(class_names)
 
+    print("\n" + "=" * 80)
+    print("  PIKVAIDYA AI: COMPLETE MODEL TRAINING PIPELINE")
+    print(f"  Target Architecture: {arch.upper()} | Hardware: {device_str}")
+    print(f"  Artifact Output:     {output_dir.resolve()}")
+    print("=" * 80)
+
+    model = build_model(arch, num_classes=num_classes, pretrained=True)
+    model.to(device)
+    arch_display = getattr(model, "arch_name", arch)
+
+    # 3. Load Manifests & Datasets
     train_dataset = SugarcaneDataset(str(manifest_dir / "train_manifest.csv"), transform=get_transforms("train"))
     val_dataset = SugarcaneDataset(str(manifest_dir / "val_manifest.csv"), transform=get_transforms("val"))
 
@@ -183,15 +189,10 @@ def run_pipeline_training(
     print(f"  Validation Samples: {len(val_dataset)}")
     print(f"  Classes ({num_classes}):      {', '.join(class_names)}")
 
-    # 3. Class Imbalance Handling
+    # 4. Class Imbalance Handling
     class_weights = calculate_class_weights(train_dataset, num_classes).to(device)
     print(f"[Loss Function] Class Weights for CrossEntropy: {[round(w, 3) for w in class_weights.tolist()]}")
     criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=0.1)
-
-    # 4. Build Model with Pretrained ImageNet Weights
-    print("\n[Model Initialization] Loading EfficientNet-B0 with ImageNet-1K pretrained weights...")
-    model = build_model("efficientnet_b0", num_classes=num_classes, pretrained=True)
-    model.to(device)
 
     history = {
         "epoch": [],
@@ -250,13 +251,13 @@ def run_pipeline_training(
         if is_best:
             best_val_f1 = v_f1
             best_epoch = ep
-            _save_checkpoint(output_dir, model, optimizer_head, ep, v_f1, v_acc, class_to_idx, mapping["idx_to_class"])
+            _save_checkpoint(output_dir, model, optimizer_head, ep, v_f1, v_acc, class_to_idx, mapping["idx_to_class"], arch_display)
 
     # -------------------------------------------------------------
     # STAGE 2: Top Convolutional Block Fine-Tuning (features[-1])
     # -------------------------------------------------------------
     print(f"\n[Stage 2/2] Fine-tuning Top Conv Block features[-1] + Classifier ({finetune_epochs} epochs, lr={finetune_lr})...")
-    # Unfreeze final conv stage (block 8)
+    # Unfreeze final conv stage
     for param in model.features[-1].parameters():
         param.requires_grad = True
 
@@ -292,7 +293,7 @@ def run_pipeline_training(
         if is_best:
             best_val_f1 = v_f1
             best_epoch = ep
-            _save_checkpoint(output_dir, model, optimizer_ft, ep, v_f1, v_acc, class_to_idx, mapping["idx_to_class"])
+            _save_checkpoint(output_dir, model, optimizer_ft, ep, v_f1, v_acc, class_to_idx, mapping["idx_to_class"], arch_display)
 
     total_time = time.time() - start_time
     print("-" * 80)
@@ -303,10 +304,11 @@ def run_pipeline_training(
 
     # 5. Save Training Artifacts
     config_dict = {
-        "model_architecture": "EfficientNet-B0",
+        "model_architecture": arch_display,
+        "arch_key": arch,
         "num_classes": num_classes,
         "input_resolution": [224, 224],
-        "pretrained_weights": "EfficientNet_B0_Weights.DEFAULT (ImageNet-1K)",
+        "pretrained_weights": f"{arch_display} ImageNet-1K pretrained weights",
         "seed": seed,
         "batch_size": batch_size,
         "total_epochs": total_epochs,
@@ -337,11 +339,11 @@ def run_pipeline_training(
     return config_dict
 
 
-def _save_checkpoint(output_dir, model, optimizer, epoch, val_f1, val_acc, class_to_idx, idx_to_class):
+def _save_checkpoint(output_dir, model, optimizer, epoch, val_f1, val_acc, class_to_idx, idx_to_class, model_name="VisionModel"):
     """Safely saves model checkpoint with full metadata."""
     ckpt = {
         "epoch": epoch,
-        "model_name": "EfficientNet-B0",
+        "model_name": model_name,
         "state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
         "val_macro_f1": float(val_f1),
@@ -354,8 +356,9 @@ def _save_checkpoint(output_dir, model, optimizer, epoch, val_f1, val_acc, class
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="PikVaidya AI — Complete ML Pipeline Training")
+    parser.add_argument("--arch", type=str, default="efficientnet_b0", choices=["efficientnet_b0", "mobilenet_v3", "resnet50"])
     parser.add_argument("--manifest-dir", type=str, default="datasets/processed/sugarcane")
-    parser.add_argument("--output-dir", type=str, default="models/sugarcane/efficientnet_b0/pipeline_trained")
+    parser.add_argument("--output-dir", type=str, default=None)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--head-epochs", type=int, default=3)
@@ -365,9 +368,12 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, default="auto")
     args = parser.parse_args()
 
+    out_dir = Path(args.output_dir) if args.output_dir else Path(f"models/sugarcane/{args.arch}/pipeline_trained")
+
     run_pipeline_training(
         manifest_dir=Path(args.manifest_dir),
-        output_dir=Path(args.output_dir),
+        output_dir=out_dir,
+        arch=args.arch,
         seed=args.seed,
         batch_size=args.batch_size,
         head_epochs=args.head_epochs,

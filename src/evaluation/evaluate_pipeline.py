@@ -2,13 +2,13 @@
 """
 PikVaidya AI — Pipeline Model Evaluation & Empirical Benchmark Engine
 =====================================================================
-Evaluates trained EfficientNet-B0 checkpoint on the untouched test set:
+Evaluates trained vision checkpoints (EfficientNet-B0, MobileNetV3-Large, ResNet-50)
+on the untouched test set:
   - Accuracy, Precision (Macro/Weighted), Recall (Macro/Weighted), F1 (Macro/Weighted)
-  - Full scikit-learn classification report
   - 5x5 Confusion matrix exported to CSV
   - Per-class precision, recall, F1, and support analysis
   - Misclassification analysis with sample metadata and confidence
-  - Comparative benchmark against historical 93.95% accuracy baseline
+  - Confidence calibration: Expected Calibration Error (ECE) and Temperature Scaling (T*)
 """
 
 import os
@@ -17,7 +17,7 @@ import csv
 import json
 import argparse
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -32,12 +32,15 @@ from torch.utils.data import DataLoader
 from src.data.dataset import SugarcaneDataset, get_transforms
 from src.training.models import build_model
 from src.evaluation.metrics import compute_classification_metrics
+from src.evaluation.calibration import TemperatureScaler, evaluate_calibration
 
 
 def run_pipeline_evaluation(
     checkpoint_path: Path,
     manifest_path: Path,
     output_dir: Path,
+    val_manifest_path: Optional[Path] = None,
+    arch: Optional[str] = None,
     device_arg: str = "auto"
 ) -> Dict[str, Any]:
     """Runs rigorous empirical evaluation on the held-out test set."""
@@ -64,16 +67,28 @@ def run_pipeline_evaluation(
     class_names = [idx_to_class[str(i)] for i in range(len(class_to_idx))]
     num_classes = len(class_names)
 
-    model = build_model("efficientnet_b0", num_classes=num_classes, pretrained=False)
+    # Detect architecture
+    arch_key = arch
+    if not arch_key:
+        ckpt_name = checkpoint.get("model_name", "").lower()
+        if "mobilenet" in ckpt_name:
+            arch_key = "mobilenet_v3"
+        elif "resnet" in ckpt_name:
+            arch_key = "resnet50"
+        else:
+            arch_key = "efficientnet_b0"
+
+    model = build_model(arch_key, num_classes=num_classes, pretrained=False)
     state_dict = checkpoint.get("state_dict", checkpoint)
     model.load_state_dict(state_dict)
     model.to(device)
     model.eval()
+    arch_display = getattr(model, "arch_name", arch_key)
 
     # 2. Test DataLoader
     test_dataset = SugarcaneDataset(str(manifest_path), transform=get_transforms("test"))
     test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, num_workers=0)
-    print(f"\n[Test Set] Evaluating {len(test_dataset)} untouched held-out samples...")
+    print(f"\n[Test Set] Evaluating {len(test_dataset)} untouched held-out samples with {arch_display}...")
 
     all_preds, all_labels, all_probs, all_paths = [], [], [], []
 
@@ -89,7 +104,7 @@ def run_pipeline_evaluation(
             all_probs.extend(probs.cpu().tolist())
             all_paths.extend(paths)
 
-    # 3. Compute Metrics
+    # 3. Compute Classification Performance Metrics
     perf = compute_classification_metrics(all_labels, all_preds, class_names)
     acc = perf["accuracy"]
     p_macro = perf["macro_precision"]
@@ -114,19 +129,31 @@ def run_pipeline_evaluation(
                 "ground_truth_confidence": round(true_conf, 4)
             })
 
-    # 5. Comparative Analysis against Historical Model (93.95% acc, 93.43% macro-F1)
-    historical_benchmark = {
-        "historical_accuracy": 0.9395,
-        "historical_macro_f1": 0.9343,
-        "delta_accuracy": round(acc - 0.9395, 4),
-        "delta_macro_f1": round(f1_macro - 0.9343, 4),
-        "comparable_splits": True,
-        "notes": "Both models evaluated on deduplicated 5-class held-out test split of the audited sugarcane dataset."
-    }
+    # 5. Confidence Calibration (ECE & Temperature Scaling)
+    if val_manifest_path is None:
+        default_val = manifest_path.parent / "val_manifest.csv"
+        if default_val.exists():
+            val_manifest_path = default_val
+
+    calib_metrics = None
+    scaler = None
+    if val_manifest_path and val_manifest_path.exists():
+        print(f"\n[Calibration] Tuning Temperature Scaling on validation set ({val_manifest_path})...")
+        val_dataset = SugarcaneDataset(str(val_manifest_path), transform=get_transforms("val"))
+        val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=0)
+        scaler = TemperatureScaler(initial_temp=1.0)
+        opt_temp = scaler.fit(model, val_loader, device)
+
+        calib_metrics = evaluate_calibration(model, scaler, test_loader, device, n_bins=10)
+        calib_metrics["optimal_temperature"] = round(opt_temp, 4)
+
+        calib_json = output_dir / "calibration_metrics.json"
+        with open(calib_json, "w", encoding="utf-8") as fp:
+            json.dump(calib_metrics, fp, indent=2)
 
     # 6. Format Terminal Summary
     print("\n" + "=" * 65)
-    print("  OVERALL TEST SET PERFORMANCE")
+    print(f"  OVERALL TEST SET PERFORMANCE: {arch_display.upper()}")
     print("=" * 65)
     print(f"  Test Accuracy:        {acc * 100:.2f}%")
     print(f"  Macro Precision:      {p_macro:.4f}")
@@ -136,6 +163,11 @@ def run_pipeline_evaluation(
     print(f"  Total Test Samples:   {len(test_dataset)}")
     print(f"  Correct Samples:      {len(test_dataset) - len(misclassifications)}")
     print(f"  Misclassified:        {len(misclassifications)}")
+    if calib_metrics:
+        print(f"  Uncalibrated ECE (T=1.0): {calib_metrics['uncalibrated']['ece']:.4f}")
+        if 'calibrated' in calib_metrics:
+            print(f"  Calibrated ECE (T={calib_metrics['optimal_temperature']:.3f}):   {calib_metrics['calibrated']['ece']:.4f} "
+                  f"(Reduction: {calib_metrics['calibrated']['ece_reduction_pct']}%)")
     print("-" * 65)
 
     print("\n[Per-Class Performance Summary]")
@@ -163,7 +195,7 @@ def run_pipeline_evaluation(
 
     # 9. Save Comprehensive JSON Metrics
     full_metrics = {
-        "model_architecture": "EfficientNet-B0",
+        "model_architecture": arch_display,
         "checkpoint": str(checkpoint_path),
         "test_samples": len(test_dataset),
         "overall": {
@@ -175,9 +207,8 @@ def run_pipeline_evaluation(
         },
         "per_class": per_class_summary,
         "confusion_matrix": cm,
-        "historical_comparison": historical_benchmark,
         "misclassifications_count": len(misclassifications),
-        "per_class_metrics": per_class_summary
+        "calibration": calib_metrics
     }
 
     metrics_json = output_dir / "test_metrics.json"
@@ -188,6 +219,8 @@ def run_pipeline_evaluation(
     print(f"  - Metrics JSON:        {metrics_json}")
     print(f"  - Confusion Matrix:    {cm_csv}")
     print(f"  - Misclassifications:  {misc_csv}")
+    if calib_metrics:
+        print(f"  - Calibration Metrics: {output_dir / 'calibration_metrics.json'}")
     print("=" * 80 + "\n")
 
     return full_metrics
@@ -196,15 +229,18 @@ def run_pipeline_evaluation(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="PikVaidya AI — Pipeline Evaluation")
     parser.add_argument("--checkpoint", type=str, required=True)
+    parser.add_argument("--arch", type=str, default=None)
     parser.add_argument("--manifest", type=str, default="datasets/processed/sugarcane/test_manifest.csv")
-    parser.add_argument("--output-dir", type=str, default="models/sugarcane/efficientnet_b0/pipeline_trained")
+    parser.add_argument("--val-manifest", type=str, default="datasets/processed/sugarcane/val_manifest.csv")
+    parser.add_argument("--output-dir", type=str, default="models/sugarcane/mobilenet_v3/pipeline_trained")
     parser.add_argument("--device", type=str, default="auto")
     args = parser.parse_args()
 
     run_pipeline_evaluation(
         checkpoint_path=Path(args.checkpoint),
         manifest_path=Path(args.manifest),
+        val_manifest_path=Path(args.val_manifest),
         output_dir=Path(args.output_dir),
+        arch=args.arch,
         device_arg=args.device
     )
-
