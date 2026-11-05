@@ -125,3 +125,4 @@ All components have been tested with pytest across unit, integration, and real-a
 - `backend/tests/` (Full backend suite): **98 passed in 53.92s**
 - `tests/` (ML core suite): **15 passed in 14.66s**
 - **Total Test Success:** **113 / 113 Tests Passed (0 Failures, 0 Errors)**
+

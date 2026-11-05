@@ -78,3 +78,4 @@ async def get_farm_microclimate(
             "hi": assessment.summary_hi,
         },
     )
+

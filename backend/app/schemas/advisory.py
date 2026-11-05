@@ -71,3 +71,4 @@ class ContextualAdvisoryResponse(BaseModel):
     reference_sources: List[Dict[str, str]]
 
     model_config = ConfigDict(from_attributes=True)
+
