@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.routes import auth, farmer, farms, crops, diagnostics, diseases
+from app.api.routes import auth, farmer, farms, crops, diagnostics, diseases, advisory
 
 api_router = APIRouter()
 api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
@@ -8,4 +8,4 @@ api_router.include_router(farms.router, prefix="/farms", tags=["Farm Management"
 api_router.include_router(crops.router, tags=["Crop-Cycle Management"])
 api_router.include_router(diagnostics.router, tags=["Crop Diagnostics"])
 api_router.include_router(diseases.router, tags=["Disease Knowledge Base"])
-
+api_router.include_router(advisory.router, tags=["Agricultural Advisory Engine"])

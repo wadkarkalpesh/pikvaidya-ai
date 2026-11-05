@@ -12,8 +12,11 @@ from app.models.diagnosis import Diagnosis, DiagnosisStatus, DiagnosisSeverity
 from app.models.farm import Farm
 from app.models.crop_cycle import CropCycle
 from app.schemas.diagnosis import PredictResponse
+from app.schemas.advisory import AdvisoryGenerateRequest
 from app.services.storage import storage_service
 from app.services.segmentation_service import segmentation_service
+from app.services.weather_service import weather_service
+from app.services.recommendation_engine import recommendation_engine
 from app.services.model_service import (
     model_service,
     UnsupportedCropError,
@@ -500,6 +503,21 @@ class DiagnosticService:
             heatmap_path=pred.get("heatmap_path"),
         )
 
+        # 4. Synthesize end-to-end Context-Aware Advisory
+        advisory_req = AdvisoryGenerateRequest(
+            crop_name=normalized_crop,
+            predicted_disease=pred["predicted_class"],
+            confidence=pred["confidence"],
+            severity=emp_severity.value,
+            affected_area_percentage=emp_area,
+        )
+        try:
+            adv_res = await recommendation_engine.generate_advisory(advisory_req)
+            adv_dict = adv_res.model_dump()
+        except Exception as adv_err:
+            logger.warning(f"Advisory generation fallback: {adv_err}")
+            adv_dict = None
+
         return PredictResponse(
             crop=normalized_crop,
             predicted_class=pred["predicted_class"],
@@ -523,6 +541,7 @@ class DiagnosticService:
                 },
                 "recommendations_en": safety_eval.recommendations_en,
                 "recommendations_mr": safety_eval.recommendations_mr,
+                "contextual_advisory": adv_dict,
                 "statutory_disclaimer": STATUTORY_DISCLAIMER_EN,
             },
         )
@@ -584,7 +603,20 @@ class DiagnosticService:
                 detail=val_msg,
             )
 
-        # 5. Run model inference & safety evaluation
+        # 5. Auto-resolve ambient microclimate if not manually supplied
+        if temperature is None or humidity is None:
+            farm_lat = crop.farm.latitude if crop.farm else None
+            farm_lon = crop.farm.longitude if crop.farm else None
+            try:
+                weather_data = await weather_service.get_current_weather(farm_lat, farm_lon)
+                if temperature is None:
+                    temperature = weather_data.temperature_c
+                if humidity is None:
+                    humidity = weather_data.relative_humidity_pct
+            except Exception as w_err:
+                logger.warning(f"Could not auto-fetch weather for farm: {w_err}")
+
+        # 6. Run model inference & safety evaluation
         try:
             pred = model_service.predict(
                 image=full_content,
@@ -605,6 +637,29 @@ class DiagnosticService:
                 heatmap_path=pred.get("heatmap_path"),
             )
 
+            # Synthesize context-aware recommendations fusing microclimate
+            rec_en = safety_eval.recommendations_en
+            rec_mr = safety_eval.recommendations_mr
+            try:
+                advisory_req = AdvisoryGenerateRequest(
+                    crop_name=normalized_crop,
+                    predicted_disease=pred["predicted_class"],
+                    confidence=pred["confidence"],
+                    severity=emp_severity.value,
+                    affected_area_percentage=emp_area,
+                    crop_stage=crop.growth_stage,
+                    temperature=temperature,
+                    humidity=humidity,
+                    latitude=crop.farm.latitude if crop.farm else None,
+                    longitude=crop.farm.longitude if crop.farm else None,
+                )
+                adv_res = await recommendation_engine.generate_advisory(advisory_req, db=db)
+                if adv_res and adv_res.overview.get("en"):
+                    rec_en = f"{adv_res.overview.get('en')}\n\n• Spray Directive: {adv_res.spray_window_directive.get('en')}\n\n{safety_eval.recommendations_en}"
+                    rec_mr = f"{adv_res.overview.get('mr')}\n\n• फवारणी सल्ला: {adv_res.spray_window_directive.get('mr')}\n\n{safety_eval.recommendations_mr}"
+            except Exception as adv_err:
+                logger.warning(f"Context advisory synthesis fallback: {adv_err}")
+
             diagnosis = Diagnosis(
                 user_id=user_id,
                 crop_cycle_id=crop.id,
@@ -622,8 +677,8 @@ class DiagnosticService:
                 advisory_status=safety_eval.advisory_status,
                 symptoms_en=safety_eval.symptoms_en,
                 symptoms_mr=safety_eval.symptoms_mr,
-                recommendations_en=safety_eval.recommendations_en,
-                recommendations_mr=safety_eval.recommendations_mr,
+                recommendations_en=rec_en,
+                recommendations_mr=rec_mr,
                 temperature=temperature,
                 humidity=humidity,
                 soil_moisture=soil_moisture,
