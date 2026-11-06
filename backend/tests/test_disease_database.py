@@ -21,14 +21,20 @@ from app.schemas.disease import DiseaseCreate
 
 
 def test_seed_and_list_diseases(db: Session, client: TestClient):
-    """Verifies that the database seeds the 5 sugarcane categories with complete metadata."""
+    """Verifies that the database seeds multi-crop categories with complete metadata."""
     seeded = disease_service.seed_default_diseases(db)
-    assert seeded == 5, f"Expected 5 seeded records, got {seeded}"
+    assert seeded == 15, f"Expected 15 seeded records, got {seeded}"
 
-    diseases = disease_service.get_diseases(db)
-    assert len(diseases) == 5
+    diseases = disease_service.get_diseases(db, limit=100)
+    assert len(diseases) == 15
 
-    disease_ids = {d.disease_id for d in diseases}
+    sugarcane_diseases = disease_service.get_diseases(db, crop_name="sugarcane")
+    assert len(sugarcane_diseases) == 5
+
+    tomato_diseases = disease_service.get_diseases(db, crop_name="tomato")
+    assert len(tomato_diseases) == 10
+
+    disease_ids = {d.disease_id for d in sugarcane_diseases}
     expected_ids = {
         "sugarcane_healthy",
         "sugarcane_mosaic",

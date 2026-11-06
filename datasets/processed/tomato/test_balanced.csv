@@ -1,0 +1,401 @@
+image_path,class_name,label_idx,is_field_image
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\41c19027-19ba-494d-9b58-68feccf5987d___YLCV_NREC 2172.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\d41e126d-fc0d-4224-96e0-2d5ae074e4ac___RS_HL 9933.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\6e673a0a-ad79-489d-bd0a-d96479fd81b5___RS_Erly.B 7441.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\debe033e-a878-46dc-8336-8bc25811df35___GH_HL Leaf 303.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\203d84bc-4acc-4cad-b4f9-f659ae641876___RS_Erly.B 7615.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\593b7742-d651-4521-b2c1-5ddf5cffd2ff___Com.G_TgS_FL 0846.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\bd0d0b69-ef6e-43d9-b65c-b01e3b1f8e39___Matt.S_CG 1012.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\739ccd84-1026-4871-8f5c-2320c205fe2e___PSU_CG 2399.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\70ef2f0f-3070-443d-b94f-983b87b41791___RS_Erly.B 9385.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\eccec242-1036-436b-86f2-b3f8e4143615___Com.G_TgS_FL 7976.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\86965ac5-b790-4218-a3c6-216d10da5211___PSU_CG 2066.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\9f7be972-e41d-4732-be14-8e465f622223___YLCV_NREC 2780.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\73045f6c-d0c7-43a3-a229-1f521a7ff33f___Crnl_L.Mold 8851.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\3b3193c5-e717-4b40-b450-7ee5c6e22d1a___RS_Erly.B 9382.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\64d0749a-a83f-41da-a321-b03d61167454___RS_Erly.B 7846.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\29587a7b-a64d-4d2e-8fab-d0ec587e8ecd___GHLB2 Leaf 9081.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\7d1cbe82-bda7-498a-ac8f-f01a0e279940___RS_HL 9639.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\9fedd168-0c92-4620-8dd1-28c28ba94844___JR_Sept.L.S 2559.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\efd2cbd0-24dc-4c09-92b1-37963ae84721___PSU_CG 2379.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\2f8099f2-6966-44f7-a938-227e08a79c80___YLCV_NREC 2375.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\f2c4d017-4a10-4a16-822a-becf33bc6bf6___Matt.S_CG 1698.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\bd968a32-63e8-4f39-a379-c2e469622250___GCREC_Bact.Sp 3496.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\5f6523e1-d5f2-44d9-a4a3-ae4a72a8a6cd___PSU_CG 2237.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\f42103cc-e7e6-4b18-97cb-e78b1bf0395f___Crnl_L.Mold 6819.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\be485aa1-5ab6-45d4-931c-e9d90a7b5488___GCREC_Bact.Sp 3455.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\2f1b0a5b-05ed-41b7-bd44-6f291f7ccc43___GCREC_Bact.Sp 3665.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\bcb6edf4-271f-4b6c-bdc9-c68c1f63795f___UF.GRC_YLCV_Lab 01965.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\7af3e6d8-ed22-4ca0-8244-68fab4bca2bf___UF.GRC_YLCV_Lab 02375.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\6e5d20d1-485c-431f-8e3b-d9af7b28ee92___Com.G_TgS_FL 0656.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\8a4dc6f9-2f54-4bdd-957f-d9fb709e1b26___GH_HL Leaf 302.1.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\b71a5d29-e7db-4be7-b919-e41a035c3928___PSU_CG 2212.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\d9d2d7ca-3301-4174-aec5-b4578682b0d9___Com.G_TgS_FL 8181.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\97f800c6-092e-4983-abea-c02c1c64970e___Matt.S_CG 0710.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\e4a916fa-f59f-42cc-84a3-41d11293c73a___Crnl_L.Mold 9051.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\a39b7724-9f6b-4d58-a80c-d9dcea99defe___Matt.S_CG 6184.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\465b62a2-faff-4309-a9c7-1ac7663f47fd___Crnl_L.Mold 6964.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\9580a3c7-f614-4f5c-b660-8b9525865917___Keller.St_CG 1858.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\f401bc9a-3136-40cd-8a6b-99308e7de798___RS_Late.B 5004.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\5d218af0-e5cf-43b7-acce-de9f86baa690___Com.G_SpM_FL 9272.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\ce4b766d-d0c1-4acb-98f7-93750016c47b___Com.G_TgS_FL 8330.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\1f675039-385d-4438-b157-db0c95673580___PSU_CG 2100.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\f0eb00dc-22da-4c8b-b86d-72157ea9e71d___RS_Erly.B 9610.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\b6bdfe3b-7cb9-48e1-86b2-4ccaf3770af1___RS_Erly.B 9477.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\b637932e-ac61-448a-b0d6-cabd8b444d27___PSU_CG 2407.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\43eb2436-bdba-4f67-8f51-d92c8f040690___GHLB2ES Leaf 141.1.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\247444c2-846f-4626-9c69-762c6f278538___GCREC_Bact.Sp 3452.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\a5bdf9e4-dd03-4328-a0fd-5e269f0929ed___Com.G_SpM_FL 9508.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\8bfd27c6-f744-4039-ae87-e856bbaf4ca5___UF.GRC_YLCV_Lab 09483.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\d3ebceea-8021-4168-85a4-27ef48cdaacb___RS_Erly.B 7857.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\6c65f54e-41fe-4865-977a-524421d5fca3___Crnl_L.Mold 9040.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\c77e7d66-adfe-4ef1-b34a-62703d1e4748___Com.G_TgS_FL 1049.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\f5cef24e-7c7d-4394-b6b8-bf183f23eb74___Com.G_TgS_FL 0674.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\c23f7713-d301-4952-852e-dad07536aace___Com.G_SpM_FL 1764.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\b7b39e7d-16ca-4b55-9b3a-9bd68b746055___RS_Erly.B 7386.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\bce32f04-c236-45ed-b636-c92721eb5892___Keller.St_CG 1934.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\88e7f3bd-69e4-48b1-a6c4-10e5bded113a___Crnl_L.Mold 6514.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\998dafd6-dac5-41f7-84d9-f96c9593dda3___RS_Late.B 7075.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\354777cd-2631-4633-a227-37a7c823a1e1___Com.G_SpM_FL 8727.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\53853659-7886-4d19-87a0-65318154b8e2___Crnl_L.Mold 8865.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\4c5f5a51-0ea2-477b-a0bf-e0d511f53e87___RS_Erly.B 6397.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\b2ecc0ad-1b95-4555-8c8e-ac38f0944c5f___RS_Late.B 4871.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\2586a260-ecf6-40e8-aa11-4b8a50845575___RS_Erly.B 7833.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\9f1704fc-28ae-4e27-a6f3-885811ea80e2___GH_HL Leaf 260.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\ab7126ed-6e91-4175-b552-e26756c54b3e___Com.G_TgS_FL 8341.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\4f0b72d1-a80a-4602-9b93-495a7174dcdb___Crnl_L.Mold 8936.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\1d83eef4-92a0-42a2-9ea7-1ec2e683dbc0___GHLB2 Leaf 8809.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\cb8d79da-8394-46ee-896c-70906127d4ad___JR_Sept.L.S 8537.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\e4d01d54-df44-40ab-a6f9-74c9e0834998___GCREC_Bact.Sp 5950.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\e2869c8b-aedf-4074-bb99-28e6ed2b4223___RS_HL 9673.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\8f4b78fa-aae1-493b-b132-6b00f03a32fe___Com.G_SpM_FL 8482.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\f6f5c1f8-beed-4eb2-8366-5aed3c9b27bc___Com.G_TgS_FL 0033.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\c4888a9c-836d-4024-a44e-7e451470388d___Com.G_SpM_FL 9447.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\b67eae18-67c7-4b28-bbb4-27b94f29ecbe___Com.G_SpM_FL 8552.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\88a90e6d-c7d6-4ecb-a52f-c9ac596e39ee___GHLB2 Leaf 8648.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\1170f108-86a3-4bc6-8a06-c82e55178f91___PSU_CG 2327.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\9a3a36e0-b0eb-4844-84f5-db08e2d9adef___PSU_CG 2300.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\7bd63940-1890-4263-8c8c-e0c743bb51ce___RS_Erly.B 9487.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\2b727376-492d-47dd-983a-c8f9c7ab386a___Crnl_L.Mold 6556.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\2224e59e-d71f-4d3e-8d48-7dc90551aeb1___UF.GRC_BS_Lab Leaf 0251.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\3fdba933-d33b-45e3-877c-aaf869a83df4___Crnl_L.Mold 8952.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\55bcfcce-70f4-4634-8107-0a8207da2b14___GH_HL Leaf 317.2.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\dce856b2-1c63-4305-97ab-5ab443f462bf___RS_Late.B 6099.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\77a3496e-25d7-4f1d-9a6c-b66c15cc2088___Com.G_SpM_FL 8485.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\287e0f27-ed49-42b0-b4f2-a8a95ff21dad___GCREC_Bact.Sp 5839.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\f8374b63-016a-4b76-9ca8-df348cb44564___RS_Erly.B 7688.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\eabe0c3f-2339-4a4c-a472-8f4b0fe36e97___Com.G_TgS_FL 1088.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\cd658831-2663-4cec-a968-824cc3325950___Com.G_TgS_FL 8045.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\36dd8cd2-dd26-40a2-b25c-f4ce6d94f6be___Keller.St_CG 1845.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\a9cc37b3-d9d6-4245-86b8-9aaffd5d0074___Com.G_TgS_FL 9841.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\15f2395b-7130-456a-8ad6-858481c5bf77___Com.G_TgS_FL 0960.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\416808ef-060a-4c7c-9e0c-1dc72996ab48___Crnl_L.Mold 8978.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\6804695f-56f8-4ff9-90f8-69ee95097463___PSU_CG 2067.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\14c31d28-ae56-42b8-9ff7-9012d414b74f___Keller.St_CG 1847.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\69a348e0-b426-42bd-ba09-a8bb067430e5___RS_HL 0016.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\719352b5-1b4c-41e5-a517-3dfde18c13ef___RS_HL 0300.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\b842ca3c-1910-4ff3-8691-c7759830651a___RS_HL 9784.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\5ecb9930-250d-4fac-9547-e3b5142eec46___PSU_CG 2164.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\6d6f479a-d165-46b3-95d8-43c4778c23f9___GH_HL Leaf 205.1.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\1840e451-4049-49de-a7ee-9f305e85d3c3___Com.G_TgS_FL 9966.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\b657dc7a-df76-40e1-bc87-2d61b81040a8___GHLB Leaf 27.1 Day 12.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\9c274db5-2f89-4f3c-b9e2-4d5ebc54ddad___GHLB2 Leaf 9096.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\305d5fd0-b63c-41d3-9980-9c6aa808b893___Com.G_SpM_FL 8473.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\573c904e-8ccd-4a27-943a-a1b0ea293ae3___JR_Sept.L.S 2548.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\2e9248a1-78c7-4aa8-a696-ab96c6947ceb___Com.G_SpM_FL 8629.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\69a33a83-20e3-420f-a5a7-b2e73c16e13f___Matt.S_CG 6227.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\3596fc7f-e79e-44f5-862a-f177db2960f6___RS_Erly.B 6386.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\8c034f61-0b93-4b14-b5d6-5ed385cb93b1___Com.G_TgS_FL 7892.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\a5fc8c9f-767e-4ccd-b8ab-a9c52fde7a39___Com.G_SpM_FL 1602.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\802d3f0c-8f4d-43ec-8bc9-c8bb43c2f8c2___PSU_CG 2354.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\cf3c2861-b4c1-45b4-a54c-1b2dea855713___UF.GRC_YLCV_Lab 01416.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\990e1cbf-b978-478e-b332-d12b3855fd57___GCREC_Bact.Sp 6223.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\31549f17-8b3c-4a16-9775-d3c50db39fb8___GCREC_Bact.Sp 5968.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\43f4bccf-0e70-479a-9880-5523f8ffbe9b___PSU_CG 2367.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\4184d645-f365-4e8b-a6f9-f5f80d5198a2___GCREC_Bact.Sp 5963.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\b81880a7-0e70-4d89-9439-94fcd4b0a475___YLCV_NREC 2198.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\25a83fb3-e27a-419c-a9db-652fae319fcd___RS_Late.B 6191.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\9699b511-4dd6-4037-8cfe-c96c12a7b029___Crnl_L.Mold 8725.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\cc50ced6-b90e-4f0d-b278-0806d6a658b5___Com.G_SpM_FL 1299.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\30d35029-a9ce-44c7-b717-0fabef24398d___Com.G_TgS_FL 8253.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\ffdb355f-1de6-4217-8aac-6695ee621512___PSU_CG 2342.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\ffd8aa68-138f-4114-96c7-21eef72e1e13___RS_HL 9881.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\e5a3c9fd-64a6-426f-a0a0-2fd28a7852d0___Crnl_L.Mold 6575.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\14d46dfe-5348-428c-af6b-82b6625ce6c3___GH_HL Leaf 483.1.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\d310ed28-a64c-4997-8336-21ea17eb4368___Matt.S_CG 7735.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\a9866a45-7bb7-4eae-aebb-aa036aa8fec9___YLCV_GCREC 2102.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\edfb0fe5-a10c-469d-9346-802e68dfcd58___Com.G_SpM_FL 9390.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\5d6bdcbf-b75a-4562-917f-4d902fa3b6b0___JR_Sept.L.S 2620.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\002213fb-b620-4593-b9ac-6a6cc119b100___Com.G_TgS_FL 8360.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\43a7a8f7-67b8-4d02-8da5-57a6b1e28b01___Com.G_TgS_FL 0920.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\fe79c70c-0977-43f3-ad1b-3a1b4bceeceb___RS_Erly.B 7506.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\c4c6fad3-9805-45ff-bf51-3ca5f7d4a079___UF.GRC_YLCV_Lab 01602.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\628a9d6d-982d-4424-9a7d-e8e0219818fe___Com.G_SpM_FL 9321.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\dfd261ab-30ad-456c-93b3-874a4ebaeaaf___RS_Erly.B 8451.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\5b9b782e-cabd-447c-b690-4b8a29bf7f7e___PSU_CG 2231.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\d2d13290-3e84-4c25-adcf-aa68bc6d70ba___Matt.S_CG 7630.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\30f6aead-5cd9-453d-85e6-56e93c1987d8___Crnl_L.Mold 6886.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\b825544a-33a3-4bf7-8568-506acca8eaf5___Crnl_L.Mold 8826.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\b3c95916-efd5-485f-83f8-686ed4866b89___Crnl_L.Mold 6542.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\19a20587-f100-4b2e-9c07-d07143b3b7d7___YLCV_NREC 2567.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\410dea1e-836e-4d41-9039-9cfc2ec30c1e___GH_HL Leaf 318.1.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\6a2c0438-3207-4998-893a-02ddb3a26081___PSU_CG 2294.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\bba77afa-234e-40c9-9d2e-6770ac1789e4___PSU_CG 2082.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\766771e1-8e8e-4ce4-9af6-b4ed91c9e80a___RS_Late.B 6881.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\0fefaaee-79e4-45a6-8606-5a4ab1ea43a2___PSU_CG 2398.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\3392b4ec-48ed-468b-9a33-c3c53ab2dfa4___GCREC_Bact.Sp 3291.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\3a72a7cf-4406-4bad-9bf2-582ce0daaf86___Com.G_TgS_FL 8336.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\0ae828f5-e6e8-4100-b297-52f98dfc6109___UF.GRC_YLCV_Lab 01958.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\db5044bc-64df-4f7c-a591-5b79b9318805___GCREC_Bact.Sp 5546.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\66c3cfc2-4a91-4517-ab9a-b92ec79b47c5___Com.G_SpM_FL 9351.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\ddee35e3-fc0b-4251-adec-dda227bffcd5___Com.G_SpM_FL 1646.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\2406a1dc-92d9-4cc9-a724-a67c73104717___Crnl_L.Mold 8750.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\c54f03c5-9eef-4036-bff3-49b3a3867b88___UF.GRC_BS_Lab Leaf 9279.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\34bba791-1db5-40f8-b067-46518c17b75a___Matt.S_CG 2534.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\0d9accf3-1285-4356-b69b-2ae132c5f145___PSU_CG 2337.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\1b3ccbf3-c1e1-476e-b34a-6af0a6fbb349___GCREC_Bact.Sp 3735.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\e33cde2d-5103-48aa-bb82-490aa779312c___GH_HL Leaf 515.2.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\1371d8ed-b95f-4dd0-834c-9f3a944ca8dd___GCREC_Bact.Sp 3463.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\a4547675-5ca9-48de-a334-deb20db0808c___GHLB_PS Leaf 34 Day 13.jpg,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\b7b92cf5-cdc9-4f6b-a844-b5a1d0042230___Crnl_L.Mold 6790.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\b0322c6b-7ce4-4ec5-b10c-d92bc4f8133e___Matt.S_CG 0868.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\1ca23194-53c1-44a9-973a-39aa073f4a33___RS_HL 0058.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\1dba797c-45b1-4509-8326-753cf2cf7ebe___Com.G_SpM_FL 8515.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\b1b8b193-4006-43ad-8ba6-e9fb25b5c830___Com.G_SpM_FL 8956.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\ac1d7686-c250-47b4-a16d-046305b99d2a___Com.G_SpM_FL 8725.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\49293c7e-61c1-48eb-947c-b3dd696ec699___Com.G_TgS_FL 9945.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\4fbc277e-5998-48c1-922d-c3f2e070f9d6___Crnl_L.Mold 6593.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\feabce4c-9bb1-4fca-bcbf-368cacd40a68___PSU_CG 2115.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\5e990ddc-28f3-4624-8498-28f3b10111fd___PSU_CG 2182.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\7b246e09-0a8c-4078-9e0a-6207de8dc804___RS_HL 9809.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\36cf7d2c-a820-4311-9d16-443e04e13a15___Matt.S_CG 0700.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\d374d0c5-2a5c-4d5e-afc6-0410d91c9d55___GCREC_Bact.Sp 6321.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\d074483d-5063-4bed-93f5-c0d798e9283c___RS_HL 0231.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\cfbda6c6-fe86-4638-899d-4509b0bcf21d___Com.G_TgS_FL 8270.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\df5b37b7-f3aa-4659-85c7-fef204ad110e___Com.G_SpM_FL 1585.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\ca6362b2-b680-4348-a795-3bc37275e70f___GHLB2 Leaf 79.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\1a83cb1d-6e47-4caf-931f-61ecad37dca4___GCREC_Bact.Sp 6167.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\fcc77997-19eb-4949-bb2e-7ccb2710238e___YLCV_NREC 2396.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\19014458-f5de-4c92-beb5-8faf0e6a6bf3___Crnl_L.Mold 8754.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\45050d34-41a0-498d-8d37-10b919df9db7___UF.GRC_YLCV_Lab 02356.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\e615ae3b-8526-42f0-9c0f-2678e0a50ad4___RS_Late.B 6145.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\141bbdef-ba38-49ed-9d6f-fe8d9de38e6f___RS_Erly.B 9579.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\82dff876-8701-443c-b9dd-a96f832767e0___Com.G_SpM_FL 8573.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\5f3285ca-687c-4466-8581-93eb7d8a6af5___Crnl_L.Mold 6686.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\8db4bafa-489e-42ff-ad14-98cb9af8e733___RS_Late.B 5397.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\ab592870-b6d1-42a1-8169-e9c5b797c497___UF.GRC_YLCV_Lab 08500.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\7688c6b6-910a-4f6f-854e-e00bf11ce9b0___UF.GRC_BS_Lab Leaf 9045.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\e3032dd9-8c1b-48b8-bc3e-607336b67f90___Matt.S_CG 1382.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\6b9b1888-d553-4044-9b52-96bd2cccda0d___UF.GRC_YLCV_Lab 01540.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\13bc2fc9-24ab-44c5-bf5d-ea0d1a68798f___Matt.S_CG 0980.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\f285de60-b746-43c9-8891-133dce784b44___Keller.St_CG 1788.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\7ee078a8-218e-4ebf-8935-ec9f844ab744___GH_HL Leaf 212.9.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\258e6e39-d791-482c-921d-65048753770a___RS_Erly.B 9422.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\55761153-0f6a-4dad-981e-16fde2ac683f___RS_Erly.B 6387.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\a6bf45f7-1928-4a3a-98cc-74c4b948cb4d___Crnl_L.Mold 8834.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\67a8503d-b717-4285-9dd5-f62381491526___Com.G_SpM_FL 1516.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\50affc63-4d3e-4eb4-ad9c-4f9b7311e989___GCREC_Bact.Sp 3035.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\dc0911a0-8c66-412c-82ec-6070f2ca0b8b___GCREC_Bact.Sp 6011.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\5af43679-cda7-4cdc-8d9f-e962e22e68c5___Crnl_L.Mold 8654.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\43e84adf-0897-47dc-97a4-94ef0e83eef5___RS_Erly.B 6399.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\04889d08-6298-45d8-ab6c-0119fd1c2104___Com.G_TgS_FL 0778.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\e4ec79b5-94df-42dd-8425-bd68d2320c5f___RS_Late.B 5406.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\7db0dde8-3597-4a71-8fc1-cc6bc1dd89c4___PSU_CG 2196.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\650a2408-9d62-4ebc-92ca-689e2612e248___GCREC_Bact.Sp 3325.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\80ec9d60-0f20-4c02-8d63-76108e90bc14___JR_Sept.L.S 8525.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\581cabbe-38dc-4694-8180-e7ffb4786102___GCREC_Bact.Sp 3691.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\18ac424a-de74-40f4-b830-74384ae67302___GCREC_Bact.Sp 3480.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\d8a64b79-e21e-4158-9d9d-47bd6e44fba0___GCREC_Bact.Sp 3594.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\09cdb8a4-0c20-4acd-b4c8-709fad7010fd___GHLB_PS Leaf 37 Day 16.jpg,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\0e16b13c-0308-4199-a823-c6c2ab944023___GCREC_Bact.Sp 3068.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\c6f2f79f-4554-4869-84e0-32df4ed15eb4___RS_Late.B 6399.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\30374887-5005-4023-a9af-62af0d0c2872___GCREC_Bact.Sp 3822.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\15e1e8d7-e05a-4dc1-b872-364b15f004f0___RS_Late.B 4873.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\35baedd2-975e-4a48-b468-5b7203bab631___GHLB2 Leaf 8936.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\d42bee1e-15b3-4351-a2cb-1e062359e011___Keller.St_CG 1849.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\a1aa732c-1c39-4c6b-b5d1-e0ea7a8587a5___RS_HL 0565.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\82a23930-4324-4d3e-b599-9861796f01db___PSU_CG 2366.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\fdd1fcf3-2b4f-44ce-b2f1-7aa4fdba6a63___JR_Sept.L.S 2640.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\772645d9-842a-45e8-b5d0-910e46be059e___Matt.S_CG 7515.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\740233be-a812-4ff3-bf0e-bc95c56505a6___UF.GRC_YLCV_Lab 03239.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\27637c36-4f67-429c-97a0-39d035f3fd38___UF.GRC_BS_Lab Leaf 8864.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\1c213d89-a3ba-4486-ac5a-1744eb371859___GCREC_Bact.Sp 3500.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\ebbdadc5-972c-45fb-a6c2-99e8015cf4a9___RS_Late.B 5479.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\4c41c67d-564c-44e2-98e0-b19bc3e10c7c___Com.G_SpM_FL 8887.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\07324d80-17c5-4541-9702-62e9c744ac07___RS_Erly.B 7455.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\90fa8cf2-fc80-4944-9484-7cd6bb6cc1da___GCREC_Bact.Sp 5767.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\abc565cd-fe1c-4839-ad1f-5721d4506a2c___Crnl_L.Mold 9082.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\2480c7f8-eb75-4606-bf92-24f09ac52a37___PSU_CG 2380.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\c9d85821-3005-430e-adc4-af6e83c123ca___UF.GRC_YLCV_Lab 01318.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\95a0fffa-e8f5-4250-b3ff-a6c57a6a424f___Com.G_SpM_FL 9451.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\20182b2d-dfda-4ef1-89cc-17856e051b00___PSU_CG 2072.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\57649e25-07c1-4435-9084-6da48a1cc72f___Com.G_SpM_FL 1734.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\2e03280e-123a-4231-a73a-652c57338137___PSU_CG 2053.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\e4e708ea-e69e-4e5c-9e52-1f21407f7568___GCREC_Bact.Sp 3813.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\e0fd3533-d5af-4090-a0d2-0507791d3926___Com.G_TgS_FL 8020.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\82df832d-43d4-41c5-97b8-baf8ff9c658c___RS_HL 9917.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\4cf0ee3d-a8b5-47f5-be25-e578d60b6cfd___Matt.S_CG 7373.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\2b5bebdd-3af4-41ca-b206-efc1a141e71d___RS_Erly.B 6363.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\b7c56bb2-80c1-4ffb-9be5-f8bf669ce6d8___GHLB2 Leaf 9025.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\8d78a34f-1777-4bd8-a925-795c57c11787___GH_HL Leaf 429.1.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\e084577f-bb13-4baf-8384-2b37eb430236___RS_Erly.B 7673.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\8cd36896-f066-47f4-a965-d5bf0c58f954___Crnl_L.Mold 7042.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\27074def-852f-45c0-8a45-006f8f7108c3___Com.G_SpM_FL 9633.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\48e9d480-1361-4d4a-96a3-bded85e7559b___Matt.S_CG 7733.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\a7c97904-d28e-4dd3-93d1-0758a44bba96___RS_Late.B 7089.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\7d961b54-7557-4800-ae6a-00b6945f99c0___PSU_CG 2293.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\394ebb8a-49b8-4122-bd81-f3c862491db9___RS_Erly.B 7513.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\5a7059b0-82e8-441e-8d8a-02521d0fa602___GHLB2 Leaf 9058.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\f249d82a-14ab-40dc-92d6-24a4a0f82fc7___Com.G_TgS_FL 0944.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\097b050a-eaa4-4e4a-a30a-b72d1a4c0cc4___Crnl_L.Mold 8682.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\9a3941e6-32bc-4417-862b-2f03e4040b65___PSU_CG 2159.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\bb8b0b14-a5f5-4c11-887f-71aed1864d84___GH_HL Leaf 409.1.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\ecf38e2a-45b6-452a-aec3-a2c0c5c20a8d___Com.G_TgS_FL 8317.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\0e74fa9e-a63f-46b3-a976-46510e7fdfba___Com.G_SpM_FL 8579.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\864c0d82-659a-40c7-b5f4-baa538db5766___Com.G_SpM_FL 1685.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\08dd176c-e9d9-4746-92c3-fa8dc9074347___UF.GRC_YLCV_Lab 03057.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\4f256237-9e94-4703-b128-8e91ffac8075___GH_HL Leaf 364.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\49680a31-cb91-4694-9609-4aad7079dd77___Matt.S_CG 6155.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\528ee5e6-6c7f-4676-9fe2-fe3956a73b00___Crnl_L.Mold 6739.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\d6027b84-ede4-4b4a-b76b-3fa65f4e663c___RS_Late.B 5198.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\a03ed170-8835-4339-9d11-ab36c11c4b5a___PSU_CG 2394.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\40705363-7a06-44d7-a4ff-a3b040ca6e70___Matt.S_CG 7683.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\6c6c2702-7036-4d75-99a3-7da8df966606___UF.GRC_YLCV_Lab 02390.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\6a928387-47c0-4d6e-9fed-ca76de4355c7___UF.GRC_YLCV_Lab 02982.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\b176a644-d8ac-4bdd-9d6b-e4038ce910ac___Matt.S_CG 6914.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\c268e18a-6916-43ef-8aa8-f68b1429b7dc___GH_HL Leaf 236.2.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\7b7780c0-f1b2-4095-924c-f3d7777b427e___RS_Erly.B 9613.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\8fabb9ea-8048-406a-be78-a64123654212___JR_Sept.L.S 2591.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\b6fa2d79-dac1-42c6-a074-9d013843bb11___GH_HL Leaf 276.1.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\4e9a0ebe-9df2-4fc6-ad17-3a2e3abdd55c___Crnl_L.Mold 7071.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\0b988f87-fdce-40ba-aa09-7e6c9e1d6d30___GHLB_PS Leaf 21 Day 8.jpg,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\2c741e7d-d03b-4903-8e42-1e43f5ad7286___RS_HL 0131.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\1f763a4e-3f17-44c1-be1b-a8752d2b93a1___RS_HL 9830.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\6200ddc6-ea83-42e0-9936-4f82cfa14a1f___RS_HL 9976.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\468a0f48-b0c4-4969-9f21-826cb3ae3f61___RS_Erly.B 7725.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\1c78d892-4190-488d-b8d3-cf1c63c658f0___GCREC_Bact.Sp 3006.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\72831249-cb43-481b-a57e-cd62ef0f4eeb___Com.G_TgS_FL 0776.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\4e24576f-00c2-494f-b47b-b2b3885b4749___RS_Erly.B 8279.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\4ab5b752-6622-42f2-8743-fa9c9b03e137___PSU_CG 2120.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\3722d404-e409-4af2-8883-2117d4ecdb5d___Com.G_TgS_FL 0937.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\445a32e1-7a18-47e6-9041-3de6707b7ca9___YLCV_NREC 2232.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\19cb71ea-49b7-4373-8a6b-1c8b1bf630a1___Com.G_SpM_FL 1536.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\72617b0d-a051-4296-a577-5cfd1539d1a9___GCREC_Bact.Sp 2960.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\13251526-fecf-42d9-9d4e-81a06c5475e5___Com.G_TgS_FL 8376.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\cf7acf3d-e079-4587-b3e8-bafe507c40d5___RS_Erly.B 8246.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\31498266-6e63-4b16-900e-0a10f28b6c1c___Com.G_TgS_FL 9752.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\b0bc0b85-fce9-43cc-87d1-481d4a107b5c___RS_Erly.B 9451.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\0efaac13-1988-48db-aec3-f31df3045b95___RS_Erly.B 8342.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\c9da2f9b-58f3-4715-8012-ee1fe722921f___PSU_CG 2199.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\2914fe18-387e-4d7f-8580-a0b530d7e727___Crnl_L.Mold 6777.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\69317010-b2b4-4a64-837e-94f8302fd508___Crnl_L.Mold 9149.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\03b6acc7-41a6-4670-b47c-bef6d4baea18___PSU_CG 2363.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\fb255876-e618-43a7-ad17-7b200039dbde___UF.GRC_BS_Lab Leaf 0614.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\93803782-3190-4a41-98a3-1c2712ca8571___JR_Sept.L.S 2704.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\bb162385-0a45-4051-b352-dcba2ff7d66c___Com.G_TgS_FL 8133.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\a6ab5d87-cb13-42bb-ad19-f0c933adb25f___Matt.S_CG 1352.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\e5cfe36c-5c1a-4803-9cde-2df158861c95___Com.G_SpM_FL 8555.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\f16eeb0f-5219-4a81-9941-351b3d9ba5fc___PSU_CG 2089.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\fa0e012a-0bb8-4b98-9a4b-b414d64caca4___Com.G_TgS_FL 8232.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\a6d7438a-35f6-40fb-ab5c-a46cdfef7e83___RS_Erly.B 9594.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\71aa5741-6923-4593-9a23-bc7f58dc40b2___PSU_CG 2183.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\b86c17e0-d24a-4edf-a67f-c16c421d36ae___RS_Erly.B 7746.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\1146e92b-d6b2-4a19-ac54-32141d680f41___Crnl_L.Mold 6725.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\5b493f89-c29b-4c99-9ace-e9c3c0dafbf6___RS_Late.B 6062.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\f60044f6-40aa-4181-ac8c-3c79bb42a3fe___UF.GRC_YLCV_Lab 01817.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\11c87e02-aabb-4e93-a320-bae6cd4b0fb8___Com.G_TgS_FL 9842.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\3d8a687c-febd-4bd6-8fa5-62a3e1d5ebf6___GH_HL Leaf 443.1.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\bc5416cb-a48f-4ed0-ab8e-0ffd7ef25f12___RS_HL 9992.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\eccf8abf-a178-464f-ba55-1d203f5f8a47___RS_Erly.B 6395.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\735e9f69-de24-496f-89cf-e059bc908c3d___YLCV_NREC 0104.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\fb69b46d-32bd-4d11-a60f-7eec788523c2___Matt.S_CG 6278.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\74219bb8-17cf-4bf5-9289-5a23151a317b___GHLB2 Leaf 8882.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\ef71eeaa-1a9c-41f6-8cbe-394a441b3f0c___GCREC_Bact.Sp 3507.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\994ca8ca-d78a-4c3b-8f44-ceaf13c669e8___UF.GRC_YLCV_Lab 02231.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\932959d9-826b-465f-82d7-8b419d2ad040___PSU_CG 2187.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\fc6a6a03-757b-4549-8c2e-194141456f60___GCREC_Bact.Sp 6252.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\173f882f-3ba1-49d2-ab0d-ca8232baf2a5___Matt.S_CG 6133.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\9f6baab7-e004-4b7f-b350-15235d53bbdd___YLCV_GCREC 2129.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\bb487e34-b328-40b9-a33f-592701216063___RS_Late.B 5175.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\2503cc16-ff09-4437-9d4b-4316e2c32764___GH_HL Leaf 235.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\90c69e4c-c526-4f72-b0b0-4127fc6acb0a___RS_Erly.B 7782.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\e2563da7-2594-44f2-9d21-b505a1a5831b___Com.G_SpM_FL 1725.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\098d910d-90dd-45c4-9949-dd7b181aed32___Com.G_TgS_FL 0651.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\f2fbcaa9-66a4-4937-a531-bfbe1a8956d1___GCREC_Bact.Sp 6091.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\0a25c782-93a7-4a08-ace0-0ec025cba908___UF.GRC_YLCV_Lab 01945.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\5fe42ce9-0173-49ba-9cd5-9c4fb3f24883___PSU_CG 2351.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\29eb16c9-e283-46f3-b373-4cfb2cd511d2___GHLB2 Leaf 9055.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\9b8f108a-010b-4b8b-98ea-b30cbf62b805___GH_HL Leaf 349.1.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\dc84eefb-f6bf-4978-a58a-d11f1ed0b26f___Crnl_L.Mold 9125.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\b3ffad3c-49c9-4255-950a-d0d95f6b5554___YLCV_GCREC 5325.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\c7f8e876-66c2-4014-82a4-47d4556bfb7d___PSU_CG 2418.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\bbb807e9-9eef-4220-bbcd-9663542c0d4e___GHLB2 Leaf 9035.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\20a276c8-90b5-475f-811b-1d63f34f1c10___RS_Erly.B 9551.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\e9fa86d5-dc29-49a9-bb72-ce75beecd01f___Com.G_SpM_FL 8947.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\d75ed8c7-610e-4abd-8a3a-a08993a92df3___GH_HL Leaf 323.2.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\ddeecf68-bc10-4715-8fb9-55e227138dc8___UF.GRC_YLCV_Lab 02896.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\b3937c46-37f8-4216-b0cc-db591b1c3514___PSU_CG 2186.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\a65c03a7-d1ef-4e78-931d-881d37383224___UF.GRC_YLCV_Lab 01641.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\552e4223-9503-49d7-b22c-33d1dac5ee78___UF.GRC_YLCV_Lab 02460.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\3c2f237b-3e91-455f-8064-428b308bc575___RS_Late.B 5291.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\2058310f-e7eb-4494-8848-aa2c1ca41acb___UF.GRC_YLCV_Lab 03262.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\6ee9aa94-258a-488e-92a7-a7b11a9ee219___YLCV_NREC 2164.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\d47a2cba-4af6-4c41-a2d5-8801e1c6248f___UF.GRC_YLCV_Lab 03305.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\369ced5b-20e4-4c91-b54e-cff2c3056be6___YLCV_NREC 2739.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\3472596b-2763-4b57-a0af-43c294f7ba93___Com.G_SpM_FL 1575.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\c40646bd-ba9b-4f8b-a922-2694ee148482___Com.G_TgS_FL 8233.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\1ac4f6ea-d2d0-4b94-93f0-788a5e92fe90___GHLB2 Leaf 8707.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\4797e35c-7ec7-4853-95d5-c9fa4b6c0be9___Crnl_L.Mold 9162.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\cb10054a-6051-42da-8e90-7172d792c44d___Com.G_TgS_FL 1043.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\dcbf5ac4-f25b-4e62-999b-44e1892db4ab___PSU_CG 2107.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\354a2aba-3f4a-4fc4-9598-cdbe291ed167___RS_Late.B 7098.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\1dd0d62f-7ef7-477f-b781-83423446a1f5___UF.GRC_YLCV_Lab 01580.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\561e6144-f53b-477e-96ef-88deff234bc6___Crnl_L.Mold 6855.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\10e7dcfd-2cbc-4623-ba9f-94f0e2e4fe13___RS_Erly.B 7648.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\94b68133-38b9-41e4-bb22-131f28bcba20___GCREC_Bact.Sp 6292.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\b433dcf3-c57d-4f5e-9116-5aaeecbaef01___GCREC_Bact.Sp 3715.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\8e4238dc-b4fd-46d0-8892-965e64dad7ab___RS_Erly.B 9404.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\c2f279ce-0890-4bfc-81a9-b896fa940027___GHLB2 Leaf 8542.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\eda70478-22e0-4c08-8d35-759e36c32c36___Com.G_SpM_FL 9552.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\73100edb-a729-4497-9c65-e8de1c6ae7af___Crnl_L.Mold 6581.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\39e2adcf-3eb8-49bb-8b0c-cdd205f6bdc9___UF.GRC_YLCV_Lab 03090.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\0c0debed-e807-4236-a2e3-d9b72f54367f___Crnl_L.Mold 6899.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\17e3282e-f327-4245-95b1-a4fee7b33838___Matt.S_CG 2619.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\237ec7d7-d96f-434d-8a94-250ec92c8e86___RS_HL 0457.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\81382c17-1a00-4597-87e4-2e674d38d6d2___GH_HL Leaf 269.1.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\da934beb-3546-440a-83a8-016d9d480824___GCREC_Bact.Sp 3464.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\366e550d-8604-44cd-b239-325d9e14a4f4___RS_Erly.B 6378.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\35a7c22a-0c4a-4706-aad7-42f70f9e20a5___UF.GRC_YLCV_Lab 01320.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\82962452-4142-4424-98a5-390d662b145b___Matt.S_CG 7527.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\ba09ee7e-4b6c-4f26-a626-7d8ee16e81e0___RS_Late.B 4859.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\300a1a92-1ef2-4e5f-914a-58cb34268f89___Com.G_TgS_FL 9787.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\b648c02d-081a-4511-8f1f-f24c7f21093f___Com.G_TgS_FL 0806.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\5c02af99-ff3f-44b5-b3af-6d698498b352___YLCV_GCREC 2363.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\79962b01-7b73-4486-b91e-a7ec898b8156___Matt.S_CG 6635.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\a0900c57-a463-4412-a3bc-83b413d3eae3___Com.G_SpM_FL 1395.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\aae1be74-033c-4a03-85b0-ee8dbad5873b___Com.G_TgS_FL 7930.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\ffe98ff9-be33-4e8f-82f0-7b7c21b02958___JR_Sept.L.S 8455.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\a9d292cb-2aaf-44cd-a1ef-bec9b05308b9___RS_Late.B 7005.JPG,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\c632fc41-93b2-4655-abee-cfba25000d1b___Com.G_SpM_FL 1476.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\7f046d39-6da1-4c04-a3e9-561421a49a11___Com.G_TgS_FL 1023.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Septoria_leaf_spot\dd13c3ba-56a9-4064-b80d-79455969f651___JR_Sept.L.S 8442.JPG,Septoria_leaf_spot,6,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\cb88247d-9a2a-4cd9-888a-76d799436f10___Crnl_L.Mold 7125.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\44f080ba-5c5b-42e3-a584-ee3114b25e61___Com.G_SpM_FL 1563.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Mosaic_virus\6f341314-6084-4784-a3ba-0a9bdc944366___PSU_CG 2372.JPG,Mosaic_virus,5,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\5f7d3261-84f4-4b85-b9e1-f15792638c2d___RS_HL 9676.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\b814eaf5-3c86-4f5f-b05a-24db749c8f6b___Crnl_L.Mold 7011.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\a1182087-7d2d-439f-917f-26c63fc7ee3d___Com.G_SpM_FL 9473.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Bacterial_spot\7ea2b89c-9357-444c-8118-007a8f2a2b5d___GCREC_Bact.Sp 5852.JPG,Bacterial_spot,0,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\1b966d62-d5c3-4a67-ba36-b67d873ccfdf___GH_HL Leaf 440.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Yellow_Leaf_Curl_Virus\c8e4effa-89a1-4934-a9d7-8b6c9f09ed34___YLCV_NREC 0292.JPG,Yellow_Leaf_Curl_Virus,9,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\1f4c9f8a-5672-4e47-84dd-55f85f953174___RS_Erly.B 7582.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\05bbff69-adad-4e16-8fad-c265be82e25a___Crnl_L.Mold 6929.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Target_Spot\9283430c-730c-4436-a57a-b49471817fd5___Com.G_TgS_FL 9941.JPG,Target_Spot,8,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\b1405282-b12b-4d98-923a-04e217720c2b___Com.G_SpM_FL 9304.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\f6a5a9a3-f9a6-4fad-83c3-2ce3e8618b52___RS_HL 0169.JPG,Healthy,2,True
+E:\PikVaidya AI\data\raw\tomato\Early_blight\f9095543-43a8-4dac-8d06-041203fa5af5___RS_Erly.B 6435.JPG,Early_blight,1,True
+E:\PikVaidya AI\data\raw\tomato\Leaf_Mold\c259c11b-b958-4179-b09f-47e69419941a___Crnl_L.Mold 6803.JPG,Leaf_Mold,4,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\bd9341f4-34d9-4acb-9aa0-5dbff08f8ba6___GHLB_PS Leaf 23 Day 9.jpg,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Spider_mites\e1ba0c90-f560-4c89-beaf-6ca97802824e___Com.G_SpM_FL 1712.JPG,Spider_mites,7,True
+E:\PikVaidya AI\data\raw\tomato\Late_blight\c88e92df-e964-428e-9d8b-df1e402fa41f___GHLB_PS Leaf 27.1 Day 13.jpg,Late_blight,3,True
+E:\PikVaidya AI\data\raw\tomato\Healthy\4e3f33a1-04a8-4d15-b36c-f757800f766f___RS_HL 0556.JPG,Healthy,2,True

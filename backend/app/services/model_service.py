@@ -37,20 +37,39 @@ class InferenceError(Exception):
 
 
 class ModelServingService:
-    """Manages ML model lifecycle, singleton loading, image preprocessing,
-
-    forward pass inference, and Grad-CAM explainability generation.
+    """Manages multi-crop ML model lifecycle, dynamic loading, image preprocessing,
+    forward pass inference with temperature calibration, and Grad-CAM explainability.
     """
 
+    CROP_REGISTRY: Dict[str, Dict[str, Any]] = {
+        "sugarcane": {
+            "checkpoint": "models/sugarcane/efficientnet_b0/best_model.pth",
+            "arch": "efficientnet_b0",
+            "temperature": 1.2580,
+            "display_name": "Sugarcane Pathology (EfficientNet-B0)"
+        },
+        "tomato": {
+            "checkpoint": "models/tomato/mobilenet_v3/best_model.pth",
+            "arch": "mobilenet_v3",
+            "temperature": 0.8350,
+            "display_name": "Tomato Pathology (MobileNetV3-Large)"
+        }
+    }
+
     def __init__(self):
-        self.model: Optional[nn.Module] = None
+        # Multi-crop cache: maps crop_name -> model metadata dict
+        self.crop_models: Dict[str, Dict[str, Any]] = {}
         self.device: torch.device = torch.device("cpu")
+
+        # Backwards-compatibility aliases pointing to primary (sugarcane) model
+        self.model: Optional[nn.Module] = None
         self.class_to_idx: Dict[str, int] = {}
         self.idx_to_class: Dict[str, str] = {}
         self.model_name: str = "EfficientNet-B0"
         self.model_version: str = "EfficientNet-B0-v1.0"
         self.target_conv_layer: Optional[nn.Module] = None
         self.is_loaded: bool = False
+
         self.transform = T.Compose([
             T.Resize((224, 224)),
             T.ToTensor(),
@@ -59,30 +78,41 @@ class ModelServingService:
 
     def _resolve_project_root(self) -> Path:
         """Finds the root directory of the project where ML models/ resides."""
-        # Check current working directory
         cwd = Path.cwd()
         if (cwd / "models" / "sugarcane").exists():
             return cwd
-        # Check parent hierarchy (avoiding backend/app/models false match)
         current = Path(__file__).resolve()
         for parent in current.parents:
             if (parent / "models" / "sugarcane").exists():
                 return parent
         return cwd
 
-    def _build_architecture(self, num_classes: int = 5) -> nn.Module:
-        """Constructs EfficientNet-B0 configured identically to training."""
+    def _build_architecture(self, arch_type: str = "efficientnet_b0", num_classes: int = 5) -> nn.Module:
+        """Constructs torchvision architecture configured identically to training."""
         from torchvision import models
 
-        # Build architecture without downloading external weights
-        model = models.efficientnet_b0(weights=None)
-        in_features = model.classifier[1].in_features
-        model.classifier = nn.Sequential(
-            nn.Dropout(p=0.3, inplace=True),
-            nn.Linear(in_features, num_classes)
-        )
-        model.target_conv_layer = model.features[-1]
-        model.arch_name = "EfficientNet-B0"
+        arch = arch_type.lower().replace("-", "_")
+        if "mobilenet" in arch:
+            model = models.mobilenet_v3_large(weights=None)
+            in_features = model.classifier[0].in_features
+            model.classifier = nn.Sequential(
+                nn.Linear(in_features, 256),
+                nn.Hardswish(),
+                nn.Dropout(p=0.2),
+                nn.Linear(256, num_classes)
+            )
+            model.target_conv_layer = model.features[-1]
+            model.arch_name = "MobileNetV3-Large"
+        else:
+            model = models.efficientnet_b0(weights=None)
+            in_features = model.classifier[1].in_features
+            model.classifier = nn.Sequential(
+                nn.Dropout(p=0.3, inplace=True),
+                nn.Linear(in_features, num_classes)
+            )
+            model.target_conv_layer = model.features[-1]
+            model.arch_name = "EfficientNet-B0"
+
         return model
 
     def load_model(
@@ -90,10 +120,15 @@ class ModelServingService:
         checkpoint_path: Optional[Union[str, Path]] = None,
         device: Optional[str] = None,
         force_reload: bool = False,
+        crop: str = "sugarcane",
     ) -> None:
-        """Loads model weights once at startup and reuses across requests."""
-        if self.is_loaded and not force_reload:
-            logger.info("Model already loaded. Reusing existing model instance.")
+        """Loads model weights for requested crop and reuses across requests."""
+        normalized_crop = crop.strip().lower()
+        if normalized_crop not in self.CROP_REGISTRY and checkpoint_path is None:
+            raise UnsupportedCropError(f"Unsupported crop for model loading: '{crop}'.")
+
+        if normalized_crop in self.crop_models and not force_reload and checkpoint_path is None:
+            logger.info(f"Model for '{normalized_crop}' already loaded. Reusing cached instance.")
             return
 
         if device:
@@ -103,47 +138,65 @@ class ModelServingService:
 
         root = self._resolve_project_root()
         if checkpoint_path is None:
-            resolved_ckpt = root / settings.MODEL_CHECKPOINT_PATH
+            rel_ckpt = self.CROP_REGISTRY[normalized_crop]["checkpoint"]
+            resolved_ckpt = root / rel_ckpt
         else:
             resolved_ckpt = Path(checkpoint_path)
             if not resolved_ckpt.is_absolute():
                 resolved_ckpt = root / resolved_ckpt
 
         if not resolved_ckpt.exists():
-            self.is_loaded = False
+            if normalized_crop == "sugarcane":
+                self.is_loaded = False
             raise FileNotFoundError(
                 f"Model checkpoint not found at: {resolved_ckpt.resolve()}"
             )
 
-        logger.info(f"Loading checkpoint from: {resolved_ckpt.resolve()} on {self.device}")
+        logger.info(f"Loading '{normalized_crop}' checkpoint from: {resolved_ckpt.resolve()} on {self.device}")
         checkpoint = torch.load(resolved_ckpt, map_location=self.device)
 
         # Extract class mapping
         if "idx_to_class" in checkpoint:
-            self.idx_to_class = {str(k): str(v) for k, v in checkpoint["idx_to_class"].items()}
-            self.class_to_idx = {str(k): int(v) for k, v in checkpoint["class_to_idx"].items()}
+            idx_to_class = {str(k): str(v) for k, v in checkpoint["idx_to_class"].items()}
+            class_to_idx = {str(k): int(v) for k, v in checkpoint["class_to_idx"].items()}
         else:
-            # Fallback to standard sugarcane classes
-            self.idx_to_class = {
-                "0": "Healthy",
-                "1": "Mosaic",
-                "2": "RedRot",
-                "3": "Rust",
-                "4": "Yellow"
-            }
-            self.class_to_idx = {v: int(k) for k, v in self.idx_to_class.items()}
+            idx_to_class = {"0": "Healthy", "1": "Mosaic", "2": "RedRot", "3": "Rust", "4": "Yellow"}
+            class_to_idx = {v: int(k) for k, v in idx_to_class.items()}
 
-        num_classes = len(self.idx_to_class)
-        self.model = self._build_architecture(num_classes=num_classes)
-        self.model.load_state_dict(checkpoint["state_dict"])
-        self.model.to(self.device)
-        self.model.eval()
+        num_classes = len(idx_to_class)
+        model_name = checkpoint.get("model_name", "EfficientNet-B0")
 
-        self.target_conv_layer = self.model.target_conv_layer
-        self.model_name = checkpoint.get("model_name", "EfficientNet-B0")
-        self.model_version = f"{self.model_name}-v1.0"
-        self.is_loaded = True
-        logger.info(f"Successfully loaded {self.model_version} with {num_classes} classes.")
+        # Determine architecture type from checkpoint or registry
+        arch_type = "mobilenet_v3" if "mobilenet" in model_name.lower() else "efficientnet_b0"
+        model = self._build_architecture(arch_type=arch_type, num_classes=num_classes)
+        model.load_state_dict(checkpoint["state_dict"])
+        model.to(self.device)
+        model.eval()
+
+        temp = self.CROP_REGISTRY.get(normalized_crop, {}).get("temperature", 1.0)
+        crop_entry = {
+            "model": model,
+            "target_conv_layer": model.target_conv_layer,
+            "idx_to_class": idx_to_class,
+            "class_to_idx": class_to_idx,
+            "model_name": model_name,
+            "model_version": f"{model_name}-v1.0",
+            "temperature": temp,
+            "num_classes": num_classes,
+        }
+        self.crop_models[normalized_crop] = crop_entry
+
+        # Populate legacy single-model attributes if sugarcane or primary
+        if normalized_crop == "sugarcane" or not self.is_loaded:
+            self.model = model
+            self.idx_to_class = idx_to_class
+            self.class_to_idx = class_to_idx
+            self.model_name = model_name
+            self.model_version = crop_entry["model_version"]
+            self.target_conv_layer = model.target_conv_layer
+            self.is_loaded = True
+
+        logger.info(f"Successfully registered model for '{normalized_crop}' ({num_classes} classes, T*={temp}).")
 
     def preprocess_image(self, image: Union[Image.Image, bytes]) -> Tuple[torch.Tensor, Image.Image]:
         """Validates and preprocesses image into tensor matching training pipeline."""
@@ -162,6 +215,8 @@ class ModelServingService:
 
     def _generate_gradcam_heatmap(
         self,
+        model: nn.Module,
+        target_layer: nn.Module,
         img_tensor: torch.Tensor,
         orig_img: Image.Image,
         target_class: int,
@@ -177,13 +232,13 @@ class ModelServingService:
         def backward_hook(module, grad_input, grad_output):
             gradients.append(grad_output[0])
 
-        f_handle = self.target_conv_layer.register_forward_hook(forward_hook)
-        b_handle = self.target_conv_layer.register_full_backward_hook(backward_hook)
+        f_handle = target_layer.register_forward_hook(forward_hook)
+        b_handle = target_layer.register_full_backward_hook(backward_hook)
 
         try:
-            self.model.zero_grad()
+            model.zero_grad()
             inp = img_tensor.unsqueeze(0).to(self.device).requires_grad_(True)
-            output = self.model(inp)
+            output = model(inp)
             score = output[0, target_class]
             score.backward()
 
@@ -235,37 +290,43 @@ class ModelServingService:
         generate_gradcam: bool = False,
         save_heatmap: bool = True,
     ) -> Dict[str, Any]:
-        """Runs end-to-end inference on the input image."""
-        if not self.is_loaded:
-            # Try lazy loading
-            try:
-                self.load_model()
-            except Exception as e:
-                raise ModelNotLoadedError(f"Model service is unavailable: {e}")
-
+        """Runs end-to-end inference on the input image using crop-specific registered model."""
         normalized_crop = crop.strip().lower()
-        if normalized_crop != "sugarcane":
+
+        # Validate crop support
+        if normalized_crop not in self.CROP_REGISTRY:
+            supported_crops = ", ".join(self.CROP_REGISTRY.keys())
             raise UnsupportedCropError(
-                f"Model currently only serves sugarcane crop pathology. Received: '{crop}'."
+                f"Model currently only serves {supported_crops} crop pathology. Received: '{crop}'."
             )
 
+        # Lazy-load crop model if not loaded
+        if not self.is_loaded or normalized_crop not in self.crop_models:
+            try:
+                self.load_model(crop=normalized_crop)
+            except Exception as e:
+                raise ModelNotLoadedError(f"Model service for crop '{crop}' is unavailable: {e}")
+
+        crop_entry = self.crop_models[normalized_crop]
         tensor, orig_img = self.preprocess_image(image)
 
-        # Model forward pass
+        # Model forward pass with temperature scaling
         try:
             with torch.no_grad():
                 inp = tensor.unsqueeze(0).to(self.device)
-                logits = self.model(inp)
-                probs = torch.softmax(logits, dim=1).squeeze(0)
+                logits = crop_entry["model"](inp)
+                temp = crop_entry.get("temperature", 1.0)
+                calibrated_logits = logits / max(temp, 1e-4)
+                probs = torch.softmax(calibrated_logits, dim=1).squeeze(0)
         except Exception as e:
             raise InferenceError(f"Model forward pass execution failed: {e}")
 
         pred_idx = int(torch.argmax(probs).item())
-        predicted_class = self.idx_to_class.get(str(pred_idx), f"Class_{pred_idx}")
+        predicted_class = crop_entry["idx_to_class"].get(str(pred_idx), f"Class_{pred_idx}")
         confidence = float(probs[pred_idx].item())
 
         class_scores = {
-            self.idx_to_class.get(str(i), f"Class_{i}"): round(float(probs[i].item()), 4)
+            crop_entry["idx_to_class"].get(str(i), f"Class_{i}"): round(float(probs[i].item()), 4)
             for i in range(len(probs))
         }
 
@@ -280,6 +341,8 @@ class ModelServingService:
                 save_dest = (heatmap_dir / heatmap_filename) if save_heatmap else None
 
                 self._generate_gradcam_heatmap(
+                    model=crop_entry["model"],
+                    target_layer=crop_entry["target_conv_layer"],
                     img_tensor=tensor,
                     orig_img=orig_img,
                     target_class=pred_idx,
@@ -293,11 +356,11 @@ class ModelServingService:
                 explanation_status = f"failed: {str(cam_err)}"
 
         return {
-            "crop": "sugarcane",
+            "crop": normalized_crop,
             "predicted_class": predicted_class,
             "confidence": round(confidence, 4),
             "class_scores": class_scores,
-            "model_version": self.model_version,
+            "model_version": crop_entry["model_version"],
             "explanation_status": explanation_status,
             "heatmap_path": heatmap_rel_path,
         }

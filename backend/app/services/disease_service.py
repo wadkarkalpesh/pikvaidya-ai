@@ -14,6 +14,7 @@ from sqlalchemy import or_
 from app.models.disease import DiseaseInformation
 from app.schemas.disease import DiseaseCreate, DiseaseUpdate
 from app.db.seeds.disease_data import SUGARCANE_DISEASE_SEEDS
+from app.db.seeds.tomato_disease_data import TOMATO_DISEASE_SEEDS
 
 logger = logging.getLogger(__name__)
 
@@ -143,9 +144,10 @@ class DiseaseService:
         return disease_obj
 
     def seed_default_diseases(self, db: Session) -> int:
-        """Seeds default sugarcane pathology entries into the database."""
+        """Seeds default sugarcane and tomato pathology entries into the database."""
         seeded_count = 0
-        for entry in SUGARCANE_DISEASE_SEEDS:
+        all_seeds = SUGARCANE_DISEASE_SEEDS + TOMATO_DISEASE_SEEDS
+        for entry in all_seeds:
             existing = self.get_disease_by_id(db, entry["disease_id"])
             if not existing:
                 disease_obj = DiseaseInformation(
@@ -162,7 +164,7 @@ class DiseaseService:
                     reference_sources=entry["reference_sources"],
                     language=entry.get("language", "multilingual"),
                     is_verified=entry.get("is_verified", True),
-                    last_verified=entry.get("last_verified", "2026-11-01"),
+                    last_verified=entry.get("last_verified", "2026-11-06"),
                 )
                 db.add(disease_obj)
                 seeded_count += 1
@@ -179,10 +181,10 @@ class DiseaseService:
                 existing.management_methods = entry["management_methods"]
                 existing.reference_sources = entry["reference_sources"]
                 existing.is_verified = entry.get("is_verified", True)
-                existing.last_verified = entry.get("last_verified", "2026-11-01")
+                existing.last_verified = entry.get("last_verified", "2026-11-06")
 
         db.commit()
-        logger.info(f"Seeded/Updated {len(SUGARCANE_DISEASE_SEEDS)} sugarcane disease knowledge records.")
+        logger.info(f"Seeded/Updated {len(all_seeds)} multi-crop pathology knowledge records.")
         return seeded_count
 
     def get_rag_documents(

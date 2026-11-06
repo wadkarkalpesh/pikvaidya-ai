@@ -1,0 +1,29 @@
+{
+  "class_to_idx": {
+    "Bacterial_spot": 0,
+    "Early_blight": 1,
+    "Healthy": 2,
+    "Late_blight": 3,
+    "Leaf_Mold": 4,
+    "Mosaic_virus": 5,
+    "Septoria_leaf_spot": 6,
+    "Spider_mites": 7,
+    "Target_Spot": 8,
+    "Yellow_Leaf_Curl_Virus": 9
+  },
+  "idx_to_class": {
+    "0": "Bacterial_spot",
+    "1": "Early_blight",
+    "2": "Healthy",
+    "3": "Late_blight",
+    "4": "Leaf_Mold",
+    "5": "Mosaic_virus",
+    "6": "Septoria_leaf_spot",
+    "7": "Spider_mites",
+    "8": "Target_Spot",
+    "9": "Yellow_Leaf_Curl_Virus"
+  },
+  "num_classes": 10,
+  "crop": "tomato",
+  "description": "10-Class PlantVillage Tomato Pathology Dataset"
+}

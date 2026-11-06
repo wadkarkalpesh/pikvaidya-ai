@@ -44,3 +44,4 @@ class KnowledgeChunkResponse(BaseModel):
     metadata: Dict[str, Any]
 
     model_config = ConfigDict(from_attributes=True)
+

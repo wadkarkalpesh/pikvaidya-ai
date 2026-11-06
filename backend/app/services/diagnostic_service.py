@@ -221,6 +221,139 @@ SUGARCANE_PATHOLOGY_KNOWLEDGE: Dict[str, Dict[str, Any]] = {
     },
 }
 
+TOMATO_PATHOLOGY_KNOWLEDGE: Dict[str, Dict[str, Any]] = {
+    "Healthy": {
+        "disease_name_en": "Healthy Tomato Foliage",
+        "disease_name_mr": "निरोगी टोमॅटो पीक",
+        "pathogen_type": "None",
+        "authoritative_source": "ICAR-IIHR Tomato Cultivation Guide & CIBRC",
+        "phi_days": None,
+        "symptoms_en": "Foliage exhibits vigorous deep-green color, smooth leaflets, with no lesions or chlorosis.",
+        "symptoms_mr": "टोमॅटोची पाने गर्द हिरवी, तजेलदार असून पानांवर कोणताही करपा किंवा चट्टे नाहीत.",
+        "cultural_en": "Continue routine fertigation, pruning of lower senescent leaves, and trellising.",
+        "cultural_mr": "नियमित खत व्यवस्थापन आणि जमिनीला टेकणाऱ्या खालच्या जुन्या पानांची छाटणी करा.",
+        "chemical_en": "No chemical fungicides or insecticides required. Protect beneficial predators.",
+        "chemical_mr": "कोणत्याही रासायनिक औषधांची गरज नाही. मित्रकिडींचे रक्षण करा.",
+    },
+    "Bacterial_spot": {
+        "disease_name_en": "Tomato Bacterial Spot (Xanthomonas campestris)",
+        "disease_name_mr": "टोमॅटोवरील जिवाणूजन्य ठिपके (बॅक्टेरियल स्पॉट)",
+        "pathogen_type": "Bacterial (Xanthomonas campestris pv. vesicatoria)",
+        "authoritative_source": "ICAR-IIHR Bengaluru & CIBRC Approved Pesticides",
+        "phi_days": 15,
+        "symptoms_en": "Small, dark brown to black water-soaked lesions with yellow halos on leaves.",
+        "symptoms_mr": "पानांवर लहान, काळे-तपकिरी रंगाचे तेलकट डाग पडतात व डागांभोवती पिवळी कडा दिसते.",
+        "cultural_en": "Avoid sprinkler irrigation. Sanitize pruning shears. Rogue out blighted plants.",
+        "cultural_mr": "तुषार सिंचन टाळा, फक्त ठिबक सिंचन वापरा. छाटणीची अवजारे स्वच्छ ठेवा.",
+        "chemical_en": f"Spray Copper Oxychloride 50% WP @ 2.5 g/L + Streptocycline @ 0.1 g/L. PHI: 15 days. {PPE_NOTICE_EN}",
+        "chemical_mr": f"कॉपर ऑक्सिक्लोराईड २.५ ग्रॅम/लिटर + स्ट्रेप्टोसायक्लीन ०.१ ग्रॅम/लिटर फवारा. {PPE_NOTICE_MR}",
+    },
+    "Early_blight": {
+        "disease_name_en": "Tomato Early Blight (Alternaria solani)",
+        "disease_name_mr": "टोमॅटोवरील लवकर येणारा करपा (अल्टरनेरिया)",
+        "pathogen_type": "Fungal (Alternaria solani)",
+        "authoritative_source": "CIBRC Registered Fungicides & ICAR-IIHR",
+        "phi_days": 5,
+        "symptoms_en": "Concentric ring 'target-board' brown lesions primarily on lower foliage.",
+        "symptoms_mr": "पानांवर गोलाकार किंवा लंबगोलाकार एकाआड एक वलये (टार्गेट बोर्डसारखे चट्टे) दिसतात.",
+        "cultural_en": "Stake vines securely, prune bottom foliage 30cm above soil, practice crop rotation.",
+        "cultural_mr": "झाडांना आधार द्या, खालची पाने वेळोवेळी छाटून टाका, पीक फेरपालट करा.",
+        "chemical_en": f"Foliar spray of Azoxystrobin 18.2% + Difenoconazole 11.4% SC @ 1.0 ml/L or Mancozeb 75% WP @ 2.5 g/L. PHI: 5-15 days. {PPE_NOTICE_EN}",
+        "chemical_mr": f"अॅझॉक्सीस्ट्रॉबिन + डायफेनोकोनाझोल १.० मिली/लिटर किंवा मॅन्कोझेब २.५ ग्रॅम/लिटर फवारा. {PPE_NOTICE_MR}",
+    },
+    "Late_blight": {
+        "disease_name_en": "Tomato Late Blight (Phytophthora infestans)",
+        "disease_name_mr": "टोमॅटोवरील उशिरा येणारा करपा (लेट ब्लाइट)",
+        "pathogen_type": "Oomycete (Phytophthora infestans)",
+        "authoritative_source": "ICAR-IIHR Late Blight Advisory & CIBRC",
+        "phi_days": 10,
+        "symptoms_en": "Rapidly expanding water-soaked dark lesions with white mold on leaf undersides in cool humid weather.",
+        "symptoms_mr": "पानांवर वेगाने पसरणारे काळसर पाणथळ डाग, पानाच्या मागील बाजूस पांढुरकी बुरशी दिसते.",
+        "cultural_en": "Destroy blighted plants immediately. Space beds 1.2m apart. Avoid evening irrigation.",
+        "cultural_mr": "करपलेली झाडे तत्काळ उपटून जमिनीत पुरा. झाडांमध्ये योग्य अंतर ठेवा.",
+        "chemical_en": f"Spray Dimethomorph 50% WP @ 1g/L + Mancozeb 75% WP @ 2g/L or Cymoxanil 8% + Mancozeb 64% WP @ 2g/L. PHI: 10 days. {PPE_NOTICE_EN}",
+        "chemical_mr": f"डायमेथोमॉर्फ १ ग्रॅम + मॅन्कोझेब २ ग्रॅम/लिटर किंवा सायमोक्सानिल + मॅन्कोझेब २ ग्रॅम/लिटर फवारा. {PPE_NOTICE_MR}",
+    },
+    "Leaf_Mold": {
+        "disease_name_en": "Tomato Leaf Mold (Passalora fulva)",
+        "disease_name_mr": "टोमॅटोवरील पानांवरील मखमली बुरशी",
+        "pathogen_type": "Fungal (Passalora fulva)",
+        "authoritative_source": "ICAR-IIHR Protected Cultivation Manual",
+        "phi_days": 7,
+        "symptoms_en": "Pale yellow patches on upper leaf surface with olive-brown velvety mold on undersides.",
+        "symptoms_mr": "पानांच्या वर पिवळसर डाग आणि खाली मखमली ऑलिव्ह-तपकिरी रंगाची बुरशी दिसते.",
+        "cultural_en": "Increase greenhouse ventilation, reduce humidity, prune lower dense suckers.",
+        "cultural_mr": "पॉलीहाऊसचे पडदे उघडून हवा खेळती ठेवा, अतिरिक्त फुटवे छाटा.",
+        "chemical_en": f"Apply Chlorothalonil 75% WP @ 2.0 g/L or Difenoconazole 25% EC @ 0.5 ml/L. PHI: 7 days. {PPE_NOTICE_EN}",
+        "chemical_mr": f"क्लोरोथॅलोनिल २.० ग्रॅम/लिटर किंवा डायफेनोकोनाझोल ०.५ मिली/लिटर फवारा. {PPE_NOTICE_MR}",
+    },
+    "Mosaic_virus": {
+        "disease_name_en": "Tomato Mosaic Virus (ToMV)",
+        "disease_name_mr": "टोमॅटोवरील मोझॅक विषाणू रोग",
+        "pathogen_type": "Viral (Tomato mosaic tobamovirus)",
+        "authoritative_source": "ICAR-IIVR Solanaceous Viral Diseases Bulletin",
+        "phi_days": None,
+        "symptoms_en": "Mottled dark and light green mosaic leaf patterns, leaflet curling, and stunting.",
+        "symptoms_mr": "पानांवर फिकट व गर्द हिरवे चट्टे (मोझॅक), पाने आकसणे आणि वाढ खुंटणे.",
+        "cultural_en": "Rogue out infected plants early. Disinfect hands and tools with skimmed milk or soap. Prohibit tobacco use.",
+        "cultural_mr": "बाधित झाडे उपटून नष्ट करा. अवजारे व हात दुधाच्या द्रावणाने धुवा. तंबाखूचा वापर टाळा.",
+        "chemical_en": f"Viruses cannot be cured with chemical fungicides. Suppress secondary spread; rogue infected stools. {PPE_NOTICE_EN}",
+        "chemical_mr": f"विषाणू रोगावर कोणतेही रासायनिक औषध नाही. बाधित झाडे उपटून नष्ट करा. {PPE_NOTICE_MR}",
+    },
+    "Septoria_leaf_spot": {
+        "disease_name_en": "Tomato Septoria Leaf Spot (Septoria lycopersici)",
+        "disease_name_mr": "टोमॅटोवरील सेप्टोरिया ठिपके रोग",
+        "pathogen_type": "Fungal (Septoria lycopersici)",
+        "authoritative_source": "TNAU Agritech Portal & CIBRC",
+        "phi_days": 7,
+        "symptoms_en": "Numerous circular small spots with dark brown margins and grayish-white centers with black pycnidia.",
+        "symptoms_mr": "पानांवर लहान गोलाकार डाग ज्यांची कडा गडद व मध्यभाग राखाडी-पांढरा असून बारीक काळे ठिपके दिसतात.",
+        "cultural_en": "Destroy solanaceous weeds around borders. Mulch soil to prevent rain splash.",
+        "cultural_mr": "बांधावरील तणे नष्ट करा. जमिनीवर आच्छादन करा जेणेकरून पावसाचे शिंतोडे उडणार नाहीत.",
+        "chemical_en": f"Apply Chlorothalonil 75% WP @ 2.0 g/L or Tebuconazole 25.9% EC @ 1.0 ml/L. PHI: 5-7 days. {PPE_NOTICE_EN}",
+        "chemical_mr": f"क्लोरोथॅलोनिल २.० ग्रॅम/लिटर किंवा टेब्युकोनाझोल १.० मिली/लिटर फवारा. {PPE_NOTICE_MR}",
+    },
+    "Spider_mites": {
+        "disease_name_en": "Two-Spotted Spider Mites (Tetranychus urticae)",
+        "disease_name_mr": "टोमॅटोवरील लाल कोळी (माइट्स)",
+        "pathogen_type": "Acari / Pest (Tetranychus urticae)",
+        "authoritative_source": "ICAR-IIHR Acarology Guide & CIBRC Acaricide List",
+        "phi_days": 3,
+        "symptoms_en": "Yellow stippling on leaf surface, bronzing, drying, and fine webbing on leaf undersides.",
+        "symptoms_mr": "पानांवर बारीक पिवळे ठिपके, पाने तांबूस होऊन वाळणे आणि पानाच्या मागे बारीक जाळे दिसणे.",
+        "cultural_en": "Spray water under high pressure on undersides to break webs. Avoid water stress.",
+        "cultural_mr": "पाण्याचा जोरदार फवारा मारून जाळे नष्ट करा. पिकाला पाण्याचा ताण पडू देऊ नका.",
+        "chemical_en": f"Apply Spiromesifen 22.9% SC @ 1.0 ml/L or Propargite 57% EC @ 2.0 ml/L. PHI: 3-7 days. {PPE_NOTICE_EN}",
+        "chemical_mr": f"स्पायरोमेसिफेन १.० मिली/लिटर किंवा प्रोपारगाइट २.० मिली/लिटर पानांच्या खाली फवारा. {PPE_NOTICE_MR}",
+    },
+    "Target_Spot": {
+        "disease_name_en": "Tomato Target Spot (Corynespora cassiicola)",
+        "disease_name_mr": "टोमॅटोवरील टार्गेट स्पॉट रोग",
+        "pathogen_type": "Fungal (Corynespora cassiicola)",
+        "authoritative_source": "ICAR-IIVR Vegetable Diseases Compendium",
+        "phi_days": 3,
+        "symptoms_en": "Pinpoint brown spots expanding into concentric target-like lesions on leaves.",
+        "symptoms_mr": "पानांवर लहान ठिपके वाढून गोलाकार वलयांचे चट्टे तयार होतात व पाने वाळतात.",
+        "cultural_en": "Ensure good row spacing for aeration. Avoid overhead irrigation.",
+        "cultural_mr": "हवा खेळती राहण्यासाठी योग्य अंतर ठेवा. वरून पाणी देणे टाळा.",
+        "chemical_en": f"Apply Azoxystrobin 23% SC @ 1.0 ml/L or Pyraclostrobin 20% WG @ 1.0 g/L. PHI: 3-5 days. {PPE_NOTICE_EN}",
+        "chemical_mr": f"अॅझॉक्सीस्ट्रॉबिन १.० मिली/लिटर किंवा पायराक्लोस्ट्रॉबिन १.० ग्रॅम/लिटर फवारा. {PPE_NOTICE_MR}",
+    },
+    "Yellow_Leaf_Curl_Virus": {
+        "disease_name_en": "Tomato Yellow Leaf Curl Virus (TYLCV)",
+        "disease_name_mr": "टोमॅटोवरील पानांचा चुरडा-मुरडा (लीफ कर्ल व्हायरस)",
+        "pathogen_type": "Viral (Begomovirus transmitted by Whiteflies)",
+        "authoritative_source": "ICAR-IIHR Begomovirus Guidelines & CIBRC",
+        "phi_days": 5,
+        "symptoms_en": "Severe upward leaf cupping, yellow leaflet margins, dwarfing, and flower drop.",
+        "symptoms_mr": "पाने वाटीसारखी वरच्या बाजूला वळतात (चुरडा-मुरडा), पाने पिवळी व बारीक होतात आणि फुले गळतात.",
+        "cultural_en": "Install yellow sticky traps (25/acre). Net nursery seedlings. Rogue out early infected plants.",
+        "cultural_mr": "एकरी २५ पिवळे चिकट सापळे लावा. रोपवाटिकेत नायलॉन जाळी वापरा. बाधित रोपे उपटून टाका.",
+        "chemical_en": f"Spray Diafenthiuron 50% WP @ 1.2 g/L or Cyantraniliprole 10.26% OD @ 1.8 ml/L to suppress whitefly vector. PHI: 3-5 days. {PPE_NOTICE_EN}",
+        "chemical_mr": f"पांढऱ्या माशीच्या नियंत्रणासाठी डायाफेन्थिरॉन १.२ ग्रॅम किंवा सायांट्रानिलीप्रोल १.८ मिली/लिटर फवारा. {PPE_NOTICE_MR}",
+    },
+}
+
 
 @dataclass
 class DiagnosticInferenceResult:
@@ -253,7 +386,8 @@ class DiagnosticService:
     """
 
     SUPPORTED_CROPS: Dict[str, str] = {
-        "sugarcane": "models/sugarcane/efficientnet_b0/best_model.pth"
+        "sugarcane": "models/sugarcane/efficientnet_b0/best_model.pth",
+        "tomato": "models/tomato/mobilenet_v3/best_model.pth"
     }
 
     def check_crop_support(self, crop_name: str) -> str:
@@ -270,7 +404,7 @@ class DiagnosticService:
         raise UnsupportedCropError(
             f"AI diagnosis is currently unavailable for crop '{crop_name}'. "
             f"Model inference is currently only supported for: {supported_list}. "
-            f"Model currently only serves sugarcane crop pathology. Received: '{crop_name}'."
+            f"Model currently only serves sugarcane and tomato crop pathology. Received: '{crop_name}'."
         )
 
     def evaluate_safety_and_advisory(
@@ -298,9 +432,14 @@ class DiagnosticService:
         conf_high = settings.CONFIDENCE_THRESHOLD_HIGH
         conf_mod = settings.CONFIDENCE_THRESHOLD_MODERATE
 
-        knowledge = SUGARCANE_PATHOLOGY_KNOWLEDGE.get(
-            predicted_class, SUGARCANE_PATHOLOGY_KNOWLEDGE["RedRot"]
-        )
+        if "tomato" in crop.lower():
+            knowledge = TOMATO_PATHOLOGY_KNOWLEDGE.get(
+                predicted_class, TOMATO_PATHOLOGY_KNOWLEDGE["Early_blight"]
+            )
+        else:
+            knowledge = SUGARCANE_PATHOLOGY_KNOWLEDGE.get(
+                predicted_class, SUGARCANE_PATHOLOGY_KNOWLEDGE["RedRot"]
+            )
 
         # -------------------------------------------------------------
         # TIER 1: HIGH CONFIDENCE (>= 0.75)

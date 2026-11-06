@@ -1,0 +1,19 @@
+{
+  "total_unique": 18146,
+  "num_classes": 10,
+  "train_samples": 12697,
+  "val_samples": 2717,
+  "test_samples": 2732,
+  "classes": {
+    "Bacterial_spot": 2127,
+    "Early_blight": 1000,
+    "Healthy": 1585,
+    "Late_blight": 1901,
+    "Leaf_Mold": 952,
+    "Mosaic_virus": 373,
+    "Septoria_leaf_spot": 1771,
+    "Spider_mites": 1676,
+    "Target_Spot": 1404,
+    "Yellow_Leaf_Curl_Virus": 5357
+  }
+}

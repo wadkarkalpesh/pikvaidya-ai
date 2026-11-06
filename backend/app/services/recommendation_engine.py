@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session
 
 from app.models.disease import DiseaseInformation
 from app.db.seeds.disease_data import SUGARCANE_DISEASE_SEEDS
+from app.db.seeds.tomato_disease_data import TOMATO_DISEASE_SEEDS
 from app.services.weather_service import weather_service, WeatherData, SprayWindowAssessment
 from app.schemas.advisory import (
     WeatherTelemetrySchema,
@@ -241,12 +242,23 @@ class ContextAwareRecommendationEngine:
                 logger.warning(f"Database disease query failed ({e}); falling back to in-memory seeds.")
 
         # Fallback to seeds
-        clean_pred = predicted_disease.lower()
-        for seed in SUGARCANE_DISEASE_SEEDS:
-            if clean_pred in seed["disease_id"].lower() or clean_pred in seed["disease_name"].lower():
+        clean_pred = predicted_disease.lower().replace("_", "")
+        all_seeds = SUGARCANE_DISEASE_SEEDS + TOMATO_DISEASE_SEEDS
+        for seed in all_seeds:
+            if seed["crop_name"].lower() == crop.lower():
+                s_id = seed["disease_id"].lower().replace("_", "")
+                s_name = seed["disease_name"].lower().replace("_", "")
+                if clean_pred in s_id or clean_pred in s_name or s_id in clean_pred:
+                    return seed
+
+        for seed in all_seeds:
+            s_id = seed["disease_id"].lower().replace("_", "")
+            if clean_pred in s_id:
                 return seed
 
         # Default fallback if unknown
+        if crop.lower() == "tomato":
+            return TOMATO_DISEASE_SEEDS[2]  # Default to Early Blight
         return SUGARCANE_DISEASE_SEEDS[2]  # Default to RedRot seed structure
 
     async def _resolve_weather(self, request: AdvisoryGenerateRequest) -> Tuple[WeatherData, SprayWindowAssessment]:

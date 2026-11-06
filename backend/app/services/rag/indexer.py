@@ -22,6 +22,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from app.db.seeds.disease_data import SUGARCANE_DISEASE_SEEDS
+from app.db.seeds.tomato_disease_data import TOMATO_DISEASE_SEEDS
 
 
 @dataclass
@@ -127,8 +128,9 @@ class AgriculturalRAGIndexer:
     def build_index_from_seeds(self):
         """Builds comprehensive knowledge chunks from authoritative seed records."""
         all_chunks: List[DocumentChunk] = []
+        all_seeds = SUGARCANE_DISEASE_SEEDS + TOMATO_DISEASE_SEEDS
 
-        for record in SUGARCANE_DISEASE_SEEDS:
+        for record in all_seeds:
             disease_id = record["disease_id"]
             crop = record["crop_name"]
             disease_name = record["disease_name"]
@@ -300,12 +302,34 @@ class AgriculturalRAGIndexer:
             boost_target = "red"
         elif "rust" in q_lower or "तांबेरा" in q_lower or "गेरुआ" in q_lower:
             boost_target = "rust"
+        elif "bacterial" in q_lower or "जीवाणू" in q_lower or "bacterial_spot" in q_lower:
+            boost_target = "bacterial"
+        elif "early blight" in q_lower or "अल्टरनेरिया" in q_lower or "लवकर" in q_lower:
+            boost_target = "early"
+        elif "late blight" in q_lower or "लेट ब्लाइट" in q_lower or "उशिरा" in q_lower:
+            boost_target = "late"
+        elif "leaf mold" in q_lower or "मखमली" in q_lower:
+            boost_target = "mold"
+        elif "septoria" in q_lower or "सेप्टोरिया" in q_lower:
+            boost_target = "septoria"
+        elif "spider mite" in q_lower or "mite" in q_lower or "कोळी" in q_lower or "मकड़ी" in q_lower:
+            boost_target = "mite"
+        elif "target spot" in q_lower:
+            boost_target = "target"
+        elif "curl" in q_lower or "चुरडा" in q_lower or "पांढरी माशी" in q_lower or "whitefly" in q_lower:
+            boost_target = "curl"
         elif "mosaic" in q_lower or "मोझॅक" in q_lower or "मोजेक" in q_lower:
             boost_target = "mosaic"
         elif "yellow" in q_lower or "पिवळा" in q_lower or "पीली" in q_lower:
             boost_target = "yellow"
         elif "healthy" in q_lower or "निरोगी" in q_lower or "स्वस्थ" in q_lower:
             boost_target = "healthy"
+
+        crop_boost = None
+        if "tomato" in q_lower or "टोमॅटो" in q_lower or "टमाटर" in q_lower:
+            crop_boost = "tomato"
+        elif "sugarcane" in q_lower or "ऊस" in q_lower or "गन्ना" in q_lower:
+            crop_boost = "sugarcane"
 
         # 1. Compute BM25 scores
         k1 = 1.5
@@ -333,6 +357,12 @@ class AgriculturalRAGIndexer:
                 if boost_target in clean_id:
                     bm25_scores[idx] += 30.0
                     dense_scores[idx] += 0.50
+
+        if crop_boost:
+            for idx, chunk in enumerate(self.chunks):
+                if chunk.crop.lower() == crop_boost:
+                    bm25_scores[idx] += 15.0
+                    dense_scores[idx] += 0.25
 
         # 4. Filter candidates by crop and language
         eligible_indices = []

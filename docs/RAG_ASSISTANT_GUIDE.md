@@ -161,3 +161,4 @@ The RAG Assistant engine has been verified with tests in `backend/tests/test_rag
 - `test_assistant_multi_turn_followup`: Confirmed session continuity and context expansion across multiple turns.
 - `test_assistant_language_detection`: Confirmed 100% precision in auto-detecting Marathi, Hindi, and English.
 - `test_api_endpoints`: Verified FastAPI endpoints (`/chat`, `/query`, `/chunks`) return HTTP 200 with schema compliance.
+

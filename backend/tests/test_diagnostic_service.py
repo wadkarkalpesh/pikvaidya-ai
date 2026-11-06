@@ -19,6 +19,8 @@ def test_service_check_crop_support_success():
     assert diagnostic_service.check_crop_support("sugarcane") == "sugarcane"
     assert diagnostic_service.check_crop_support("Sugarcane") == "sugarcane"
     assert diagnostic_service.check_crop_support("co 86032 sugarcane") == "sugarcane"
+    assert diagnostic_service.check_crop_support("tomato") == "tomato"
+    assert diagnostic_service.check_crop_support("Tomato Hybrid") == "tomato"
 
 
 def test_service_check_crop_support_unsupported():
@@ -27,7 +29,7 @@ def test_service_check_crop_support_unsupported():
     assert "unavailable for crop 'Cotton'" in str(exc_info.value)
 
     with pytest.raises(UnsupportedCropError):
-        diagnostic_service.check_crop_support("Tomato")
+        diagnostic_service.check_crop_support("Onion")
 
     with pytest.raises(UnsupportedCropError):
         diagnostic_service.check_crop_support("Soybean")

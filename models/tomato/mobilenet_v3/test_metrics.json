@@ -1,0 +1,341 @@
+{
+  "model_architecture": "MobileNetV3-Large",
+  "checkpoint": "models\\tomato\\mobilenet_v3\\best_model.pth",
+  "test_samples": 400,
+  "overall": {
+    "accuracy": 0.6875,
+    "macro_precision": 0.7703,
+    "macro_recall": 0.6875,
+    "macro_f1": 0.6694,
+    "weighted_f1": 0.6694
+  },
+  "per_class": {
+    "Bacterial_spot": {
+      "precision": 0.7895,
+      "recall": 0.375,
+      "f1_score": 0.5085,
+      "support": 40
+    },
+    "Early_blight": {
+      "precision": 0.9,
+      "recall": 0.225,
+      "f1_score": 0.36,
+      "support": 40
+    },
+    "Healthy": {
+      "precision": 0.7755,
+      "recall": 0.95,
+      "f1_score": 0.8539,
+      "support": 40
+    },
+    "Late_blight": {
+      "precision": 0.8846,
+      "recall": 0.575,
+      "f1_score": 0.697,
+      "support": 40
+    },
+    "Leaf_Mold": {
+      "precision": 0.95,
+      "recall": 0.475,
+      "f1_score": 0.6333,
+      "support": 40
+    },
+    "Mosaic_virus": {
+      "precision": 0.5797,
+      "recall": 1.0,
+      "f1_score": 0.7339,
+      "support": 40
+    },
+    "Septoria_leaf_spot": {
+      "precision": 0.4458,
+      "recall": 0.925,
+      "f1_score": 0.6016,
+      "support": 40
+    },
+    "Spider_mites": {
+      "precision": 0.6167,
+      "recall": 0.925,
+      "f1_score": 0.74,
+      "support": 40
+    },
+    "Target_Spot": {
+      "precision": 0.8148,
+      "recall": 0.55,
+      "f1_score": 0.6567,
+      "support": 40
+    },
+    "Yellow_Leaf_Curl_Virus": {
+      "precision": 0.9459,
+      "recall": 0.875,
+      "f1_score": 0.9091,
+      "support": 40
+    }
+  },
+  "confusion_matrix": [
+    [
+      15,
+      0,
+      0,
+      0,
+      0,
+      2,
+      16,
+      5,
+      1,
+      1
+    ],
+    [
+      4,
+      9,
+      0,
+      1,
+      1,
+      3,
+      15,
+      3,
+      3,
+      1
+    ],
+    [
+      0,
+      0,
+      38,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      4,
+      23,
+      0,
+      2,
+      5,
+      5,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      2,
+      19,
+      10,
+      7,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      40,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      37,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      0,
+      37,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      7,
+      0,
+      0,
+      3,
+      2,
+      6,
+      22,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      1,
+      2,
+      0,
+      35
+    ]
+  ],
+  "misclassifications_count": 125,
+  "calibration": {
+    "uncalibrated": {
+      "temperature": 1.0,
+      "ece": 0.1059,
+      "is_well_calibrated": false,
+      "bin_details": [
+        {
+          "bin_range": "0.1-0.2",
+          "sample_count": 2,
+          "avg_confidence": 0.1865,
+          "accuracy": 0.0,
+          "calibration_gap": 0.1865
+        },
+        {
+          "bin_range": "0.2-0.3",
+          "sample_count": 31,
+          "avg_confidence": 0.2511,
+          "accuracy": 0.3548,
+          "calibration_gap": 0.1037
+        },
+        {
+          "bin_range": "0.3-0.4",
+          "sample_count": 72,
+          "avg_confidence": 0.3558,
+          "accuracy": 0.3889,
+          "calibration_gap": 0.0331
+        },
+        {
+          "bin_range": "0.4-0.5",
+          "sample_count": 65,
+          "avg_confidence": 0.4504,
+          "accuracy": 0.5385,
+          "calibration_gap": 0.088
+        },
+        {
+          "bin_range": "0.5-0.6",
+          "sample_count": 50,
+          "avg_confidence": 0.552,
+          "accuracy": 0.72,
+          "calibration_gap": 0.168
+        },
+        {
+          "bin_range": "0.6-0.7",
+          "sample_count": 43,
+          "avg_confidence": 0.644,
+          "accuracy": 0.814,
+          "calibration_gap": 0.17
+        },
+        {
+          "bin_range": "0.7-0.8",
+          "sample_count": 53,
+          "avg_confidence": 0.7535,
+          "accuracy": 0.9057,
+          "calibration_gap": 0.1522
+        },
+        {
+          "bin_range": "0.8-0.9",
+          "sample_count": 39,
+          "avg_confidence": 0.8476,
+          "accuracy": 0.9487,
+          "calibration_gap": 0.1011
+        },
+        {
+          "bin_range": "0.9-1.0",
+          "sample_count": 45,
+          "avg_confidence": 0.9343,
+          "accuracy": 1.0,
+          "calibration_gap": 0.0657
+        }
+      ]
+    },
+    "calibrated": {
+      "temperature": 0.835,
+      "ece": 0.053,
+      "is_well_calibrated": true,
+      "ece_reduction_pct": 49.95,
+      "bin_details": [
+        {
+          "bin_range": "0.1-0.2",
+          "sample_count": 1,
+          "avg_confidence": 0.196,
+          "accuracy": 0.0,
+          "calibration_gap": 0.196
+        },
+        {
+          "bin_range": "0.2-0.3",
+          "sample_count": 24,
+          "avg_confidence": 0.2592,
+          "accuracy": 0.3333,
+          "calibration_gap": 0.0741
+        },
+        {
+          "bin_range": "0.3-0.4",
+          "sample_count": 40,
+          "avg_confidence": 0.3573,
+          "accuracy": 0.325,
+          "calibration_gap": 0.0323
+        },
+        {
+          "bin_range": "0.4-0.5",
+          "sample_count": 66,
+          "avg_confidence": 0.4467,
+          "accuracy": 0.4394,
+          "calibration_gap": 0.0073
+        },
+        {
+          "bin_range": "0.5-0.6",
+          "sample_count": 52,
+          "avg_confidence": 0.5554,
+          "accuracy": 0.6731,
+          "calibration_gap": 0.1177
+        },
+        {
+          "bin_range": "0.6-0.7",
+          "sample_count": 47,
+          "avg_confidence": 0.6515,
+          "accuracy": 0.7021,
+          "calibration_gap": 0.0507
+        },
+        {
+          "bin_range": "0.7-0.8",
+          "sample_count": 41,
+          "avg_confidence": 0.753,
+          "accuracy": 0.8293,
+          "calibration_gap": 0.0763
+        },
+        {
+          "bin_range": "0.8-0.9",
+          "sample_count": 57,
+          "avg_confidence": 0.8537,
+          "accuracy": 0.9123,
+          "calibration_gap": 0.0586
+        },
+        {
+          "bin_range": "0.9-1.0",
+          "sample_count": 72,
+          "avg_confidence": 0.9515,
+          "accuracy": 0.9861,
+          "calibration_gap": 0.0346
+        }
+      ]
+    },
+    "optimal_temperature": 0.835
+  }
+}
