@@ -4,6 +4,7 @@ from app.models.farm import Farm
 from app.models.crop_cycle import CropCycle
 from app.models.diagnosis import Diagnosis, DiagnosisStatus, DiagnosisSeverity
 from app.models.disease import DiseaseInformation
+from app.models.weather_history import WeatherObservation
 
 __all__ = [
     "Base",
@@ -15,4 +16,5 @@ __all__ = [
     "DiagnosisStatus",
     "DiagnosisSeverity",
     "DiseaseInformation",
+    "WeatherObservation",
 ]

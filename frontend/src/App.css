@@ -624,3 +624,247 @@ body {
   cursor: pointer;
 }
 
+/* Enhanced Weather Intelligence Styles */
+.weather-location-bar {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.location-select {
+  flex: 1;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--slate-300);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  font-size: 0.85rem;
+  color: var(--slate-800);
+}
+
+.gps-btn {
+  padding: 0.45rem 0.75rem;
+  background: var(--slate-100);
+  border: 1px solid var(--slate-300);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--slate-700);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.2s;
+}
+
+.gps-btn:hover {
+  background: var(--primary-50);
+  border-color: var(--primary-500);
+  color: var(--primary-700);
+}
+
+.gps-btn.active {
+  background: var(--primary-600);
+  color: var(--white);
+  border-color: var(--primary-600);
+}
+
+.weather-alerts-container {
+  margin-bottom: 0.85rem;
+}
+
+.weather-alert-card {
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.4rem;
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.weather-alert-card.CRITICAL, .weather-alert-card.WARNING {
+  background: #fef2f2;
+  border-left: 4px solid #ef4444;
+  color: #991b1b;
+}
+
+.weather-alert-card.WATCH, .weather-alert-card.ADVISORY {
+  background: #fffbeb;
+  border-left: 4px solid #f59e0b;
+  color: #92400e;
+}
+
+.soil-telemetry-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  margin-top: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+
+.soil-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.soil-header h4 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--slate-700);
+  margin: 0;
+}
+
+.modeled-badge {
+  font-size: 0.65rem;
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.soil-metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.soil-status-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+.soil-status-pill.OPTIMAL {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.soil-status-pill.SATURATED {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.soil-status-pill.DRY, .soil-status-pill.SEVERELY_DEPLETED {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.forecast-strip-container {
+  margin-top: 0.85rem;
+  border-top: 1px solid var(--slate-200);
+  padding-top: 0.75rem;
+}
+
+.forecast-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.forecast-tab-btn {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--slate-200);
+  background: var(--slate-50);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--slate-600);
+  cursor: pointer;
+}
+
+.forecast-tab-btn.active {
+  background: var(--primary-600);
+  color: var(--white);
+  border-color: var(--primary-600);
+}
+
+.hourly-scroll-strip {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.hourly-mini-card {
+  flex: 0 0 65px;
+  background: var(--white);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.25rem;
+  text-align: center;
+  font-size: 0.75rem;
+}
+
+.hourly-mini-card .hour-time {
+  font-weight: 600;
+  color: var(--slate-500);
+  font-size: 0.7rem;
+  margin-bottom: 0.2rem;
+}
+
+.hourly-mini-card .hour-temp {
+  font-weight: 700;
+  color: var(--slate-800);
+  font-size: 0.85rem;
+}
+
+.hourly-mini-card .hour-rain {
+  font-size: 0.65rem;
+  color: #2563eb;
+  font-weight: 600;
+  margin-top: 0.2rem;
+}
+
+.daily-forecast-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.daily-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--white);
+  border: 1px solid var(--slate-100);
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+}
+
+.daily-row .day-name {
+  font-weight: 600;
+  color: var(--slate-700);
+  flex: 1;
+}
+
+.daily-row .day-temps {
+  font-weight: 700;
+  color: var(--slate-800);
+  margin-right: 0.75rem;
+}
+
+.daily-row .day-rain {
+  color: #2563eb;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.weather-footer-attribution {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.75rem;
+  font-size: 0.7rem;
+  color: var(--slate-400);
+}
+
+

@@ -9,6 +9,11 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [diagResult, setDiagResult] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
+  const [district, setDistrict] = useState('pune');
+  const [districtsList, setDistrictsList] = useState([]);
+  const [gpsLocation, setGpsLocation] = useState(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [forecastTab, setForecastTab] = useState('hourly'); // 'hourly' | 'daily'
 
   // RAG Chatbot state
   const [chatMessages, setChatMessages] = useState([]);
@@ -22,31 +27,72 @@ export default function App() {
   // Initial welcome message for chat
   useEffect(() => {
     const welcomeText = lang === 'mr'
-      ? "नमस्कार! मी पिकवैद्य AI कृषी मित्र आहे. ऊस व टोमॅटो पिकांवरील रोग, औषधांची मात्रा (ICAR/CIBRC) किंवा हवामान फवारणीबद्दल विचारा."
+      ? "नमस्कार! मी पिकवैद्य AI कृषी मित्र आहे. ऊस, टोमॅटो व कांदा पिकांवरील रोग, औषधांची मात्रा (ICAR/CIBRC) किंवा हवामान फवारणीबद्दल विचारा."
       : lang === 'hi'
-      ? "नमस्ते! मैं पिकवैद्य AI कृषि सहायक हूं। गन्ना और टमाटर की बीमारियों, कीटनाशक की मात्रा या मौसम अनुकूलता के बारे में पूछें।"
-      : "Hello! I am PikVaidya AI Agricultural Assistant. Ask me anything about sugarcane and tomato pathology, ICAR/CIBRC chemical dosages, or weather spray suitability.";
+      ? "नमस्ते! मैं पिकवैद्य AI कृषि सहायक हूं। गन्ना, टमाटर और प्याज की बीमारियों, कीटनाशक की मात्रा या मौसम अनुकूलता के बारे में पूछें।"
+      : "Hello! I am PikVaidya AI Agricultural Assistant. Ask me anything about sugarcane, tomato, and onion pathology, ICAR/CIBRC chemical dosages, or weather spray suitability.";
 
     setChatMessages([
       { sender: 'bot', text: welcomeText, sources: [] }
     ]);
   }, [lang]);
 
-  // Fetch weather for default farm coordinate on load
+  // Fetch Maharashtra districts on load
   useEffect(() => {
-    async function fetchWeather() {
+    async function fetchDistricts() {
       try {
-        const res = await fetch('/api/v1/advisory/weather?latitude=18.5204&longitude=73.8567');
+        const res = await fetch('/api/v1/weather/locations');
+        if (res.ok) {
+          const data = await res.json();
+          setDistrictsList(data.districts || []);
+        }
+      } catch (err) {
+        console.warn('Failed to fetch districts:', err);
+      }
+    }
+    fetchDistricts();
+  }, []);
+
+  // Fetch weather when district or GPS changes
+  useEffect(() => {
+    async function loadWeather() {
+      setWeatherLoading(true);
+      try {
+        let url = '';
+        if (gpsLocation) {
+          url = `/api/v1/weather/current?lat=${gpsLocation.lat}&lon=${gpsLocation.lon}&persist=true`;
+        } else {
+          url = `/api/v1/weather/current?district=${district}&persist=true`;
+        }
+        const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();
           setWeatherData(data);
         }
       } catch (err) {
         console.warn('Weather fetch error:', err);
+      } finally {
+        setWeatherLoading(false);
       }
     }
-    fetchWeather();
-  }, []);
+    loadWeather();
+  }, [district, gpsLocation]);
+
+  const handleUseGps = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setGpsLocation({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+      },
+      (err) => {
+        alert("GPS Error: " + err.message);
+      }
+    );
+  };
+
 
   // Auto-scroll chat to bottom
   useEffect(() => {
@@ -221,6 +267,12 @@ export default function App() {
                 >
                   🍅 {t.tomato}
                 </button>
+                <button
+                  className={`crop-tab ${crop === 'onion' ? 'active' : ''}`}
+                  onClick={() => { setCrop('onion'); setDiagResult(null); }}
+                >
+                  🧅 {t.onion}
+                </button>
               </div>
 
               {/* Upload Dropzone */}
@@ -254,45 +306,220 @@ export default function App() {
             </div>
 
             {/* Weather Microclimate Card */}
-            {weatherData && (
-              <div className="card">
-                <div className="card-header">
-                  <h3 className="card-title">
-                    <span>🌦️</span> {t.weatherTitle}
-                  </h3>
-                </div>
-
-                <div className={`weather-status-box ${
-                  weatherData.spray_window.is_suitable ? 'optimal' : 'cancelled'
-                }`}>
-                  <div>
-                    <strong>{weatherData.spray_window.suitability_verdict}</strong>
-                    <p style={{ fontSize: '0.8rem', marginTop: '0.2rem' }}>
-                      {weatherData.spray_window.summary[lang] || weatherData.spray_window.summary.en}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="weather-grid">
-                  <div className="weather-item">
-                    <span>Temp</span>
-                    <strong>{weatherData.current_telemetry.temperature_c}°C</strong>
-                  </div>
-                  <div className="weather-item">
-                    <span>Humidity</span>
-                    <strong>{weatherData.current_telemetry.relative_humidity_pct}%</strong>
-                  </div>
-                  <div className="weather-item">
-                    <span>Wind</span>
-                    <strong>{weatherData.current_telemetry.wind_speed_kmh} km/h</strong>
-                  </div>
-                  <div className="weather-item">
-                    <span>Rain (6h)</span>
-                    <strong>{weatherData.current_telemetry.precipitation_probability_6h}%</strong>
-                  </div>
-                </div>
+            <div className="card">
+              <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 className="card-title">
+                  <span>🌦️</span> {t.weatherTitle}
+                </h3>
+                {weatherLoading && <span style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>⏳ Loading...</span>}
               </div>
-            )}
+
+              {/* District & GPS Selector */}
+              <div className="weather-location-bar">
+                <select
+                  className="location-select"
+                  value={gpsLocation ? 'custom_gps' : district}
+                  onChange={(e) => {
+                    if (e.target.value !== 'custom_gps') {
+                      setGpsLocation(null);
+                      setDistrict(e.target.value);
+                    }
+                  }}
+                >
+                  {gpsLocation && <option value="custom_gps">📍 Farm GPS ({gpsLocation.lat.toFixed(2)}, {gpsLocation.lon.toFixed(2)})</option>}
+                  {districtsList.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {lang === 'mr' ? d.name_mr : lang === 'hi' ? d.name_hi : d.name} (Maharashtra)
+                    </option>
+                  ))}
+                  {districtsList.length === 0 && (
+                    <>
+                      <option value="pune">Pune</option>
+                      <option value="kolhapur">Kolhapur</option>
+                      <option value="nashik">Nashik</option>
+                      <option value="sangli">Sangli</option>
+                    </>
+                  )}
+                </select>
+                <button
+                  className={`gps-btn ${gpsLocation ? 'active' : ''}`}
+                  onClick={handleUseGps}
+                  title="Detect GPS location"
+                >
+                  📍 {t.useGps}
+                </button>
+              </div>
+
+              {weatherData && (
+                <>
+                  {/* Weather Alerts if any */}
+                  {weatherData.alerts && weatherData.alerts.length > 0 && (
+                    <div className="weather-alerts-container">
+                      {weatherData.alerts.map((alt, idx) => (
+                        <div key={idx} className={`weather-alert-card ${alt.severity}`}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}>
+                            <span>⚠️ {lang === 'mr' ? alt.title_mr || alt.title : lang === 'hi' ? alt.title_hi || alt.title : alt.title}</span>
+                            <span style={{ fontSize: '0.7rem', textTransform: 'uppercase' }}>{alt.severity}</span>
+                          </div>
+                          <p style={{ margin: 0, fontSize: '0.75rem' }}>
+                            {lang === 'mr' ? alt.description_mr || alt.description : lang === 'hi' ? alt.description_hi || alt.description : alt.description}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Spray Window Banner */}
+                  {weatherData.spray_window && (
+                    <div className={`weather-status-box ${
+                      weatherData.spray_window.is_safe_to_spray || weatherData.spray_window.is_suitable ? 'optimal' : 'cancelled'
+                    }`}>
+                      <div>
+                        <strong>
+                          {weatherData.spray_window.is_safe_to_spray ? '✅ ' + t.optimalSpray : '⛔ ' + t.cancelledSpray}
+                        </strong>
+                        <p style={{ fontSize: '0.8rem', marginTop: '0.2rem', marginBottom: 0 }}>
+                          {weatherData.spray_window.summary?.[lang] ||
+                           weatherData.spray_window.summary?.en ||
+                           weatherData.spray_window.summary_en ||
+                           weatherData.spray_window.advisory_recommendation?.[lang] ||
+                           weatherData.spray_window.advisory_recommendation?.en}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Atmospheric Telemetry Grid */}
+                  <div className="weather-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+                    <div className="weather-item">
+                      <span>Temp</span>
+                      <strong>
+                        {weatherData.current?.temperature_c ?? weatherData.current_telemetry?.temperature_c ?? weatherData.temperature_c ?? '--'}°C
+                      </strong>
+                      <span style={{ fontSize: '0.65rem', color: 'var(--slate-400)' }}>
+                        {t.apparentTemp}: {weatherData.current?.apparent_temperature_c ?? '--'}°C
+                      </span>
+                    </div>
+
+                    <div className="weather-item">
+                      <span>Humidity</span>
+                      <strong>
+                        {weatherData.current?.relative_humidity_pct ?? weatherData.current_telemetry?.relative_humidity_pct ?? weatherData.relative_humidity_pct ?? '--'}%
+                      </strong>
+                      <span style={{ fontSize: '0.65rem', color: 'var(--slate-400)' }}>
+                        {weatherData.spray_window?.fungal_risk_level ? `Risk: ${weatherData.spray_window.fungal_risk_level}` : ''}
+                      </span>
+                    </div>
+
+                    <div className="weather-item">
+                      <span>Wind</span>
+                      <strong>
+                        {weatherData.current?.wind_speed_kmh ?? weatherData.current_telemetry?.wind_speed_kmh ?? weatherData.wind_speed_kmh ?? '--'} km/h
+                      </strong>
+                      <span style={{ fontSize: '0.65rem', color: 'var(--slate-400)' }}>
+                        Gust: {weatherData.current?.wind_gusts_kmh ?? '--'} km/h
+                      </span>
+                    </div>
+
+                    <div className="weather-item">
+                      <span>Rain Prob</span>
+                      <strong>
+                        {weatherData.current?.precipitation_probability_6h ?? weatherData.current_telemetry?.precipitation_probability_6h ?? weatherData.precipitation_probability_6h ?? '0'}%
+                      </strong>
+                      <span style={{ fontSize: '0.65rem', color: 'var(--slate-400)' }}>
+                        Rate: {weatherData.current?.precipitation_mm ?? 0} mm/h
+                      </span>
+                    </div>
+
+                    <div className="weather-item">
+                      <span>{t.surfacePressure}</span>
+                      <strong>
+                        {weatherData.current?.surface_pressure_hpa ?? 1013} hPa
+                      </strong>
+                    </div>
+
+                    <div className="weather-item">
+                      <span>{t.cloudCover}</span>
+                      <strong>
+                        {weatherData.current?.cloud_cover_pct ?? 0}%
+                      </strong>
+                    </div>
+                  </div>
+
+                  {/* Modeled Soil Moisture Telemetry */}
+                  {weatherData.soil && (
+                    <div className="soil-telemetry-box">
+                      <div className="soil-header">
+                        <h4>🌱 {t.soilMoistureTitle}</h4>
+                        <span className="modeled-badge">🛰️ {t.modeledTag}</span>
+                      </div>
+                      <div className="soil-metric-row">
+                        <span>
+                          <strong>{weatherData.soil.soil_moisture_percentage}%</strong> (volumetric)
+                        </span>
+                        <span>
+                          Temp: <strong>{weatherData.soil.soil_temperature_c}°C</strong>
+                        </span>
+                        <span className={`soil-status-pill ${weatherData.soil.moisture_status}`}>
+                          {weatherData.soil.moisture_status}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Forecast Strip (24h / 7d toggle) */}
+                  {(weatherData.hourly_24h?.length > 0 || weatherData.daily_7d?.length > 0) && (
+                    <div className="forecast-strip-container">
+                      <div className="forecast-tabs">
+                        <button
+                          className={`forecast-tab-btn ${forecastTab === 'hourly' ? 'active' : ''}`}
+                          onClick={() => setForecastTab('hourly')}
+                        >
+                          🕒 {t.forecast24h}
+                        </button>
+                        <button
+                          className={`forecast-tab-btn ${forecastTab === 'daily' ? 'active' : ''}`}
+                          onClick={() => setForecastTab('daily')}
+                        >
+                          📅 {t.forecast7d}
+                        </button>
+                      </div>
+
+                      {forecastTab === 'hourly' && weatherData.hourly_24h && (
+                        <div className="hourly-scroll-strip">
+                          {weatherData.hourly_24h.map((h, idx) => (
+                            <div key={idx} className="hourly-mini-card">
+                              <div className="hour-time">{h.time ? h.time.substring(11, 16) : `+${idx}h`}</div>
+                              <div className="hour-temp">{h.temperature_c}°</div>
+                              <div className="hour-rain">💧 {h.precipitation_probability}%</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {forecastTab === 'daily' && weatherData.daily_7d && (
+                        <div className="daily-forecast-list">
+                          {weatherData.daily_7d.map((d, idx) => (
+                            <div key={idx} className="daily-row">
+                              <span className="day-name">{d.date}</span>
+                              <span className="day-temps">{d.temp_max_c}° / {d.temp_min_c}°C</span>
+                              <span className="day-rain">💧 {d.precipitation_probability_max}% ({d.precipitation_sum_mm}mm)</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Attribution & Location Footer */}
+                  <div className="weather-footer-attribution">
+                    <span>{weatherData.location_name || 'Maharashtra'}</span>
+                    <span>{t.dataSourceTag}</span>
+                  </div>
+                </>
+              )}
+            </div>
+
           </div>
 
           {/* Right Column: Diagnostic XAI Results & Advisory */}

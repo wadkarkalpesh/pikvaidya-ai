@@ -331,20 +331,30 @@ class ContextAwareRecommendationEngine:
             base_mr = symptoms.get("mr", "उसाच्या पानांवर रोगाची लक्षणे आढळली आहेत.")
             base_hi = symptoms.get("hi", "गन्ने की पत्ती पर रोग के लक्षण पाए गए हैं।")
 
-        weather_note_en = ""
-        weather_note_mr = ""
-        weather_note_hi = ""
+        weather_notes_en = []
+        weather_notes_mr = []
+        weather_notes_hi = []
 
         if assessment.fungal_risk_level == "HIGH":
-            weather_note_en = f" [Microclimate Alert: Ambient humidity ({weather.relative_humidity_pct}%) and temperature ({weather.temperature_c}°C) strongly promote rapid fungal sporulation.]"
-            weather_note_mr = f" [हवामान इशारा: वातावरणातील आर्द्रता ({weather.relative_humidity_pct}%) आणि तापमान ({weather.temperature_c}°C) बुरशीच्या प्रसारास अत्यंत पोषक आहे.]"
-            weather_note_hi = f" [मौसम चेतावनी: उच्च आर्द्रता ({weather.relative_humidity_pct}%) और तापमान रोग के तेजी से फैलने के लिए अनुकूल है।]"
+            weather_notes_en.append(f"High Fungal Risk: Ambient humidity ({weather.relative_humidity_pct}%) & temp ({weather.temperature_c}°C) strongly promote fungal spore germination.")
+            weather_notes_mr.append(f"उच्च बुरशीजन्य धोका: वातावरणातील आर्द्रता ({weather.relative_humidity_pct}%) आणि तापमान ({weather.temperature_c}°C) बुरशीच्या प्रसारास अत्यंत पोषक आहे.")
+            weather_notes_hi.append(f"उच्च फंगल जोखिम: उच्च आर्द्रता ({weather.relative_humidity_pct}%) और तापमान रोग के तेजी से फैलने के लिए अनुकूल है।")
+
+        if not assessment.is_safe_to_spray:
+            weather_notes_en.append(f"Spraying Restraint: {assessment.summary_en}")
+            weather_notes_mr.append(f"फवारणी सावधानता: {assessment.summary_mr}")
+            weather_notes_hi.append(f"छिड़काव सावधानी: {assessment.summary_hi}")
+
+        explain_en = f" [Contextual Explanation: {' | '.join(weather_notes_en)} | Source: Open-Meteo/IMD. Note: Weather telemetry evaluates environmental pathogen risk to complement, not replace, visual leaf ML diagnosis.]" if weather_notes_en else ""
+        explain_mr = f" [हवामान संदर्भ: {' | '.join(weather_notes_mr)} | माहिती स्त्रोत: Open-Meteo/IMD. टीप: हवामान माहिती रोगाच्या प्रसाराचा धोका दर्शवते, ती मूळ AI निदानाचा पर्याय नाही.]" if weather_notes_mr else ""
+        explain_hi = f" [मौसम संदर्भ: {' | '.join(weather_notes_hi)} | डेटा स्रोत: Open-Meteo/IMD. नोट: मौसम स्थिति रोग फैलने के जोखिम का आकलन करती है, यह दृश्य AI निदान का विकल्प नहीं है।] " if weather_notes_hi else ""
 
         return {
-            "en": f"{base_en}{weather_note_en}",
-            "mr": f"{base_mr}{weather_note_mr}",
-            "hi": f"{base_hi}{weather_note_hi}"
+            "en": f"{base_en}{explain_en}",
+            "mr": f"{base_mr}{explain_mr}",
+            "hi": f"{base_hi}{explain_hi}"
         }
+
 
     def _extract_chemical_prescriptions(
         self,
