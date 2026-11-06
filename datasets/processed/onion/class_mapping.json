@@ -1,0 +1,14 @@
+{
+  "class_to_idx": {
+    "Onion___healthy": 0,
+    "Onion___purple_blotch": 1,
+    "Onion___stemphylium_blight": 2,
+    "Onion___iris_yellow_virus": 3
+  },
+  "idx_to_class": {
+    "0": "Onion___healthy",
+    "1": "Onion___purple_blotch",
+    "2": "Onion___stemphylium_blight",
+    "3": "Onion___iris_yellow_virus"
+  }
+}

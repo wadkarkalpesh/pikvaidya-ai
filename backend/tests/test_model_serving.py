@@ -115,7 +115,7 @@ def test_predict_unsupported_crop(client: TestClient, sample_jpeg_bytes: bytes):
 
     response = client.post("/api/v1/diagnose/predict", files=files, data=data)
     assert response.status_code == 400
-    assert "only serves sugarcane" in response.json()["detail"]
+    assert "crop pathology" in response.json()["detail"]
 
 
 def test_predict_model_loading_error(client: TestClient, sample_jpeg_bytes: bytes, monkeypatch):
@@ -164,3 +164,14 @@ def test_predict_alias_route(client: TestClient, sample_jpeg_bytes: bytes):
     response = client.post("/api/v1/diagnostics/predict", files=files, data=data)
     assert response.status_code == 200
     assert response.json()["crop"] == "sugarcane"
+
+
+def test_onnx_inference_parity(sample_jpeg_bytes: bytes):
+    """Verifies that ONNX Runtime inference yields numerical parity with PyTorch."""
+    for crop in ["sugarcane", "tomato"]:
+        res_pytorch = model_service.predict(sample_jpeg_bytes, crop=crop, use_onnx=False)
+        res_onnx = model_service.predict(sample_jpeg_bytes, crop=crop, use_onnx=True)
+
+        assert res_pytorch["predicted_class"] == res_onnx["predicted_class"]
+        assert abs(res_pytorch["confidence"] - res_onnx["confidence"]) < 0.05
+

@@ -170,6 +170,21 @@ class FoliarSegmentationService:
             lesion_mask = leaf_mask & (
                 ((exg < 0.05) & (h < 50)) | ((h >= 25) & (h <= 48) & (exg < 0.08))
             )
+        # Onion: Purple Blotch
+        elif "purple_blotch" in norm_class or "blotch" in norm_class:
+            lesion_mask = leaf_mask & (
+                ((h < 30) & (s > 0.15) & (r > g)) | ((exg < 0.04) & (h < 45))
+            )
+        # Onion: Stemphylium Leaf Blight
+        elif "stemphylium" in norm_class or "stemphylium_blight" in norm_class:
+            lesion_mask = leaf_mask & (
+                ((v < 0.35) & (s > 0.10)) | ((h >= 24) & (h <= 48) & (exg < 0.06))
+            )
+        # Onion: Iris Yellow Spot Virus
+        elif "iris_yellow" in norm_class or "iris" in norm_class:
+            lesion_mask = leaf_mask & (
+                ((h >= 22) & (h <= 52) & (exg < 0.06)) | ((exg < -0.01) & (s > 0.10))
+            )
         else:
             # Universal necrotic mask fallback
             lesion_mask = leaf_mask & ((r > g * 1.05) | (h < 26) | (v < 0.28))

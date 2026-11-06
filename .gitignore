@@ -64,6 +64,7 @@ dist/
 *.pkl
 *.pt
 *.onnx
+*.onnx.data
 checkpoints/
 wandb/
 

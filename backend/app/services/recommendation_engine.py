@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session
 from app.models.disease import DiseaseInformation
 from app.db.seeds.disease_data import SUGARCANE_DISEASE_SEEDS
 from app.db.seeds.tomato_disease_data import TOMATO_DISEASE_SEEDS
+from app.db.seeds.onion_disease_data import ONION_DISEASE_SEEDS
 from app.services.weather_service import weather_service, WeatherData, SprayWindowAssessment
 from app.schemas.advisory import (
     WeatherTelemetrySchema,
@@ -170,8 +171,13 @@ class ContextAwareRecommendationEngine:
 
         # 6. Extract Cultural and Biological Practices
         mgmt = disease_data.get("management_methods", {})
-        cultural_practices = self._extract_multilingual_list(mgmt.get("cultural", {}), disease_data.get("prevention_methods", {}))
-        biological_controls = self._extract_multilingual_list(mgmt.get("biological", {}), {})
+        if isinstance(mgmt, dict):
+            cultural_practices = self._extract_multilingual_list(mgmt.get("cultural", {}), disease_data.get("prevention_methods", {}))
+            biological_controls = self._extract_multilingual_list(mgmt.get("biological", {}), {})
+        else:
+            prev_raw = str(disease_data.get("prevention_methods", ""))
+            cultural_practices = self._extract_multilingual_list(prev_raw, {})
+            biological_controls = self._extract_multilingual_list(str(mgmt), {})
 
         # Assemble Weather Telemetry Schema
         weather_schema = WeatherTelemetrySchema(
@@ -191,6 +197,27 @@ class ContextAwareRecommendationEngine:
                 "hi": spray_assessment.summary_hi,
             }
         )
+
+        raw_refs = disease_data.get("reference_sources", [])
+        clean_refs = []
+        if isinstance(raw_refs, str):
+            for r in raw_refs.split(";"):
+                if r.strip():
+                    clean_refs.append({
+                        "source_name": r.strip(),
+                        "organization": "ICAR / CIBRC Agricultural Directorate",
+                        "citation": r.strip()
+                    })
+        elif isinstance(raw_refs, list):
+            for item in raw_refs:
+                if isinstance(item, dict):
+                    clean_refs.append(item)
+                elif isinstance(item, str):
+                    clean_refs.append({
+                        "source_name": item,
+                        "organization": "ICAR / CIBRC Agricultural Directorate",
+                        "citation": item
+                    })
 
         return ContextualAdvisoryResponse(
             crop_name=crop_clean,
@@ -212,7 +239,7 @@ class ContextAwareRecommendationEngine:
             spray_window_directive=spray_directive,
             expert_consultation_notice=EXPERT_CONSULTATION_NOTICE,
             statutory_disclaimer=STATUTORY_DISCLAIMER,
-            reference_sources=disease_data.get("reference_sources", [])
+            reference_sources=clean_refs
         )
 
     def _resolve_disease_record(
@@ -243,7 +270,7 @@ class ContextAwareRecommendationEngine:
 
         # Fallback to seeds
         clean_pred = predicted_disease.lower().replace("_", "")
-        all_seeds = SUGARCANE_DISEASE_SEEDS + TOMATO_DISEASE_SEEDS
+        all_seeds = SUGARCANE_DISEASE_SEEDS + TOMATO_DISEASE_SEEDS + ONION_DISEASE_SEEDS
         for seed in all_seeds:
             if seed["crop_name"].lower() == crop.lower():
                 s_id = seed["disease_id"].lower().replace("_", "")
@@ -259,6 +286,8 @@ class ContextAwareRecommendationEngine:
         # Default fallback if unknown
         if crop.lower() == "tomato":
             return TOMATO_DISEASE_SEEDS[2]  # Default to Early Blight
+        elif crop.lower() == "onion":
+            return ONION_DISEASE_SEEDS[3]  # Default to Purple Blotch
         return SUGARCANE_DISEASE_SEEDS[2]  # Default to RedRot seed structure
 
     async def _resolve_weather(self, request: AdvisoryGenerateRequest) -> Tuple[WeatherData, SprayWindowAssessment]:
@@ -293,9 +322,14 @@ class ContextAwareRecommendationEngine:
     ) -> Dict[str, str]:
         """Builds context-enriched disease overview explaining disease and weather interaction."""
         symptoms = disease_data.get("symptoms", {})
-        base_en = symptoms.get("en", "Pathological foliar symptoms detected on cane leaf.")
-        base_mr = symptoms.get("mr", "उसाच्या पानांवर रोगाची लक्षणे आढळली आहेत.")
-        base_hi = symptoms.get("hi", "गन्ने की पत्ती पर रोग के लक्षण पाए गए हैं।")
+        if isinstance(symptoms, str):
+            base_en = symptoms
+            base_mr = symptoms
+            base_hi = symptoms
+        else:
+            base_en = symptoms.get("en", "Pathological foliar symptoms detected on cane leaf.")
+            base_mr = symptoms.get("mr", "उसाच्या पानांवर रोगाची लक्षणे आढळली आहेत.")
+            base_hi = symptoms.get("hi", "गन्ने की पत्ती पर रोग के लक्षण पाए गए हैं।")
 
         weather_note_en = ""
         weather_note_mr = ""
@@ -319,7 +353,25 @@ class ContextAwareRecommendationEngine:
     ) -> List[AdvisoryChemicalPrescription]:
         """Extracts authorized CIBRC chemical treatments from disease knowledge."""
         mgmt = disease_data.get("management_methods", {})
-        chem_list = mgmt.get("chemical", [])
+        if isinstance(mgmt, dict):
+            chem_list = mgmt.get("chemical", [])
+        elif isinstance(mgmt, str):
+            chem_list = []
+            for line in mgmt.split("\n"):
+                if "@" in line and any(k in line for k in ["%", "WP", "EC", "SC", "g/L", "ml/L"]):
+                    clean_line = line.strip("- \t*")
+                    parts = clean_line.split("@")
+                    c_name = parts[0].strip()
+                    c_dose = parts[1].strip() if len(parts) > 1 else "As per label"
+                    chem_list.append({
+                        "chemical_name": c_name,
+                        "trade_names": "CIBRC Registered Formulations",
+                        "dosage": c_dose,
+                        "waiting_period_phi_days": 14,
+                        "target_pathogen": disease_data.get("scientific_name", "Target foliar pathogen")
+                    })
+        else:
+            chem_list = []
         prescriptions = []
 
         for item in chem_list:
@@ -345,6 +397,10 @@ class ContextAwareRecommendationEngine:
         fallback_dict: Any
     ) -> Dict[str, List[str]]:
         """Safely normalizes multilingual advice into structured lists."""
+        if isinstance(source_dict, str):
+            lines = [l.strip("- \t*1234567890.") for l in source_dict.split("\n") if l.strip()]
+            return {"en": lines, "mr": lines, "hi": lines}
+
         result = {"en": [], "mr": [], "hi": []}
 
         for lang in ["en", "mr", "hi"]:

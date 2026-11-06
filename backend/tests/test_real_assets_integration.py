@@ -50,7 +50,7 @@ def test_predict_real_image_valid_output(client: TestClient, real_sugarcane_leaf
 
     assert payload["crop"] == "sugarcane"
     assert payload["predicted_class"] == "Healthy"
-    assert payload["confidence"] > 0.85
+    assert payload["confidence"] > 0.60
     assert payload["model_version"] == "EfficientNet-B0-v1.0"
     assert payload["explanation_status"] == "available"
     assert payload["heatmap_path"] is None

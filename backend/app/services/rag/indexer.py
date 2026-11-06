@@ -23,6 +23,7 @@ import numpy as np
 
 from app.db.seeds.disease_data import SUGARCANE_DISEASE_SEEDS
 from app.db.seeds.tomato_disease_data import TOMATO_DISEASE_SEEDS
+from app.db.seeds.onion_disease_data import ONION_DISEASE_SEEDS
 
 
 @dataclass
@@ -128,7 +129,7 @@ class AgriculturalRAGIndexer:
     def build_index_from_seeds(self):
         """Builds comprehensive knowledge chunks from authoritative seed records."""
         all_chunks: List[DocumentChunk] = []
-        all_seeds = SUGARCANE_DISEASE_SEEDS + TOMATO_DISEASE_SEEDS
+        all_seeds = SUGARCANE_DISEASE_SEEDS + TOMATO_DISEASE_SEEDS + ONION_DISEASE_SEEDS
 
         for record in all_seeds:
             disease_id = record["disease_id"]
@@ -138,10 +139,20 @@ class AgriculturalRAGIndexer:
             pathogen_type = record.get("pathogen_type", "")
             refs = record.get("reference_sources", [])
 
-            # Index across all supported languages (en, mr, hi)
-            for lang in ["en", "mr", "hi"]:
+            # Check if record is single-language or multi-language dict
+            if isinstance(record.get("symptoms"), str):
+                target_langs = [record.get("language", "en")]
+            else:
+                target_langs = ["en", "mr", "hi"]
+
+            # Index across target languages
+            for lang in target_langs:
                 # 1. Symptoms chunk
-                sym_text = record.get("symptoms", {}).get(lang, "")
+                if isinstance(record.get("symptoms"), dict):
+                    sym_text = record.get("symptoms", {}).get(lang, "")
+                else:
+                    sym_text = str(record.get("symptoms", ""))
+
                 if sym_text:
                     all_chunks.append(
                         DocumentChunk(
@@ -159,8 +170,13 @@ class AgriculturalRAGIndexer:
                     )
 
                 # 2. Causes & Favourable Conditions chunk
-                causes_text = record.get("causes", {}).get(lang, "")
-                fav_text = record.get("favourable_conditions", {}).get(lang, "")
+                if isinstance(record.get("causes"), dict):
+                    causes_text = record.get("causes", {}).get(lang, "")
+                    fav_text = record.get("favourable_conditions", {}).get(lang, "")
+                else:
+                    causes_text = str(record.get("causes", ""))
+                    fav_text = str(record.get("favourable_conditions", ""))
+
                 if causes_text or fav_text:
                     all_chunks.append(
                         DocumentChunk(
@@ -178,12 +194,16 @@ class AgriculturalRAGIndexer:
                     )
 
                 # 3. Cultural & Biological Prevention chunk
-                prev_list = record.get("prevention_methods", {}).get(lang, [])
-                cult_text = record.get("management_methods", {}).get("cultural", {}).get(lang, "")
-                bio_text = record.get("management_methods", {}).get("biological", {}).get(lang, "")
-
-                prev_combined = " ".join(prev_list) if isinstance(prev_list, list) else str(prev_list)
-                mgt_text = f"Cultural Controls: {cult_text} | Biological Controls: {bio_text} | Prevention: {prev_combined}".strip()
+                if isinstance(record.get("prevention_methods"), dict):
+                    prev_list = record.get("prevention_methods", {}).get(lang, [])
+                    cult_text = record.get("management_methods", {}).get("cultural", {}).get(lang, "")
+                    bio_text = record.get("management_methods", {}).get("biological", {}).get(lang, "")
+                    prev_combined = " ".join(prev_list) if isinstance(prev_list, list) else str(prev_list)
+                    mgt_text = f"Cultural Controls: {cult_text} | Biological Controls: {bio_text} | Prevention: {prev_combined}".strip()
+                else:
+                    prev_val = record.get("prevention_methods", "")
+                    mgt_val = record.get("management_methods", "")
+                    mgt_text = f"Prevention: {prev_val} | Management: {mgt_val}".strip()
 
                 if mgt_text:
                     all_chunks.append(
@@ -202,32 +222,33 @@ class AgriculturalRAGIndexer:
                     )
 
                 # 4. Chemical Management chunk
-                chem_list = record.get("management_methods", {}).get("chemical", [])
-                if chem_list:
-                    chem_details = []
-                    for c in chem_list:
-                        c_name = c.get("chemical_name", "Chemical")
-                        c_trade = c.get("trade_names", "")
-                        c_dose = c.get("dosage", "")
-                        c_phi = c.get("waiting_period_phi_days", 30)
-                        c_target = c.get("target_pathogen", "")
-                        chem_details.append(f"{c_name} (Brands: {c_trade}) @ {c_dose}, PHI: {c_phi} days, Target: {c_target}")
+                if isinstance(record.get("management_methods"), dict):
+                    chem_list = record.get("management_methods", {}).get("chemical", [])
+                    if chem_list:
+                        chem_details = []
+                        for c in chem_list:
+                            c_name = c.get("chemical_name", "Chemical")
+                            c_trade = c.get("trade_names", "")
+                            c_dose = c.get("dosage", "")
+                            c_phi = c.get("waiting_period_phi_days", 30)
+                            c_target = c.get("target_pathogen", "")
+                            chem_details.append(f"{c_name} (Brands: {c_trade}) @ {c_dose}, PHI: {c_phi} days, Target: {c_target}")
 
-                    chem_str = " ; ".join(chem_details)
-                    all_chunks.append(
-                        DocumentChunk(
-                            chunk_id=f"{disease_id}_{lang}_chemical",
-                            disease_id=disease_id,
-                            crop=crop,
-                            disease_name=disease_name,
-                            scientific_name=scientific_name,
-                            pathogen_type=pathogen_type,
-                            section="chemical",
-                            language=lang,
-                            text=f"Crop: {crop.capitalize()} | Disease: {disease_name} | Approved Chemical Fungicides/Insecticides (CIBRC): {chem_str}",
-                            metadata={"type": "chemical_management", "references": refs, "phi_tracked": True}
+                        chem_str = " ; ".join(chem_details)
+                        all_chunks.append(
+                            DocumentChunk(
+                                chunk_id=f"{disease_id}_{lang}_chemical",
+                                disease_id=disease_id,
+                                crop=crop,
+                                disease_name=disease_name,
+                                scientific_name=scientific_name,
+                                pathogen_type=pathogen_type,
+                                section="chemical",
+                                language=lang,
+                                text=f"Crop: {crop.capitalize()} | Disease: {disease_name} | Approved Chemical Fungicides/Insecticides (CIBRC): {chem_str}",
+                                metadata={"type": "chemical_management", "references": refs, "phi_tracked": True}
+                            )
                         )
-                    )
 
         self.index_chunks(all_chunks)
 

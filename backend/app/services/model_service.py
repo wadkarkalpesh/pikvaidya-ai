@@ -43,22 +43,32 @@ class ModelServingService:
 
     CROP_REGISTRY: Dict[str, Dict[str, Any]] = {
         "sugarcane": {
-            "checkpoint": "models/sugarcane/efficientnet_b0/best_model.pth",
+            "checkpoint": "models/sugarcane/efficientnet_b0/pipeline_trained/best_model.pth",
+            "onnx": "models/sugarcane/efficientnet_b0/model.onnx",
             "arch": "efficientnet_b0",
             "temperature": 1.2580,
             "display_name": "Sugarcane Pathology (EfficientNet-B0)"
         },
         "tomato": {
             "checkpoint": "models/tomato/mobilenet_v3/best_model.pth",
+            "onnx": "models/tomato/mobilenet_v3/model.onnx",
             "arch": "mobilenet_v3",
             "temperature": 0.8350,
             "display_name": "Tomato Pathology (MobileNetV3-Large)"
+        },
+        "onion": {
+            "checkpoint": "models/onion/mobilenet_v3/best_model.pth",
+            "onnx": "models/onion/mobilenet_v3/model.onnx",
+            "arch": "mobilenet_v3",
+            "temperature": 2.2000,
+            "display_name": "Onion Pathology (MobileNetV3-Large)"
         }
     }
 
     def __init__(self):
         # Multi-crop cache: maps crop_name -> model metadata dict
         self.crop_models: Dict[str, Dict[str, Any]] = {}
+        self.onnx_sessions: Dict[str, Any] = {}
         self.device: torch.device = torch.device("cpu")
 
         # Backwards-compatibility aliases pointing to primary (sugarcane) model
@@ -283,12 +293,32 @@ class ModelServingService:
             f_handle.remove()
             b_handle.remove()
 
+    def get_onnx_session(self, crop: str = "sugarcane"):
+        """Loads and caches high-performance ONNX Runtime session."""
+        import onnxruntime as ort
+        normalized_crop = crop.strip().lower()
+        if normalized_crop in self.onnx_sessions:
+            return self.onnx_sessions[normalized_crop]
+        
+        root = self._resolve_project_root()
+        onnx_rel = self.CROP_REGISTRY.get(normalized_crop, {}).get("onnx")
+        if not onnx_rel:
+            return None
+        onnx_path = root / onnx_rel
+        if not onnx_path.exists():
+            return None
+        
+        session = ort.InferenceSession(str(onnx_path), providers=["CPUExecutionProvider"])
+        self.onnx_sessions[normalized_crop] = session
+        return session
+
     def predict(
         self,
         image: Union[Image.Image, bytes],
         crop: str = "sugarcane",
         generate_gradcam: bool = False,
         save_heatmap: bool = True,
+        use_onnx: bool = False,
     ) -> Dict[str, Any]:
         """Runs end-to-end inference on the input image using crop-specific registered model."""
         normalized_crop = crop.strip().lower()
@@ -310,14 +340,20 @@ class ModelServingService:
         crop_entry = self.crop_models[normalized_crop]
         tensor, orig_img = self.preprocess_image(image)
 
-        # Model forward pass with temperature scaling
+        # Model forward pass with temperature scaling (ONNX or PyTorch)
         try:
-            with torch.no_grad():
-                inp = tensor.unsqueeze(0).to(self.device)
-                logits = crop_entry["model"](inp)
-                temp = crop_entry.get("temperature", 1.0)
-                calibrated_logits = logits / max(temp, 1e-4)
-                probs = torch.softmax(calibrated_logits, dim=1).squeeze(0)
+            ort_session = self.get_onnx_session(normalized_crop) if (use_onnx and not generate_gradcam) else None
+            if ort_session is not None:
+                ort_inputs = {"input": tensor.unsqueeze(0).numpy()}
+                raw_logits = ort_session.run(None, ort_inputs)[0]
+                logits = torch.from_numpy(raw_logits)
+            else:
+                with torch.no_grad():
+                    inp = tensor.unsqueeze(0).to(self.device)
+                    logits = crop_entry["model"](inp)
+            temp = crop_entry.get("temperature", 1.0)
+            calibrated_logits = logits / max(temp, 1e-4)
+            probs = torch.softmax(calibrated_logits, dim=1).squeeze(0)
         except Exception as e:
             raise InferenceError(f"Model forward pass execution failed: {e}")
 

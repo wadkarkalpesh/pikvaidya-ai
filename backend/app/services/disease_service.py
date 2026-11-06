@@ -15,6 +15,7 @@ from app.models.disease import DiseaseInformation
 from app.schemas.disease import DiseaseCreate, DiseaseUpdate
 from app.db.seeds.disease_data import SUGARCANE_DISEASE_SEEDS
 from app.db.seeds.tomato_disease_data import TOMATO_DISEASE_SEEDS
+from app.db.seeds.onion_disease_data import ONION_DISEASE_SEEDS
 
 logger = logging.getLogger(__name__)
 
@@ -80,27 +81,45 @@ class DiseaseService:
 
             # 2. Multilingual symptom search
             if not matched_field and item.symptoms:
-                for lang_code, text in item.symptoms.items():
-                    if q in text.lower():
+                if isinstance(item.symptoms, dict):
+                    for lang_code, text in item.symptoms.items():
+                        if q in text.lower():
+                            matched_field = "symptoms"
+                            matched_lang = lang_code
+                            idx = text.lower().find(q)
+                            start = max(0, idx - 40)
+                            end = min(len(text), idx + len(q) + 60)
+                            snippet = f"...{text[start:end]}..."
+                            break
+                elif isinstance(item.symptoms, str):
+                    if q in item.symptoms.lower():
                         matched_field = "symptoms"
-                        matched_lang = lang_code
-                        idx = text.lower().find(q)
+                        matched_lang = getattr(item, "language", "en")
+                        idx = item.symptoms.lower().find(q)
                         start = max(0, idx - 40)
-                        end = min(len(text), idx + len(q) + 60)
-                        snippet = f"...{text[start:end]}..."
-                        break
+                        end = min(len(item.symptoms), idx + len(q) + 60)
+                        snippet = f"...{item.symptoms[start:end]}..."
 
             # 3. Multilingual causes search
             if not matched_field and item.causes:
-                for lang_code, text in item.causes.items():
-                    if q in text.lower():
+                if isinstance(item.causes, dict):
+                    for lang_code, text in item.causes.items():
+                        if q in text.lower():
+                            matched_field = "causes"
+                            matched_lang = lang_code
+                            idx = text.lower().find(q)
+                            start = max(0, idx - 40)
+                            end = min(len(text), idx + len(q) + 60)
+                            snippet = f"...{text[start:end]}..."
+                            break
+                elif isinstance(item.causes, str):
+                    if q in item.causes.lower():
                         matched_field = "causes"
-                        matched_lang = lang_code
-                        idx = text.lower().find(q)
+                        matched_lang = getattr(item, "language", "en")
+                        idx = item.causes.lower().find(q)
                         start = max(0, idx - 40)
-                        end = min(len(text), idx + len(q) + 60)
-                        snippet = f"...{text[start:end]}..."
-                        break
+                        end = min(len(item.causes), idx + len(q) + 60)
+                        snippet = f"...{item.causes[start:end]}..."
 
             if matched_field:
                 matches.append({
@@ -146,7 +165,7 @@ class DiseaseService:
     def seed_default_diseases(self, db: Session) -> int:
         """Seeds default sugarcane and tomato pathology entries into the database."""
         seeded_count = 0
-        all_seeds = SUGARCANE_DISEASE_SEEDS + TOMATO_DISEASE_SEEDS
+        all_seeds = SUGARCANE_DISEASE_SEEDS + TOMATO_DISEASE_SEEDS + ONION_DISEASE_SEEDS
         for entry in all_seeds:
             existing = self.get_disease_by_id(db, entry["disease_id"])
             if not existing:

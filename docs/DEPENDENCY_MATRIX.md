@@ -94,3 +94,4 @@ The installed dependencies provide full zero-install readiness for the upcoming 
    - Service workers and Web App Manifest generated and precached via `vite-plugin-pwa`.
 4. **Downloadable Agronomic PDF Prescriptions:**
    - CIBRC chemical dosages, PPE warnings, and Grad-CAM image overlays ready for compilation via `reportlab`.
+

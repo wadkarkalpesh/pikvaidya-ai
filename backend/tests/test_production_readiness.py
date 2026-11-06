@@ -59,14 +59,14 @@ def test_health_telemetry_live():
 
 
 def test_multi_crop_model_registry_production_integrity():
-    """Verify both sugarcane and tomato models can be loaded and cached in production."""
-    for crop in ["sugarcane", "tomato"]:
+    """Verify sugarcane, tomato, and onion models can be loaded and cached in production."""
+    for crop in ["sugarcane", "tomato", "onion"]:
         model_service.load_model(crop=crop)
         assert crop in model_service.crop_models, f"Model entry missing for {crop}"
         crop_data = model_service.crop_models[crop]
         assert crop_data["model"] is not None
         assert "idx_to_class" in crop_data
-        assert len(crop_data["idx_to_class"]) in [5, 10], f"Unexpected class count for {crop}"
+        assert len(crop_data["idx_to_class"]) in [4, 5, 10], f"Unexpected class count for {crop}"
 
 
 def test_uploads_directory_is_writable():

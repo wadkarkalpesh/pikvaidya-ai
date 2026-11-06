@@ -386,8 +386,9 @@ class DiagnosticService:
     """
 
     SUPPORTED_CROPS: Dict[str, str] = {
-        "sugarcane": "models/sugarcane/efficientnet_b0/best_model.pth",
-        "tomato": "models/tomato/mobilenet_v3/best_model.pth"
+        "sugarcane": "models/sugarcane/efficientnet_b0/pipeline_trained/best_model.pth",
+        "tomato": "models/tomato/mobilenet_v3/best_model.pth",
+        "onion": "models/onion/mobilenet_v3/best_model.pth",
     }
 
     def check_crop_support(self, crop_name: str) -> str:
@@ -404,7 +405,7 @@ class DiagnosticService:
         raise UnsupportedCropError(
             f"AI diagnosis is currently unavailable for crop '{crop_name}'. "
             f"Model inference is currently only supported for: {supported_list}. "
-            f"Model currently only serves sugarcane and tomato crop pathology. Received: '{crop_name}'."
+            f"Model currently serves {supported_list} crop pathology. Received: '{crop_name}'."
         )
 
     def evaluate_safety_and_advisory(
