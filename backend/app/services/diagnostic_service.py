@@ -631,7 +631,9 @@ class DiagnosticService:
 
         # 3. Empirically estimate foliar lesion severity
         emp_severity, emp_area = segmentation_service.estimate_foliar_severity(
-            pil_img, pred["predicted_class"]
+            image=pil_img,
+            predicted_class=pred["predicted_class"],
+            crop=normalized_crop,
         )
 
         safety_eval = self.evaluate_safety_and_advisory(
@@ -765,7 +767,9 @@ class DiagnosticService:
             )
 
             emp_severity, emp_area = segmentation_service.estimate_foliar_severity(
-                pil_img, pred["predicted_class"]
+                image=pil_img,
+                predicted_class=pred["predicted_class"],
+                crop=normalized_crop,
             )
 
             safety_eval = self.evaluate_safety_and_advisory(

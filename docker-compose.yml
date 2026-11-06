@@ -1,0 +1,70 @@
+version: "3.8"
+
+services:
+  # ----------------------------------------------------------------------------
+  # PikVaidya AI Unified Application (FastAPI + React 18 SPA + PyTorch)
+  # ----------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pikvaidya-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - PROJECT_NAME=PikVaidya AI
+      - DATABASE_URL=postgresql+psycopg://pikvaidya_user:pikvaidya_secret@postgres:5432/pikvaidya_db
+      - SECRET_KEY=pikvaidya-production-key-change-in-real-deployment-32chars
+      - CORS_ORIGINS=["http://localhost:8000","http://127.0.0.1:8000","http://localhost:3000"]
+      - UPLOAD_DIR=/app/uploads
+      - LOG_LEVEL=INFO
+    volumes:
+      - pikvaidya_uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - pikvaidya-network
+
+  # ----------------------------------------------------------------------------
+  # PostgreSQL 16 Production Relational Database
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: pikvaidya-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=pikvaidya_user
+      - POSTGRES_PASSWORD=pikvaidya_secret
+      - POSTGRES_DB=pikvaidya_db
+    volumes:
+      - pikvaidya_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pikvaidya_user -d pikvaidya_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - pikvaidya-network
+
+volumes:
+  pikvaidya_pgdata:
+    driver: local
+  pikvaidya_uploads:
+    driver: local
+
+networks:
+  pikvaidya-network:
+    driver: bridge
+

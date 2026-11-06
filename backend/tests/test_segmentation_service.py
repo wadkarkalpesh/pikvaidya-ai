@@ -53,10 +53,37 @@ def test_estimate_foliar_severity_diseased():
     arr[0:30, 0:100, 2] = 30
 
     img = Image.fromarray(arr)
-    sev, area = segmentation_service.estimate_foliar_severity(img, "RedRot")
+    sev, area = segmentation_service.estimate_foliar_severity(img, "RedRot", crop="sugarcane")
     assert sev in [DiagnosisSeverity.MODERATE, DiagnosisSeverity.SEVERE]
     assert area is not None
     assert area > 10.0
+
+
+def test_estimate_foliar_severity_tomato_healthy():
+    img = Image.new("RGB", (100, 100), color=(34, 139, 34))
+    sev, area = segmentation_service.estimate_foliar_severity(img, "Tomato___healthy", crop="tomato")
+    assert sev == DiagnosisSeverity.HEALTHY
+    assert area == 0.0
+
+
+def test_estimate_foliar_severity_tomato_diseases():
+    # Synthetic leaf image with 30% necrotic/chlorotic lesion
+    arr = np.zeros((100, 100, 3), dtype=np.uint8)
+    # Healthy green tissue
+    arr[:, :, 0] = 45
+    arr[:, :, 1] = 150
+    arr[:, :, 2] = 40
+    # 30% dark necrotic lesion
+    arr[0:30, 0:100, 0] = 30
+    arr[0:30, 0:100, 1] = 25
+    arr[0:30, 0:100, 2] = 20
+
+    img = Image.fromarray(arr)
+    for disease_class in ["Tomato___Early_blight", "Tomato___Late_blight", "Tomato___Bacterial_spot"]:
+        sev, area = segmentation_service.estimate_foliar_severity(img, disease_class, crop="tomato")
+        assert sev in [DiagnosisSeverity.MODERATE, DiagnosisSeverity.SEVERE]
+        assert area is not None
+        assert area >= 10.0
 
 
 def test_rate_limiter_throttling():

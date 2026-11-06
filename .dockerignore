@@ -1,0 +1,48 @@
+# Git
+.git
+.gitignore
+
+# Python cache & virtual environments
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Raw Datasets & Local artifacts (Do NOT bundle raw imagery in containers)
+data/
+datasets/
+outputs/
+checkpoints/
+
+# Node.js & Frontend builds
+frontend/node_modules/
+frontend/dist/
+.npm/
+
+# IDE & Editor metadata
+.vscode/
+.idea/
+.agent/
+.agents/
+.gemini/
+.gsd/
+project_handoff/
+
+# Temporary uploads & OS artifacts
+uploads/*
+!uploads/.gitkeep
+Thumbs.db
+.DS_Store
+
