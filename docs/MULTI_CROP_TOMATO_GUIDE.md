@@ -134,3 +134,4 @@ Authoritative knowledge seeds were developed in [`backend/app/db/seeds/tomato_di
   }
   ```
 - **Response:** Returns grounded advice citing ICAR-IIHR guidelines with mandatory statutory notices under the Insecticides Act, 1968.
+

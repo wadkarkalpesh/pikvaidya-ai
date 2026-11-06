@@ -11,6 +11,8 @@ if str(_backend_dir) not in sys.path:
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from app.api.routes import api_router
 from app.api.routes.diseases import router as diseases_router
 from app.core.config import settings
@@ -58,9 +60,25 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 # Also mount diseases router under /api for unversioned direct access
 app.include_router(diseases_router, prefix="/api", include_in_schema=False)
 
+# Static file serving for uploaded images and generated Grad-CAM overlays
+uploads_dir = Path("uploads")
+uploads_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
+
+# Frontend static asset serving (if compiled)
+frontend_dist = _backend_dir.parent / "frontend" / "dist"
+if not frontend_dist.exists():
+    frontend_dist = Path("frontend/dist")
+
+if frontend_dist.exists() and (frontend_dist / "index.html").exists():
+    app.mount("/assets", StaticFiles(directory=str(frontend_dist / "assets")), name="assets")
+    app.mount("/dashboard", StaticFiles(directory=str(frontend_dist), html=True), name="dashboard")
+
 
 @app.get("/", tags=["System"])
 def root():
+    if frontend_dist.exists() and (frontend_dist / "index.html").exists():
+        return FileResponse(str(frontend_dist / "index.html"))
     return {
         "project": settings.PROJECT_NAME,
         "version": settings.VERSION,
