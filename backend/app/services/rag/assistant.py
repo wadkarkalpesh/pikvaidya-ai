@@ -88,6 +88,8 @@ class AgriculturalRAGAssistant:
         diagnosis_id: Optional[int] = None,
         farm_id: Optional[int] = None,
         preferred_language: Optional[str] = None,
+        diagnostic_context: Optional[Dict[str, Any]] = None,
+        weather_context: Optional[Dict[str, Any]] = None,
         db: Optional[Session] = None
     ) -> Dict[str, Any]:
         """
@@ -102,12 +104,13 @@ class AgriculturalRAGAssistant:
         # 2. Contextualize query with multi-turn history
         search_query = self._expand_query_with_history(message, session)
 
-        # 3. Resolve diagnostic context if diagnosis_id is provided
-        diag_context = None
+        # 3. Resolve diagnostic context if diagnosis_id is provided or passed directly
+        diag_context = diagnostic_context
         if diagnosis_id and db:
             diag = db.query(Diagnosis).filter(Diagnosis.id == diagnosis_id).first()
             if diag:
                 diag_context = {
+                    "crop": diag.crop_type.value if hasattr(diag, "crop_type") and diag.crop_type else session.active_crop,
                     "disease_name": diag.disease_name_en,
                     "predicted_disease": diag.disease_name_en,
                     "confidence": diag.confidence or 0.85,
@@ -115,14 +118,27 @@ class AgriculturalRAGAssistant:
                 }
                 session.active_disease = diag.disease_name_en
 
-        # 4. Resolve farm microclimate if farm_id is provided
-        weather_context = None
+        if diag_context and diag_context.get("predicted_disease"):
+            session.active_disease = diag_context.get("predicted_disease")
+
+        # 4. Resolve farm microclimate if farm_id is provided or passed directly
+        w_context = weather_context
         if farm_id and db:
             farm = db.query(Farm).filter(Farm.id == farm_id).first()
             if farm and farm.latitude and farm.longitude:
                 session.latitude = farm.latitude
                 session.longitude = farm.longitude
                 try:
+                    w_data = await weather_service.get_current_weather(farm.latitude, farm.longitude)
+                    s_assess = weather_service.assess_spray_suitability(w_data)
+                    w_context = {
+                        "temperature_c": w_data.temperature_c,
+                        "relative_humidity_pct": w_data.relative_humidity_pct,
+                        "wind_speed_kmh": w_data.wind_speed_kmh,
+                        "is_safe_to_spray": s_assess.is_safe_to_spray
+                    }
+                except Exception as w_err:
+                    logger.warning(f"Could not load weather context: {w_err}")
                     w_data = await weather_service.get_current_weather(farm.latitude, farm.longitude)
                     s_assess = weather_service.assess_spray_suitability(w_data)
                     weather_context = {
@@ -134,11 +150,13 @@ class AgriculturalRAGAssistant:
                 except Exception as w_err:
                     logger.warning(f"Could not load weather context: {w_err}")
 
-        # 5. Hybrid RAG Search
+        # 5. Hybrid RAG Search with Cross-Score Context Reranking
         retrieval_results = rag_indexer.search(
             query=search_query,
             crop_filter=session.active_crop,
             language_filter=detected_lang,
+            diagnostic_context=diag_context,
+            weather_context=w_context,
             top_k=4
         )
 
@@ -148,7 +166,7 @@ class AgriculturalRAGAssistant:
             retrieval_results=retrieval_results,
             language=detected_lang,
             diagnostic_context=diag_context,
-            weather_context=weather_context
+            weather_context=w_context
         )
 
         # 7. Update Session Memory
@@ -164,8 +182,10 @@ class AgriculturalRAGAssistant:
             "query": message,
             "language": detected_lang,
             "answer": grounded_res.answer,
+            "reply": grounded_res.answer,
             "key_recommendations": grounded_res.key_recommendations,
             "retrieved_sources": grounded_res.retrieved_sources,
+            "sources": grounded_res.retrieved_sources,
             "is_grounded": grounded_res.is_grounded,
             "statutory_disclaimer": grounded_res.statutory_disclaimer,
             "active_crop": session.active_crop,

@@ -15,6 +15,9 @@ class ChatQueryRequest(BaseModel):
     diagnosis_id: Optional[int] = Field(None, description="Optional ID of prior diagnosis to bind into context")
     farm_id: Optional[int] = Field(None, description="Optional ID of farm to bind GPS and microclimate into context")
     preferred_language: Optional[str] = Field(None, description="Preferred response language ('mr', 'hi', 'en')")
+    language: Optional[str] = Field(None, description="Language code alias")
+    diagnostic_context: Optional[Dict[str, Any]] = Field(None, description="Optional foliar diagnostic findings")
+    weather_context: Optional[Dict[str, Any]] = Field(None, description="Optional live weather conditions")
 
 
 class ChatQueryResponse(BaseModel):
@@ -22,8 +25,10 @@ class ChatQueryResponse(BaseModel):
     query: str
     language: str
     answer: str
+    reply: Optional[str] = None
     key_recommendations: List[str]
     retrieved_sources: List[Dict[str, str]]
+    sources: Optional[List[Dict[str, str]]] = None
     is_grounded: bool
     statutory_disclaimer: str
     active_crop: Optional[str] = None

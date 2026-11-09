@@ -148,26 +148,33 @@ class AgriculturalGroundingEngine:
                 else:
                     weather_alert = " [Weather Advisory: Current microclimate is unfavourable for spraying due to rain/wind hazard.]"
 
-        # Diagnostic note if present
+        # Diagnostic note and confidence check if present
         diag_note = ""
+        low_conf_warning = ""
         if diagnostic_context:
-            conf = diagnostic_context.get("confidence", 0.0)
+            conf = float(diagnostic_context.get("confidence", 0.0) or 0.0)
             pred = diagnostic_context.get("predicted_disease", "")
             if lang == "mr":
                 diag_note = f"आपल्या पिकाच्या फोटो तपासणीनुसार ({pred}, खात्री: {conf:.0%}), "
+                if 0.0 < conf < 0.70:
+                    low_conf_warning = "\n\n⚠️ सूचना: एआय निदानाची खात्री ७०% पेक्षा कमी आहे. कोणतेही रासायनिक औषध वापरण्यापूर्वी स्थानिक कृषी विज्ञान केंद्र (KVK) किंवा कृषी अधिकाऱ्यांकडून प्रत्यक्ष खात्री करून घ्यावी."
             elif lang == "hi":
                 diag_note = f"आपकी फसल की स्कैनिंग के अनुसार ({pred}, विश्वास: {conf:.0%}), "
+                if 0.0 < conf < 0.70:
+                    low_conf_warning = "\n\n⚠️ चेतावनी: एआई निदान का विश्वास 70% से कम है। किसी भी रासायनिक छिड़काव से पहले अपने नजदीकी कृषि विज्ञान केंद्र (KVK) या कृषि विशेषज्ञ से सत्यापन अवश्य करें।"
             else:
                 diag_note = f"Based on your foliar scan ({pred}, confidence: {conf:.0%}), "
+                if 0.0 < conf < 0.70:
+                    low_conf_warning = "\n\n⚠️ Caution: AI diagnosis confidence is below 70%. Before applying any chemical treatment, please seek physical verification from your local Krishi Vigyan Kendra (KVK) or agricultural extension officer."
 
         # Recommendations extraction
         rec_bullets = []
         for res in retrieval_results:
             text = res.chunk.text
             # Extract distinct measures
-            if "Approved Chemical" in text or "Carbendazim" in text or "Pyraclostrobin" in text:
+            if any(term in text for term in ["Approved Chemical", "Carbendazim", "Pyraclostrobin", "Mancozeb", "Tebuconazole", "रासायनिक"]):
                 rec_bullets.append(text)
-            elif "Cultural" in text or "Biological" in text:
+            elif any(term in text for term in ["Cultural", "Biological", "Trichoderma", "सेंद्रिय", "मशागतीय", "जैविक"]):
                 rec_bullets.append(text)
 
         if not rec_bullets:
@@ -177,17 +184,17 @@ class AgriculturalGroundingEngine:
         if lang == "mr":
             answer = (
                 f"{diag_note}अधिकृत ICAR/CIBRC माहितीनुसार, **{d_name}** ({sci_name}) बाबत खालील उपाययोजना प्रमाणित आहेत:{weather_alert}\n\n"
-                f"{primary_chunk.text}"
+                f"{primary_chunk.text}{low_conf_warning}"
             )
         elif lang == "hi":
             answer = (
                 f"{diag_note}ICAR और CIBRC के दिशा-निर्देशों के अनुसार, **{d_name}** ({sci_name}) के लिए निम्नलिखित उपाय प्रमाणित हैं:{weather_alert}\n\n"
-                f"{primary_chunk.text}"
+                f"{primary_chunk.text}{low_conf_warning}"
             )
         else:
             answer = (
                 f"{diag_note}According to official ICAR and CIBRC packages of practices for **{d_name}** ({sci_name}):{weather_alert}\n\n"
-                f"{primary_chunk.text}"
+                f"{primary_chunk.text}{low_conf_warning}"
             )
 
         return answer, rec_bullets[:4]

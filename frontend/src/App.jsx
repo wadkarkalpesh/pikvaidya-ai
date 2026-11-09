@@ -239,9 +239,12 @@ export default function App() {
     try {
       const payload = {
         message: query,
+        crop: crop,
+        preferred_language: lang,
         language: lang,
         session_id: sessionId,
         diagnostic_context: diagResult ? {
+          crop: crop,
           crop_name: crop,
           predicted_disease: diagResult.predicted_class,
           confidence: diagResult.confidence,
@@ -263,8 +266,8 @@ export default function App() {
         ...prev,
         {
           sender: 'bot',
-          text: data.reply,
-          sources: data.sources || [],
+          text: data.reply || data.answer,
+          sources: data.sources || data.retrieved_sources || [],
           recommendations: data.key_recommendations || []
         }
       ]);

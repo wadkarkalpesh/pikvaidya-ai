@@ -47,7 +47,9 @@ async def chat_with_assistant(
         crop=request.crop,
         diagnosis_id=request.diagnosis_id,
         farm_id=request.farm_id,
-        preferred_language=request.preferred_language,
+        preferred_language=request.preferred_language or request.language,
+        diagnostic_context=request.diagnostic_context,
+        weather_context=request.weather_context,
         db=db,
     )
     return ChatQueryResponse(**res)
@@ -71,7 +73,9 @@ async def query_assistant(
         crop=request.crop,
         diagnosis_id=request.diagnosis_id,
         farm_id=request.farm_id,
-        preferred_language=request.preferred_language,
+        preferred_language=request.preferred_language or request.language,
+        diagnostic_context=request.diagnostic_context,
+        weather_context=request.weather_context,
         db=db,
     )
     return ChatQueryResponse(**res)

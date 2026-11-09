@@ -16,7 +16,10 @@ Architecture:
 
 import math
 import re
+import os
 import hashlib
+import logging
+from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
 import numpy as np
@@ -24,6 +27,8 @@ import numpy as np
 from app.db.seeds.disease_data import SUGARCANE_DISEASE_SEEDS
 from app.db.seeds.tomato_disease_data import TOMATO_DISEASE_SEEDS
 from app.db.seeds.onion_disease_data import ONION_DISEASE_SEEDS
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -112,6 +117,91 @@ class DenseSemanticEncoder:
         if norm > 1e-6:
             vec /= norm
         return vec
+
+
+class CrossScoreReranker:
+    """
+    Context-aware cross-reranker that rescores candidates based on
+    diagnostic concordance (crop, predicted disease), user intent (symptoms vs chemical vs cultural),
+    and environmental microclimate alerts.
+    """
+
+    INTENT_KEYWORDS = {
+        "symptoms": ["symptom", "लक्षण", "पहचान", "दिसते", "चिन्ह", "spot", "blight", "rot", "look", "how does"],
+        "chemical": ["spray", "chemical", "medicine", "औषध", "फवारणी", "दवाई", "कीटकनाशक", "बुरशीनाशक", "fungicide", "insecticide", "dose", "dosage", "phi", "ml", "gram", "लिटर", "प्रमाण"],
+        "cultural": ["organic", "biological", "cultural", "prevention", "सेंद्रिय", "मशागतीय", "जैविक", "बचाव", "ट्रायकोडर्मा", "सापळे", "trap", "mulch"],
+        "nutrition": ["nutrition", "fertilizer", "fertigation", "खत", "युरिया", "npk", "पोषण", "potash", "sulphur"],
+        "irrigation": ["water", "irrigation", "पाणी", "सिंचन", "drip", "ठिबक"]
+    }
+
+    @classmethod
+    def rerank(
+        cls,
+        candidates: List[Tuple[int, float, float, float]],
+        chunks: List[DocumentChunk],
+        query: str,
+        diagnostic_context: Optional[Dict[str, Any]] = None,
+        weather_context: Optional[Dict[str, Any]] = None,
+        top_k: int = 4
+    ) -> List[Tuple[int, float, float, float]]:
+        """
+        Reranks top fused candidates using contextual cross-scoring.
+        Returns sorted list of (chunk_idx, combined_score, bm25_score, dense_score).
+        """
+        if not candidates:
+            return []
+
+        q_lower = query.lower()
+        # Detect query intent
+        detected_intents = set()
+        for intent, kw_list in cls.INTENT_KEYWORDS.items():
+            if any(kw in q_lower for kw in kw_list):
+                detected_intents.add(intent)
+
+        scored_candidates = []
+        for (idx, rrf_score, b_score, d_score) in candidates:
+            chunk = chunks[idx]
+            concordance_boost = 0.0
+
+            # 1. Diagnostic concordance boost
+            if diagnostic_context:
+                diag_crop = (diagnostic_context.get("crop") or "").lower()
+                diag_disease = (diagnostic_context.get("predicted_disease") or diagnostic_context.get("disease_name") or "").lower()
+
+                if diag_crop and diag_crop == chunk.crop.lower():
+                    concordance_boost += 0.50
+
+                if diag_disease:
+                    clean_diag = re.sub(r"[^a-z0-9]", "", diag_disease)
+                    clean_chunk_d = re.sub(r"[^a-z0-9]", "", chunk.disease_name.lower())
+                    clean_chunk_id = re.sub(r"[^a-z0-9]", "", chunk.disease_id.lower())
+                    if clean_diag in clean_chunk_d or clean_diag in clean_chunk_id or clean_chunk_d in clean_diag:
+                        concordance_boost += 1.50
+
+            # 2. Query intent concordance
+            if "chemical" in detected_intents and chunk.section == "chemical":
+                concordance_boost += 0.80
+            elif "symptoms" in detected_intents and chunk.section == "symptoms":
+                concordance_boost += 0.60
+            elif "cultural" in detected_intents and chunk.section in ["cultural_and_biological", "ipm", "prevention"]:
+                concordance_boost += 0.60
+            elif "nutrition" in detected_intents and chunk.section == "nutrition":
+                concordance_boost += 0.60
+            elif "irrigation" in detected_intents and chunk.section == "irrigation":
+                concordance_boost += 0.60
+
+            # 3. Weather context concordance
+            if weather_context and not weather_context.get("is_safe_to_spray", True):
+                if "spray" in chunk.text.lower() or "weather" in chunk.text.lower() or "हवामान" in chunk.text:
+                    concordance_boost += 0.40
+
+            # Combined score: RRF score + scaled concordance boost
+            combined_score = rrf_score + (concordance_boost * 0.10)
+            scored_candidates.append((idx, combined_score, b_score, d_score))
+
+        # Re-sort descending by combined score
+        scored_candidates.sort(key=lambda x: x[1], reverse=True)
+        return scored_candidates[:top_k]
 
 
 class AgriculturalRAGIndexer:
@@ -252,6 +342,149 @@ class AgriculturalRAGIndexer:
 
         self.index_chunks(all_chunks)
 
+    def build_index(self, include_knowledge_base: bool = True):
+        """Builds comprehensive knowledge chunks from authoritative seed records and pipeline documents."""
+        all_chunks: List[DocumentChunk] = []
+        all_seeds = SUGARCANE_DISEASE_SEEDS + TOMATO_DISEASE_SEEDS + ONION_DISEASE_SEEDS
+
+        for record in all_seeds:
+            disease_id = record["disease_id"]
+            crop = record["crop_name"]
+            disease_name = record["disease_name"]
+            scientific_name = record.get("scientific_name", "")
+            pathogen_type = record.get("pathogen_type", "")
+            refs = record.get("reference_sources", [])
+
+            # Check if record is single-language or multi-language dict
+            if isinstance(record.get("symptoms"), str):
+                target_langs = [record.get("language", "en")]
+            else:
+                target_langs = ["en", "mr", "hi"]
+
+            # Index across target languages
+            for lang in target_langs:
+                # 1. Symptoms chunk
+                if isinstance(record.get("symptoms"), dict):
+                    sym_text = record.get("symptoms", {}).get(lang, "")
+                else:
+                    sym_text = str(record.get("symptoms", ""))
+
+                if sym_text:
+                    all_chunks.append(
+                        DocumentChunk(
+                            chunk_id=f"{disease_id}_{lang}_symptoms",
+                            disease_id=disease_id,
+                            crop=crop,
+                            disease_name=disease_name,
+                            scientific_name=scientific_name,
+                            pathogen_type=pathogen_type,
+                            section="symptoms",
+                            language=lang,
+                            text=f"Crop: {crop.capitalize()} | Disease: {disease_name} ({scientific_name}) | Symptoms: {sym_text}",
+                            metadata={"type": "symptoms", "references": refs}
+                        )
+                    )
+
+                # 2. Causes & Favourable Conditions chunk
+                if isinstance(record.get("causes"), dict):
+                    causes_text = record.get("causes", {}).get(lang, "")
+                    fav_text = record.get("favourable_conditions", {}).get(lang, "")
+                else:
+                    causes_text = str(record.get("causes", ""))
+                    fav_text = str(record.get("favourable_conditions", ""))
+
+                if causes_text or fav_text:
+                    all_chunks.append(
+                        DocumentChunk(
+                            chunk_id=f"{disease_id}_{lang}_conditions",
+                            disease_id=disease_id,
+                            crop=crop,
+                            disease_name=disease_name,
+                            scientific_name=scientific_name,
+                            pathogen_type=pathogen_type,
+                            section="conditions",
+                            language=lang,
+                            text=f"Crop: {crop.capitalize()} | Disease: {disease_name} | Causes: {causes_text} | Environmental Triggers: {fav_text}",
+                            metadata={"type": "causes_and_conditions", "references": refs}
+                        )
+                    )
+
+                # 3. Cultural & Biological Prevention chunk
+                if isinstance(record.get("prevention_methods"), dict):
+                    prev_list = record.get("prevention_methods", {}).get(lang, [])
+                    cult_text = record.get("management_methods", {}).get("cultural", {}).get(lang, "")
+                    bio_text = record.get("management_methods", {}).get("biological", {}).get(lang, "")
+                    prev_combined = " ".join(prev_list) if isinstance(prev_list, list) else str(prev_list)
+                    mgt_text = f"Cultural Controls: {cult_text} | Biological Controls: {bio_text} | Prevention: {prev_combined}".strip()
+                else:
+                    prev_val = record.get("prevention_methods", "")
+                    mgt_val = record.get("management_methods", "")
+                    mgt_text = f"Prevention: {prev_val} | Management: {mgt_val}".strip()
+
+                if mgt_text:
+                    all_chunks.append(
+                        DocumentChunk(
+                            chunk_id=f"{disease_id}_{lang}_management",
+                            disease_id=disease_id,
+                            crop=crop,
+                            disease_name=disease_name,
+                            scientific_name=scientific_name,
+                            pathogen_type=pathogen_type,
+                            section="cultural_and_biological",
+                            language=lang,
+                            text=f"Crop: {crop.capitalize()} | Disease: {disease_name} | {mgt_text}",
+                            metadata={"type": "non_chemical_management", "references": refs}
+                        )
+                    )
+
+                # 4. Chemical Management chunk
+                if isinstance(record.get("management_methods"), dict):
+                    chem_list = record.get("management_methods", {}).get("chemical", [])
+                    if chem_list:
+                        chem_details = []
+                        for c in chem_list:
+                            c_name = c.get("chemical_name", "Chemical")
+                            c_trade = c.get("trade_names", "")
+                            c_dose = c.get("dosage", "")
+                            c_phi = c.get("waiting_period_phi_days", 30)
+                            c_target = c.get("target_pathogen", "")
+                            chem_details.append(f"{c_name} (Brands: {c_trade}) @ {c_dose}, PHI: {c_phi} days, Target: {c_target}")
+
+                        chem_str = " ; ".join(chem_details)
+                        all_chunks.append(
+                            DocumentChunk(
+                                chunk_id=f"{disease_id}_{lang}_chemical",
+                                disease_id=disease_id,
+                                crop=crop,
+                                disease_name=disease_name,
+                                scientific_name=scientific_name,
+                                pathogen_type=pathogen_type,
+                                section="chemical",
+                                language=lang,
+                                text=f"Crop: {crop.capitalize()} | Disease: {disease_name} | Approved Chemical Fungicides/Insecticides (CIBRC): {chem_str}",
+                                metadata={"type": "chemical_management", "references": refs, "phi_tracked": True}
+                            )
+                        )
+
+        # Ingest external knowledge base documents if available
+        if include_knowledge_base:
+            kb_dir = Path("data/knowledge_base")
+            if kb_dir.exists():
+                try:
+                    from app.services.rag.document_pipeline import document_pipeline
+                    document_pipeline.ingest_directory(str(kb_dir))
+                    kb_chunks = document_pipeline.to_rag_document_chunks()
+                    all_chunks.extend(kb_chunks)
+                    logger.info(f"Loaded {len(kb_chunks)} additional chunks from knowledge base directory")
+                except Exception as e:
+                    logger.warning(f"Could not load knowledge base documents: {e}")
+
+        self.index_chunks(all_chunks)
+
+    def build_index_from_seeds(self):
+        """Loads seed and knowledge base documents into index."""
+        self.build_index(include_knowledge_base=True)
+
     def index_chunks(self, chunks: List[DocumentChunk]):
         """Builds BM25 and dense vector structures from chunks."""
         self.chunks = chunks
@@ -303,11 +536,13 @@ class AgriculturalRAGIndexer:
         query: str,
         crop_filter: Optional[str] = None,
         language_filter: Optional[str] = None,
+        diagnostic_context: Optional[Dict[str, Any]] = None,
+        weather_context: Optional[Dict[str, Any]] = None,
         top_k: int = 4
     ) -> List[RetrievalResult]:
         """
         Executes Reciprocal Rank Fusion (RRF) search combining BM25 and Dense Cosine Similarity
-        with domain entity boosting.
+        with domain entity boosting and contextual cross-scoring reranking.
         """
         if not self.is_indexed or not self.chunks:
             self.build_index_from_seeds()
@@ -346,11 +581,39 @@ class AgriculturalRAGIndexer:
         elif "healthy" in q_lower or "निरोगी" in q_lower or "स्वस्थ" in q_lower:
             boost_target = "healthy"
 
+        # If not explicitly in query text, extract target disease from diagnostic context
+        if not boost_target and diagnostic_context:
+            diag_disease = (diagnostic_context.get("predicted_disease") or diagnostic_context.get("disease_name") or "").lower()
+            if "early" in diag_disease:
+                boost_target = "early"
+            elif "late" in diag_disease:
+                boost_target = "late"
+            elif "red" in diag_disease:
+                boost_target = "red"
+            elif "rust" in diag_disease:
+                boost_target = "rust"
+            elif "purple" in diag_disease:
+                boost_target = "purple"
+            elif "stemphylium" in diag_disease:
+                boost_target = "stemphylium"
+            elif "bacterial" in diag_disease:
+                boost_target = "bacterial"
+            elif "curl" in diag_disease:
+                boost_target = "curl"
+            elif "smut" in diag_disease:
+                boost_target = "smut"
+            elif "healthy" in diag_disease:
+                boost_target = "healthy"
+
         crop_boost = None
         if "tomato" in q_lower or "टोमॅटो" in q_lower or "टमाटर" in q_lower:
             crop_boost = "tomato"
         elif "sugarcane" in q_lower or "ऊस" in q_lower or "गन्ना" in q_lower:
             crop_boost = "sugarcane"
+        elif "onion" in q_lower or "कांदा" in q_lower or "प्याज" in q_lower:
+            crop_boost = "onion"
+        elif diagnostic_context and diagnostic_context.get("crop"):
+            crop_boost = diagnostic_context.get("crop", "").lower()
 
         # 1. Compute BM25 scores
         k1 = 1.5
@@ -421,12 +684,22 @@ class AgriculturalRAGIndexer:
         # Sort by RRF score
         fused_results.sort(key=lambda x: x[1], reverse=True)
 
+        # Contextual Cross-Score Reranking (Diagnostic concordance + Intent + Weather)
+        reranked_candidates = CrossScoreReranker.rerank(
+            candidates=fused_results[:max(top_k * 3, 10)],
+            chunks=self.chunks,
+            query=query,
+            diagnostic_context=diagnostic_context,
+            weather_context=weather_context,
+            top_k=top_k
+        )
+
         results = []
-        for rank, (idx, rrf_score, b_score, d_score) in enumerate(fused_results[:top_k], start=1):
+        for rank, (idx, final_score, b_score, d_score) in enumerate(reranked_candidates, start=1):
             results.append(
                 RetrievalResult(
                     chunk=self.chunks[idx],
-                    score=round(rrf_score, 5),
+                    score=round(final_score, 5),
                     lexical_score=round(b_score, 4),
                     dense_score=round(d_score, 4),
                     rank=rank

@@ -1,0 +1,50 @@
+[
+  {
+    "crop": "sugarcane",
+    "disease": "Red Rot",
+    "section": "symptoms",
+    "language": "mr",
+    "text": "उसावरील तांबडे कूज (रेड रॉट) रोगाची लक्षणे: टोकापासून तिसरे किंवा चौथे पान पिवळे पडून सुकते. उसाचा कांडा उभा चिरल्यास आतील गर गर्द लाल रंगाचा दिसतो आणि त्यावर पांढरे आडवे पट्टे स्पष्टपणे दिसतात. खोडातून आंबूस किंवा दारूसारखा वास येतो.",
+    "institution": "MPKV Rahuri & ICAR-SBI"
+  },
+  {
+    "crop": "sugarcane",
+    "disease": "Red Rot",
+    "section": "chemical",
+    "language": "mr",
+    "text": "उसावरील तांबडे कूज रोगाचे रासायनिक नियंत्रण (CIBRC प्रमाणित): लागवडीपूर्वी बेणे कार्बेन्डाझिम ५०% WP @ १ ग्रॅम प्रति लिटर पाण्यात १५ मिनिटे बुडवून बेणेप्रक्रिया करावी. शेतात रोगाची सुरुवातीची लक्षणे दिसल्यास थायोफिनेट मिथाईल ७०% WP @ १ ग्रॅम प्रति लिटर अथवा कार्बेन्डाझिम ५०% WP @ १ ग्रॅम प्रति लिटर आळवणी करावी. काढणीपूर्वीचा कालावधी (PHI): ३० दिवस.",
+    "institution": "CIBRC & MPKV Rahuri"
+  },
+  {
+    "crop": "sugarcane",
+    "disease": "Sugarcane Rust",
+    "section": "symptoms",
+    "language": "mr",
+    "text": "उसावरील तांबेरा रोगाची लक्षणे: पानांवर प्रथम पिवळसर लांबट ठिपके पडतात, नंतर त्याचे रूपांतर विटकरी किंवा तांबूस-तपकिरी रंगाच्या लांबट फोडांमध्ये (पुस्ट्युल्स) होते. हे फोड फुटून त्यातून तांबूस रंगाची पावडर बाहेर पडते. गंभीर प्रादुर्भावात पाने करपून वाळतात.",
+    "institution": "MPKV Rahuri"
+  },
+  {
+    "crop": "sugarcane",
+    "disease": "Sugarcane Rust",
+    "section": "chemical",
+    "language": "mr",
+    "text": "उसावरील तांबेरा रोगाचे रासायनिक नियंत्रण: प्रादुर्भाव दिसताच मँकोझेब ७५% WP @ २.५ ग्रॅम प्रति लिटर किंवा पायराक्लोस्ट्रोबिन २०% WG @ १ ग्रॅम प्रति लिटर पाण्यात मिसळून फवारावे. ढगाळ हवामान आणि दवाचे प्रमाण जास्त असल्यास १५ दिवसांनी दुसरी फवारणी करावी. काढणीपूर्वीचा कालावधी (PHI): २१ ते ३० दिवस.",
+    "institution": "CIBRC & MPKV Rahuri"
+  },
+  {
+    "crop": "sugarcane",
+    "disease": "Sugarcane Smut",
+    "section": "overview",
+    "language": "en",
+    "text": "Sugarcane Smut (Sporisorium scitamineum): Characterized by production of a whip-like, curved black sorus at apical shoot axis. Control requires hot water treatment of seed canes at 52°C for 30 minutes, roguing out whipped stalks inside plastic bags, and spraying Propiconazole 25% EC @ 1.0 ml/litre of water.",
+    "institution": "ICAR-SBI Coimbatore"
+  },
+  {
+    "crop": "sugarcane",
+    "disease": "Nutrition and Fertigation",
+    "section": "nutrition",
+    "language": "en",
+    "text": "Sugarcane Fertigation Guidelines for Maharashtra (MPKV): For Adsali cane, total recommended dose of fertilizer is 400:170:170 kg N:P2O5:K2O per hectare. Apply nitrogen in split doses: 10% at planting, 40% between 6 to 16 weeks, 10% at earthing up, and 40% through drip fertigation during grand growth stage using urea, 0:52:34, and potassium sulphate.",
+    "institution": "MPKV Rahuri"
+  }
+]
