@@ -1,0 +1,50 @@
+{
+  "Onion___healthy": {
+    "sample_file": "Onion___healthy_AUG_00001_ddeeb25b.jpg",
+    "ground_truth": "Onion___healthy",
+    "predicted_class": "Onion___healthy",
+    "predicted_confidence": 0.9987,
+    "match": true,
+    "peak_activation": 0.9960784316062927,
+    "mean_activation": 0.2104,
+    "high_activation_area_pct": 12.95,
+    "heatmap_artifact": "Onion___healthy_gradcam.png",
+    "overlay_artifact": "Onion___healthy_overlay.png"
+  },
+  "Onion___iris_yellow_virus": {
+    "sample_file": "Onion___iris_yellow_virus_AUG_01288_e383e066.jpg",
+    "ground_truth": "Onion___iris_yellow_virus",
+    "predicted_class": "Onion___iris_yellow_virus",
+    "predicted_confidence": 1.0,
+    "match": true,
+    "peak_activation": 0.9960784316062927,
+    "mean_activation": 0.1273,
+    "high_activation_area_pct": 9.36,
+    "heatmap_artifact": "Onion___iris_yellow_virus_gradcam.png",
+    "overlay_artifact": "Onion___iris_yellow_virus_overlay.png"
+  },
+  "Onion___purple_blotch": {
+    "sample_file": "Onion___purple_blotch_AUG_02551_64f8b25b.jpg",
+    "ground_truth": "Onion___purple_blotch",
+    "predicted_class": "Onion___purple_blotch",
+    "predicted_confidence": 1.0,
+    "match": true,
+    "peak_activation": 0.9882352948188782,
+    "mean_activation": 0.0922,
+    "high_activation_area_pct": 6.3,
+    "heatmap_artifact": "Onion___purple_blotch_gradcam.png",
+    "overlay_artifact": "Onion___purple_blotch_overlay.png"
+  },
+  "Onion___stemphylium_blight": {
+    "sample_file": "Onion___stemphylium_blight_AUG_03288_cb4bc917.jpg",
+    "ground_truth": "Onion___stemphylium_blight",
+    "predicted_class": "Onion___stemphylium_blight",
+    "predicted_confidence": 0.9974,
+    "match": true,
+    "peak_activation": 0.9921568632125854,
+    "mean_activation": 0.0864,
+    "high_activation_area_pct": 6.68,
+    "heatmap_artifact": "Onion___stemphylium_blight_gradcam.png",
+    "overlay_artifact": "Onion___stemphylium_blight_overlay.png"
+  }
+}

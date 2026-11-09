@@ -1,0 +1,8 @@
+{
+  "corrupted_images_detected": 0,
+  "corrupted_images_removed": 0,
+  "total_verified_images": 5317,
+  "exact_sha256_duplicate_groups": 2,
+  "leakage_prevention_method": "Parent-Derived Duplicate Group Stratified Splitting",
+  "data_leakage_violations": 0
+}

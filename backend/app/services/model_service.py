@@ -45,6 +45,7 @@ class ModelServingService:
         "sugarcane": {
             "checkpoint": "models/sugarcane/efficientnet_b0/pipeline_trained/best_model.pth",
             "onnx": "models/sugarcane/efficientnet_b0/model.onnx",
+            "onnx_int8": "models/sugarcane/efficientnet_b0/model_int8.onnx",
             "arch": "efficientnet_b0",
             "temperature": 1.2580,
             "display_name": "Sugarcane Pathology (EfficientNet-B0)"
@@ -52,6 +53,7 @@ class ModelServingService:
         "tomato": {
             "checkpoint": "models/tomato/mobilenet_v3/best_model.pth",
             "onnx": "models/tomato/mobilenet_v3/model.onnx",
+            "onnx_int8": "models/tomato/mobilenet_v3/model_int8.onnx",
             "arch": "mobilenet_v3",
             "temperature": 0.8350,
             "display_name": "Tomato Pathology (MobileNetV3-Large)"
@@ -59,8 +61,9 @@ class ModelServingService:
         "onion": {
             "checkpoint": "models/onion/mobilenet_v3/best_model.pth",
             "onnx": "models/onion/mobilenet_v3/model.onnx",
+            "onnx_int8": "models/onion/mobilenet_v3/model_int8.onnx",
             "arch": "mobilenet_v3",
-            "temperature": 2.2000,
+            "temperature": 1.3047,
             "display_name": "Onion Pathology (MobileNetV3-Large)"
         }
     }
@@ -183,7 +186,7 @@ class ModelServingService:
         model.to(self.device)
         model.eval()
 
-        temp = self.CROP_REGISTRY.get(normalized_crop, {}).get("temperature", 1.0)
+        temp = checkpoint.get("temperature", self.CROP_REGISTRY.get(normalized_crop, {}).get("temperature", 1.0))
         crop_entry = {
             "model": model,
             "target_conv_layer": model.target_conv_layer,
@@ -315,13 +318,27 @@ class ModelServingService:
     def predict(
         self,
         image: Union[Image.Image, bytes],
-        crop: str = "sugarcane",
+        crop: Optional[str] = "sugarcane",
         generate_gradcam: bool = False,
         save_heatmap: bool = True,
         use_onnx: bool = False,
     ) -> Dict[str, Any]:
-        """Runs end-to-end inference on the input image using crop-specific registered model."""
-        normalized_crop = crop.strip().lower()
+        """Runs end-to-end inference on the input image using crop-specific registered model.
+        Supports automatic crop identification if crop is 'auto', 'unknown', or None.
+        """
+        detection_method = "explicit_user_selection"
+        detected_conf = None
+        crop_scores = None
+
+        raw_crop = str(crop or "auto").strip().lower()
+        if raw_crop in ("auto", "unknown", "detect", "", "none"):
+            from app.services.crop_detector import crop_detector
+            detected_crop, detected_conf, crop_scores = crop_detector.identify_crop(image)
+            normalized_crop = detected_crop
+            detection_method = "auto_detected_classifier"
+            logger.info(f"Auto-detected crop '{normalized_crop}' with confidence {detected_conf:.4f}")
+        else:
+            normalized_crop = raw_crop
 
         # Validate crop support
         if normalized_crop not in self.CROP_REGISTRY:
@@ -335,7 +352,7 @@ class ModelServingService:
             try:
                 self.load_model(crop=normalized_crop)
             except Exception as e:
-                raise ModelNotLoadedError(f"Model service for crop '{crop}' is unavailable: {e}")
+                raise ModelNotLoadedError(f"Model service for crop '{normalized_crop}' is unavailable: {e}")
 
         crop_entry = self.crop_models[normalized_crop]
         tensor, orig_img = self.preprocess_image(image)
@@ -393,12 +410,90 @@ class ModelServingService:
 
         return {
             "crop": normalized_crop,
+            "crop_detection_method": detection_method,
+            "crop_detection_confidence": detected_conf,
+            "crop_detection_scores": crop_scores,
             "predicted_class": predicted_class,
             "confidence": round(confidence, 4),
             "class_scores": class_scores,
             "model_version": crop_entry["model_version"],
             "explanation_status": explanation_status,
             "heatmap_path": heatmap_rel_path,
+        }
+
+    def get_onnx_session(self, crop: str = "sugarcane", use_int8: bool = False):
+        """Retrieves or initializes an ONNX Runtime inference session (FP32 or INT8)."""
+        import onnxruntime as ort
+
+        normalized_crop = crop.strip().lower()
+        if normalized_crop not in self.CROP_REGISTRY:
+            raise UnsupportedCropError(f"Unsupported crop for ONNX inference: '{crop}'.")
+
+        cache_key = f"{normalized_crop}_{'int8' if use_int8 else 'fp32'}"
+        if cache_key in self.onnx_sessions:
+            return self.onnx_sessions[cache_key]
+
+        root = self._resolve_project_root()
+        reg = self.CROP_REGISTRY[normalized_crop]
+        target_key = "onnx_int8" if use_int8 else "onnx"
+        rel_path = reg.get(target_key)
+        full_path = root / rel_path if rel_path else None
+
+        if not full_path or not full_path.exists():
+            # Fallback to standard ONNX if INT8 not yet generated
+            rel_path = reg.get("onnx")
+            full_path = root / rel_path if rel_path else None
+
+        if not full_path or not full_path.exists():
+            raise FileNotFoundError(f"ONNX model file not found at: {full_path}")
+
+        session = ort.InferenceSession(str(full_path), providers=["CPUExecutionProvider"])
+        self.onnx_sessions[cache_key] = session
+        return session
+
+    def predict_onnx(
+        self,
+        image: Union[Image.Image, bytes],
+        crop: str = "sugarcane",
+        use_int8: bool = False,
+    ) -> Dict[str, Any]:
+        """Executes high-throughput forward pass using ONNX Runtime (FP32 or quantized INT8)."""
+        normalized_crop = crop.strip().lower()
+        if normalized_crop not in self.crop_models:
+            self.load_model(crop=normalized_crop)
+
+        crop_entry = self.crop_models[normalized_crop]
+        tensor, _ = self.preprocess_image(image)
+        inp_array = tensor.unsqueeze(0).numpy()
+
+        session = self.get_onnx_session(crop=normalized_crop, use_int8=use_int8)
+        input_name = session.get_inputs()[0].name
+        raw_logits = session.run(None, {input_name: inp_array})[0]
+
+        temp = crop_entry.get("temperature", 1.0)
+        calibrated_logits = raw_logits / max(temp, 1e-4)
+
+        # Softmax calculation
+        exp_logits = np.exp(calibrated_logits - np.max(calibrated_logits, axis=1, keepdims=True))
+        probs = (exp_logits / np.sum(exp_logits, axis=1, keepdims=True))[0]
+
+        pred_idx = int(np.argmax(probs))
+        predicted_class = crop_entry["idx_to_class"].get(str(pred_idx), f"Class_{pred_idx}")
+        confidence = float(probs[pred_idx])
+
+        class_scores = {
+            crop_entry["idx_to_class"].get(str(i), f"Class_{i}"): round(float(probs[i]), 4)
+            for i in range(len(probs))
+        }
+
+        mode = "INT8" if use_int8 else "FP32"
+        return {
+            "crop": normalized_crop,
+            "predicted_class": predicted_class,
+            "confidence": round(confidence, 4),
+            "class_scores": class_scores,
+            "model_version": f"{crop_entry['model_version']}-ONNX-{mode}",
+            "inference_engine": f"onnxruntime-{mode.lower()}",
         }
 
 

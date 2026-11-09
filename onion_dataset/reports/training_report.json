@@ -1,0 +1,102 @@
+{
+  "architecture": "MobileNetV3-Large",
+  "epochs": 6,
+  "learning_rate": 0.0007,
+  "total_duration_seconds": 1297.16,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.515,
+      "train_accuracy": 0.796,
+      "val_loss": 1.0797,
+      "val_accuracy": 0.7512,
+      "val_f1": 0.7647,
+      "epoch_duration_seconds": 248.5
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.2011,
+      "train_accuracy": 0.9185,
+      "val_loss": 0.2038,
+      "val_accuracy": 0.9325,
+      "val_f1": 0.9356,
+      "epoch_duration_seconds": 213.25
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.1115,
+      "train_accuracy": 0.9559,
+      "val_loss": 0.1227,
+      "val_accuracy": 0.9537,
+      "val_f1": 0.9591,
+      "epoch_duration_seconds": 220.29
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.0747,
+      "train_accuracy": 0.9694,
+      "val_loss": 0.0935,
+      "val_accuracy": 0.9675,
+      "val_f1": 0.972,
+      "epoch_duration_seconds": 209.03
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.0447,
+      "train_accuracy": 0.9841,
+      "val_loss": 0.0501,
+      "val_accuracy": 0.9788,
+      "val_f1": 0.982,
+      "epoch_duration_seconds": 198.49
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.0287,
+      "train_accuracy": 0.9901,
+      "val_loss": 0.049,
+      "val_accuracy": 0.98,
+      "val_f1": 0.9831,
+      "epoch_duration_seconds": 207.57
+    }
+  ],
+  "optimal_temperature": 1.3046599626541138,
+  "final_test_metrics": {
+    "test_accuracy": 0.9862,
+    "macro_f1": 0.9885,
+    "macro_precision": 0.9883,
+    "macro_recall": 0.9888,
+    "avg_latency_ms": 22.41
+  },
+  "confusion_matrix": [
+    [
+      246,
+      6,
+      0,
+      1
+    ],
+    [
+      4,
+      228,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      115,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      197
+    ]
+  ],
+  "classes": [
+    "Onion___healthy",
+    "Onion___iris_yellow_virus",
+    "Onion___purple_blotch",
+    "Onion___stemphylium_blight"
+  ]
+}

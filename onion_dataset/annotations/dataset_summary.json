@@ -1,0 +1,48 @@
+{
+  "dataset_name": "COLD_Onion_Pathology_Expanded_Standardized",
+  "total_images": 5317,
+  "total_raw_parent_images": 815,
+  "total_augmented_images": 4502,
+  "exact_duplicates_count": 2,
+  "splits_summary": {
+    "train": 3720,
+    "val": 800,
+    "test": 797,
+    "split_ratios": {
+      "train": 0.7,
+      "val": 0.15,
+      "test": 0.15
+    }
+  },
+  "class_distribution": {
+    "train": {
+      "Onion___healthy": 1193,
+      "Onion___iris_yellow_virus": 1090,
+      "Onion___purple_blotch": 524,
+      "Onion___stemphylium_blight": 913
+    },
+    "val": {
+      "Onion___healthy": 258,
+      "Onion___iris_yellow_virus": 231,
+      "Onion___purple_blotch": 114,
+      "Onion___stemphylium_blight": 197
+    },
+    "test": {
+      "Onion___healthy": 253,
+      "Onion___iris_yellow_virus": 232,
+      "Onion___purple_blotch": 115,
+      "Onion___stemphylium_blight": 197
+    }
+  },
+  "dimensions_profile": {
+    "all_images_uniform_resolution": true,
+    "channels": 3,
+    "color_space": "RGB"
+  },
+  "licensing": {
+    "license_type": "Creative Commons Attribution 4.0 International (CC-BY-4.0)",
+    "source_citation": "M. P Aishwarya, A. Padmanabha Reddy, Data in Brief 54 (2024) 110524",
+    "doi": "10.17632/7nxxn4gj5s.3",
+    "commercial_academic_use_permitted": true
+  }
+}

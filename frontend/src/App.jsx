@@ -8,6 +8,7 @@ export default function App() {
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [diagResult, setDiagResult] = useState(null);
+  const [pdfDownloading, setPdfDownloading] = useState(false);
   const [weatherData, setWeatherData] = useState(null);
   const [district, setDistrict] = useState('pune');
   const [districtsList, setDistrictsList] = useState([]);
@@ -115,14 +116,30 @@ export default function App() {
     try {
       const formData = new FormData();
       formData.append('file', selectedImage);
+      formData.append('crop_type', crop);
       formData.append('crop', crop);
       formData.append('generate_gradcam', 'true');
       formData.append('save_heatmap', 'true');
+      if (gpsLocation?.lat && gpsLocation?.lon) {
+        formData.append('latitude', gpsLocation.lat);
+        formData.append('longitude', gpsLocation.lon);
+      } else if (district) {
+        formData.append('district', district);
+      }
 
-      const response = await fetch('/api/v1/diagnose/predict', {
+      // Call the Unified Multi-Crop Prediction Endpoint
+      let response = await fetch('/api/crop-health/predict', {
         method: 'POST',
         body: formData,
       });
+
+      if (!response.ok) {
+        // Fallback to legacy endpoint if required
+        response = await fetch('/api/v1/diagnose/predict', {
+          method: 'POST',
+          body: formData,
+        });
+      }
 
       if (!response.ok) {
         const err = await response.json();
@@ -130,18 +147,83 @@ export default function App() {
       }
 
       const data = await response.json();
-      setDiagResult(data);
+      
+      // Adapt unified response contract to UI state
+      const resolvedCrop = data.crop_type || data.crop || crop;
+      const formatted = {
+        crop: resolvedCrop,
+        crop_detection_method: data.crop_detection_method || "explicit_user_selection",
+        crop_detection_confidence: data.crop_detection_confidence,
+        predicted_class: data.predicted_disease || data.predicted_class,
+        disease_name_multilingual: data.disease_name_multilingual || {},
+        confidence: data.model_confidence ?? data.confidence,
+        heatmap_path: data.gradcam_image_url || data.heatmap_path,
+        model_version: data.image_prediction?.model_version || data.model_version || "PikVaidya Multi-Crop v2.2.0",
+        details: {
+          severity: data.image_prediction?.foliar_severity || data.details?.severity || "UNAVAILABLE",
+          affected_area_percentage: data.image_prediction?.affected_area_percentage || data.details?.affected_area_percentage,
+          multimodal_assessment: data.multimodal_assessment ? data : data.details?.multimodal_assessment,
+        },
+        recommendations: data.advisory_recommendations || data.recommendations,
+      };
 
-      // Also auto-inject finding into chat assistant context
+      setDiagResult(formatted);
+      if (crop === 'auto' && resolvedCrop) {
+        setCrop(resolvedCrop);
+      }
+
+      // Auto-inject finding into chat assistant context
       const findingMsg = lang === 'mr'
-        ? `[सिस्टम सूचना] पानाचे निदान झाले: ${data.predicted_class} (विश्वासार्हता: ${(data.confidence * 100).toFixed(1)}%).`
-        : `[System Notice] Image diagnosed: ${data.predicted_class} (Confidence: ${(data.confidence * 100).toFixed(1)}%).`;
+        ? `[सिस्टम सूचना] ${resolvedCrop.toUpperCase()} पिकाचे निदान: ${formatted.predicted_class} (विश्वासार्हता: ${(formatted.confidence * 100).toFixed(1)}%).`
+        : `[System Notice] ${resolvedCrop.toUpperCase()} diagnosed: ${formatted.predicted_class} (Confidence: ${(formatted.confidence * 100).toFixed(1)}%).`;
 
       setChatMessages(prev => [...prev, { sender: 'bot', text: findingMsg, sources: [] }]);
     } catch (err) {
       alert(`Diagnosis Error: ${err.message}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!diagResult) return;
+    setPdfDownloading(true);
+    try {
+      const payload = {
+        crop_name: diagResult.crop || crop,
+        predicted_disease: diagResult.predicted_class,
+        confidence: diagResult.confidence,
+        severity: diagResult.details?.severity || "UNAVAILABLE",
+        affected_area_percentage: diagResult.details?.affected_area_percentage || null,
+        latitude: gpsLocation?.lat || null,
+        longitude: gpsLocation?.lon || null,
+        crop_stage: "grand_growth",
+        preferred_language: lang,
+      };
+
+      const res = await fetch('/api/v1/advisory/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error('Server returned error while generating PDF');
+      }
+
+      const blob = await res.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = blobUrl;
+      downloadLink.download = `PikVaidya_Field_Advisory_${diagResult.crop}_${diagResult.predicted_class}.pdf`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      alert("Failed to download PDF report: " + err.message);
+    } finally {
+      setPdfDownloading(false);
     }
   };
 
@@ -255,6 +337,13 @@ export default function App() {
 
               {/* Crop Tabs */}
               <div className="crop-tabs">
+                <button
+                  className={`crop-tab ${crop === 'auto' ? 'active' : ''}`}
+                  onClick={() => { setCrop('auto'); setDiagResult(null); }}
+                  title="Automatically identify crop from leaf foliage"
+                >
+                  🤖 {t.autoDetect}
+                </button>
                 <button
                   className={`crop-tab ${crop === 'sugarcane' ? 'active' : ''}`}
                   onClick={() => { setCrop('sugarcane'); setDiagResult(null); }}
@@ -553,8 +642,18 @@ export default function App() {
                 {/* Metrics Banner */}
                 <div className="metrics-banner">
                   <div>
-                    <div className="diag-name">{diagResult.predicted_class}</div>
-                    <div className="diag-sub">Crop: {diagResult.crop.toUpperCase()} | Model: {diagResult.model_version}</div>
+                    <div className="diag-name">
+                      {diagResult.disease_name_multilingual?.[lang] || diagResult.predicted_class}
+                    </div>
+                    <div className="diag-sub">
+                      Crop: {diagResult.crop.toUpperCase()}
+                      {diagResult.crop_detection_method === 'auto_detected_classifier' && (
+                        <span style={{ marginLeft: '0.5rem', color: '#38bdf8', fontWeight: 600 }}>
+                          (🤖 AI Identified: {((diagResult.crop_detection_confidence || 0.99) * 100).toFixed(1)}%)
+                        </span>
+                      )}
+                      {' | '}Model: {diagResult.model_version}
+                    </div>
                   </div>
                   {diagResult.details?.severity && (
                     <div className="hero-badge" style={{ background: '#059669', color: '#fff' }}>
@@ -562,6 +661,269 @@ export default function App() {
                     </div>
                   )}
                 </div>
+
+                {/* Download PDF Field Advisory Action */}
+                <div style={{ marginTop: '0.75rem', marginBottom: '0.75rem' }}>
+                  <button
+                    onClick={handleDownloadPdf}
+                    disabled={pdfDownloading}
+                    className="btn"
+                    style={{
+                      width: '100%',
+                      background: '#065f46',
+                      color: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      fontWeight: 600,
+                      padding: '0.65rem 1rem',
+                      borderRadius: '0.5rem',
+                      cursor: pdfDownloading ? 'not-allowed' : 'pointer',
+                      border: 'none',
+                    }}
+                  >
+                    <span>📄</span>
+                    {pdfDownloading ? t.downloadingPdf : t.downloadReportPdf}
+                  </button>
+                </div>
+
+                {/* Multimodal Crop Health & Microclimate Fusion Card */}
+                {diagResult.details?.multimodal_assessment && (() => {
+                  const mm = diagResult.details.multimodal_assessment;
+                  const assessment = mm.multimodal_assessment || {};
+                  const stresses = mm.weather_risk?.environmental_stresses || {};
+                  const explain = mm.explainability || {};
+                  const anomaly = assessment.anomaly_warning?.[lang] || assessment.anomaly_warning?.en;
+                  const healthScore = assessment.crop_health_index ?? 75;
+                  const velocity = assessment.disease_progression_velocity || "MODERATE";
+
+                  return (
+                    <div
+                      style={{
+                        background: 'rgba(15, 23, 42, 0.75)',
+                        border: '1px solid #334155',
+                        borderRadius: '0.75rem',
+                        padding: '1rem',
+                        marginTop: '0.75rem',
+                        marginBottom: '0.75rem',
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          borderBottom: '1px solid #1e293b',
+                          paddingBottom: '0.5rem',
+                          marginBottom: '0.75rem',
+                        }}
+                      >
+                        <h4
+                          style={{
+                            fontSize: '0.95rem',
+                            fontWeight: 700,
+                            color: '#38bdf8',
+                            margin: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                          }}
+                        >
+                          <span>🌐</span> {t.multimodalTitle}
+                        </h4>
+                        <span
+                          style={{
+                            fontSize: '0.75rem',
+                            padding: '0.2rem 0.5rem',
+                            borderRadius: '0.375rem',
+                            fontWeight: 600,
+                            background:
+                              assessment.is_environmentally_concordant
+                                ? '#065f46'
+                                : '#854d0e',
+                            color: '#fff',
+                          }}
+                        >
+                          {assessment.health_status_label || assessment.confidence_tier || 'CONCORDANT'}
+                        </span>
+                      </div>
+
+                      {/* Composite Health Index & Progression Velocity */}
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                          gap: '0.5rem',
+                          marginBottom: '0.75rem',
+                        }}
+                      >
+                        <div
+                          style={{
+                            background: '#0f172a',
+                            padding: '0.5rem 0.75rem',
+                            borderRadius: '0.5rem',
+                            border: '1px solid #1e293b',
+                          }}
+                        >
+                          <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{t.compositeHealthScore}</div>
+                          <div
+                            style={{
+                              fontSize: '1.25rem',
+                              fontWeight: 700,
+                              color:
+                                healthScore >= 70
+                                  ? '#10b981'
+                                  : healthScore >= 40
+                                  ? '#f59e0b'
+                                  : '#ef4444',
+                            }}
+                          >
+                            {typeof healthScore === 'number' ? healthScore.toFixed(1) : healthScore} / 100
+                          </div>
+                        </div>
+
+                        <div
+                          style={{
+                            background: '#0f172a',
+                            padding: '0.5rem 0.75rem',
+                            borderRadius: '0.5rem',
+                            border: '1px solid #1e293b',
+                          }}
+                        >
+                          <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{t.infectionVelocity}</div>
+                          <div
+                            style={{
+                              fontSize: '1rem',
+                              fontWeight: 700,
+                              color:
+                                velocity === 'RAPID'
+                                  ? '#ef4444'
+                                  : velocity === 'MODERATE'
+                                  ? '#f59e0b'
+                                  : '#10b981',
+                            }}
+                          >
+                            ⚡ {velocity}
+                          </div>
+                        </div>
+
+                        <div
+                          style={{
+                            background: '#0f172a',
+                            padding: '0.5rem 0.75rem',
+                            borderRadius: '0.5rem',
+                            border: '1px solid #1e293b',
+                          }}
+                        >
+                          <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{t.environmentalConduciveness}</div>
+                          <div
+                            style={{
+                              fontSize: '1rem',
+                              fontWeight: 700,
+                              color:
+                                (mm.weather_risk?.overall_disease_pressure || 0) >= 0.6
+                                  ? '#ef4444'
+                                  : (mm.weather_risk?.overall_disease_pressure || 0) >= 0.3
+                                  ? '#f59e0b'
+                                  : '#10b981',
+                            }}
+                          >
+                            {((mm.weather_risk?.overall_disease_pressure || 0) * 100).toFixed(0)}%
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Physiological Environmental Stresses */}
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(4, 1fr)',
+                          gap: '0.4rem',
+                          marginBottom: '0.75rem',
+                          textAlign: 'center',
+                        }}
+                      >
+                        <div style={{ background: '#1e293b', padding: '0.4rem', borderRadius: '0.375rem' }}>
+                          <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{t.heatStress}</div>
+                          <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#f87171' }}>
+                            {((stresses.heat_stress_index || 0) * 100).toFixed(0)}%
+                          </div>
+                        </div>
+                        <div style={{ background: '#1e293b', padding: '0.4rem', borderRadius: '0.375rem' }}>
+                          <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{t.waterDeficit}</div>
+                          <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#fbbf24' }}>
+                            {((stresses.water_stress_index || 0) * 100).toFixed(0)}%
+                          </div>
+                        </div>
+                        <div style={{ background: '#1e293b', padding: '0.4rem', borderRadius: '0.375rem' }}>
+                          <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{t.floodRisk}</div>
+                          <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#60a5fa' }}>
+                            {((stresses.excess_water_flood_index || 0) * 100).toFixed(0)}%
+                          </div>
+                        </div>
+                        <div style={{ background: '#1e293b', padding: '0.4rem', borderRadius: '0.375rem' }}>
+                          <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{t.windDrift}</div>
+                          <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#c084fc' }}>
+                            {((stresses.wind_damage_risk || 0) * 100).toFixed(0)}%
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Multimodal Explainability Narrative & Bayesian Weights */}
+                      <div
+                        style={{
+                          background: '#0f172a',
+                          padding: '0.6rem 0.75rem',
+                          borderRadius: '0.5rem',
+                          borderLeft: '3px solid #38bdf8',
+                          fontSize: '0.8rem',
+                          color: '#cbd5e1',
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        <div style={{ marginBottom: '0.4rem' }}>
+                          {explain.multimodal_narrative?.[lang] || explain.multimodal_narrative?.en || ""}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: '0.7rem',
+                            color: '#64748b',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            marginTop: '0.4rem',
+                            borderTop: '1px solid #1e293b',
+                            paddingTop: '0.3rem',
+                          }}
+                        >
+                          <span>
+                            {t.evidenceWeight}: {t.visualWeight} {Math.round(explain.image_contribution_pct ?? 70)}% | {t.weatherWeight} {Math.round(explain.weather_contribution_pct ?? 30)}%
+                          </span>
+                          <span>
+                            Model: {mm.weather_risk?.dominant_weather_risk || 'ICAR Epidemiological'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Environmental Anomaly Alert Banner */}
+                      {anomaly && (
+                        <div
+                          style={{
+                            marginTop: '0.5rem',
+                            padding: '0.5rem',
+                            borderRadius: '0.375rem',
+                            background: 'rgba(239, 68, 68, 0.15)',
+                            border: '1px solid #ef4444',
+                            color: '#fca5a5',
+                            fontSize: '0.75rem',
+                          }}
+                        >
+                          ⚠️ <strong>{t.anomalyAlert}:</strong> {anomaly}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {/* Context-Aware Advisory */}
                 {diagResult.details?.contextual_advisory && (

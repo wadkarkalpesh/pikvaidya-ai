@@ -1,0 +1,106 @@
+[
+  {
+    "scenario": "Scenario 1: Verified Purple Blotch with Favorable Monsoonal Microclimate",
+    "image_only": {
+      "prediction": "Onion___purple_blotch",
+      "confidence": 1.0,
+      "limitation": "Zero microclimate context; unable to detect spray safety or anomaly."
+    },
+    "weather_only": {
+      "dominant_risk": "HIGH_EPIDEMIOLOGICAL_RISK_PURPLE_BLOTCH",
+      "overall_disease_pressure": 1.0,
+      "spray_suitability": "GATED_UNFAVOURABLE",
+      "limitation": "Cannot confirm active disease presence without physical foliar symptoms."
+    },
+    "multimodal_fused": {
+      "primary_diagnosis": "Onion___purple_blotch",
+      "display_name_en": "Purple Blotch (Alternaria porri)",
+      "fused_confidence": 0.99,
+      "crop_health_index": 25.0,
+      "health_status_label": "SEVERELY_INFECTED",
+      "progression_velocity": "RAPID",
+      "is_concordant": true,
+      "has_anomaly_warning": false,
+      "spray_verdict": "GATED_UNFAVOURABLE",
+      "advantage": "Holistic synthesis: enforces non-override while gating spray safety and providing velocity."
+    }
+  },
+  {
+    "scenario": "Scenario 2: Anomaly / Incongruence (Purple Blotch Image in Extreme Arid Desert Heat)",
+    "image_only": {
+      "prediction": "Onion___purple_blotch",
+      "confidence": 1.0,
+      "limitation": "Zero microclimate context; unable to detect spray safety or anomaly."
+    },
+    "weather_only": {
+      "dominant_risk": "SEVERE_HEAT_STRESS",
+      "overall_disease_pressure": 0.65,
+      "spray_suitability": "GATED_UNFAVOURABLE",
+      "limitation": "Cannot confirm active disease presence without physical foliar symptoms."
+    },
+    "multimodal_fused": {
+      "primary_diagnosis": "Onion___purple_blotch",
+      "display_name_en": "Purple Blotch (Alternaria porri)",
+      "fused_confidence": 0.88,
+      "crop_health_index": 19.8,
+      "health_status_label": "SEVERELY_INFECTED",
+      "progression_velocity": "SLOW",
+      "is_concordant": false,
+      "has_anomaly_warning": true,
+      "spray_verdict": "GATED_UNFAVOURABLE",
+      "advantage": "Holistic synthesis: enforces non-override while gating spray safety and providing velocity."
+    }
+  },
+  {
+    "scenario": "Scenario 3: Asymptomatic Foliage Facing High Fungal Inoculum Pressure",
+    "image_only": {
+      "prediction": "Onion___healthy",
+      "confidence": 0.9912,
+      "limitation": "Zero microclimate context; unable to detect spray safety or anomaly."
+    },
+    "weather_only": {
+      "dominant_risk": "HIGH_EPIDEMIOLOGICAL_RISK_PURPLE_BLOTCH",
+      "overall_disease_pressure": 1.0,
+      "spray_suitability": "GATED_UNFAVOURABLE",
+      "limitation": "Cannot confirm active disease presence without physical foliar symptoms."
+    },
+    "multimodal_fused": {
+      "primary_diagnosis": "Onion___healthy",
+      "display_name_en": "Healthy Onion Foliage",
+      "fused_confidence": 0.8723,
+      "crop_health_index": 39.6,
+      "health_status_label": "MODERATELY_INFECTED",
+      "progression_velocity": "SLOW",
+      "is_concordant": false,
+      "has_anomaly_warning": true,
+      "spray_verdict": "GATED_UNFAVOURABLE",
+      "advantage": "Holistic synthesis: enforces non-override while gating spray safety and providing velocity."
+    }
+  },
+  {
+    "scenario": "Scenario 4: Iris Yellow Spot Virus in Hot Dry Weather with High Thrips Pressure",
+    "image_only": {
+      "prediction": "Onion___iris_yellow_virus",
+      "confidence": 1.0,
+      "limitation": "Zero microclimate context; unable to detect spray safety or anomaly."
+    },
+    "weather_only": {
+      "dominant_risk": "SEVERE_HEAT_STRESS",
+      "overall_disease_pressure": 1.0,
+      "spray_suitability": "GATED_UNFAVOURABLE",
+      "limitation": "Cannot confirm active disease presence without physical foliar symptoms."
+    },
+    "multimodal_fused": {
+      "primary_diagnosis": "Onion___iris_yellow_virus",
+      "display_name_en": "Iris Yellow Spot Virus (IYSV)",
+      "fused_confidence": 0.99,
+      "crop_health_index": 15.9,
+      "health_status_label": "SEVERELY_INFECTED",
+      "progression_velocity": "RAPID",
+      "is_concordant": true,
+      "has_anomaly_warning": false,
+      "spray_verdict": "GATED_UNFAVOURABLE",
+      "advantage": "Holistic synthesis: enforces non-override while gating spray safety and providing velocity."
+    }
+  }
+]

@@ -82,6 +82,10 @@ data/raw/*
 !data/raw/sugarcane/
 data/processed/*
 !data/processed/.gitkeep
+onion_dataset/raw/*
+!onion_dataset/raw/.gitkeep
+onion_dataset/processed/*
+!onion_dataset/processed/.gitkeep
 *.zip
 *.tar
 *.tar.gz

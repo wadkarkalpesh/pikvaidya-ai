@@ -8,12 +8,13 @@ Provides endpoints for:
 
 import logging
 from typing import Optional
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db
 from app.services.weather_service import weather_service
 from app.services.recommendation_engine import recommendation_engine
+from app.services.report_service import report_service
 from app.schemas.advisory import (
     AdvisoryGenerateRequest,
     ContextualAdvisoryResponse,
@@ -78,4 +79,48 @@ async def get_farm_microclimate(
             "hi": assessment.summary_hi,
         },
     )
+
+
+@router.post(
+    "/pdf",
+    status_code=status.HTTP_200_OK,
+    summary="Download Official Multilingual Field Advisory PDF",
+    description=(
+        "Synthesizes diagnostic prediction, weather microclimate, and CIBRC chemical prescriptions "
+        "into a downloadable, publication-grade PDF field advisory report."
+    ),
+)
+async def generate_advisory_pdf_report(
+    request: AdvisoryGenerateRequest,
+    farmer_name: Optional[str] = Query("Registered Farmer", description="Farmer full name"),
+    farm_location: Optional[str] = Query("Maharashtra, India", description="Farm district / taluka"),
+    db: Session = Depends(get_db),
+) -> Response:
+    """Generates and streams an authoritative field diagnostic PDF report."""
+    advisory = await recommendation_engine.generate_advisory(request, db=db)
+    
+    coords = None
+    if request.latitude is not None and request.longitude is not None:
+        coords = f"{request.latitude:.4f}° N, {request.longitude:.4f}° E"
+
+    pdf_bytes = report_service.generate_advisory_pdf(
+        advisory=advisory,
+        farmer_name=farmer_name,
+        farm_location=farm_location,
+        farm_coordinates=coords,
+    )
+
+    clean_crop = request.crop_name.replace(" ", "_")
+    clean_disease = advisory.disease_id.replace(" ", "_")
+    filename = f"PikVaidya_Field_Advisory_{clean_crop}_{clean_disease}.pdf"
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}",
+            "Content-Type": "application/pdf",
+        },
+    )
+
 

@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from app.api.routes import api_router
 from app.api.routes.diseases import router as diseases_router
+from app.api.routes.crop_health import router as crop_health_router
 from app.core.config import settings
 from app.services.model_service import model_service
 
@@ -57,8 +58,10 @@ if settings.CORS_ORIGINS:
 # Include API Router (under /api/v1)
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
-# Also mount diseases router under /api for unversioned direct access
+# Mount unversioned endpoints under /api for platform contracts
 app.include_router(diseases_router, prefix="/api", include_in_schema=False)
+app.include_router(crop_health_router, prefix="/api/crop-health", tags=["Unified Multi-Crop Health Prediction"])
+
 
 # Static file serving for uploaded images and generated Grad-CAM overlays
 uploads_dir = Path("uploads")

@@ -354,6 +354,110 @@ TOMATO_PATHOLOGY_KNOWLEDGE: Dict[str, Dict[str, Any]] = {
     },
 }
 
+# Authoritative agricultural knowledge base for audited onion pathologies
+# Citations: ICAR-DOGR (Rajgurunagar, Pune) & CIBRC Compendium of Registered Pesticides
+ONION_PATHOLOGY_KNOWLEDGE: Dict[str, Dict[str, Any]] = {
+    "Onion___healthy": {
+        "disease_name_en": "Healthy Onion Foliage (Allium cepa)",
+        "disease_name_mr": "निरोगी कांदा पीक",
+        "pathogen_type": "None (Healthy)",
+        "authoritative_source": "ICAR-Directorate of Onion and Garlic Research (DOGR, Pune)",
+        "phi_days": 0,
+        "symptoms_en": "Erect, tubular, glaucous green leaves with firm bulb formation and no lesions.",
+        "symptoms_mr": "उभी, नळीसारखी हिरवीगार पाने, सुरळीत वाढ व पानांवर कोणतेही डाग किंवा चट्टे नाहीत.",
+        "cultural_en": "Maintain regular weeding and avoid waterlogging. Apply balanced NPK fertilizers (100:50:50 kg/ha).",
+        "cultural_mr": "वेळोवेळी खुरपणी करून शेत स्वच्छ ठेवा. पाण्याचा निचरा योग्य ठेवा. शिफारशीत खतमात्रा द्या.",
+        "chemical_en": "No chemical intervention warranted. Continue routine agronomic care.",
+        "chemical_mr": "कोणत्याही रासायनिक औषधांची गरज नाही. नियमित निगा राखा.",
+    },
+    "Onion___purple_blotch": {
+        "disease_name_en": "Onion Purple Blotch (Alternaria porri)",
+        "disease_name_mr": "कांद्यावरील जांभळा करपा रोग",
+        "pathogen_type": "Fungal (Alternaria porri)",
+        "authoritative_source": "ICAR-DOGR Rajgurunagar & CIBRC Approved Package of Practices",
+        "phi_days": 14,
+        "symptoms_en": (
+            "Small water-soaked sunken lesions on leaf blades that turn purplish-brown "
+            "with concentric rings and chlorotic yellow borders."
+        ),
+        "symptoms_mr": (
+            "पानांवर सुरुवातीला खोलगट पांढुरके डाग पडून नंतर त्यांचा मध्यभाग जांभळट-तपकिरी होतो व कडा पिवळसर दिसतात."
+        ),
+        "cultural_en": (
+            "Adopt broad-bed furrow (BBF) planting. Ensure 2-3 year crop rotation with non-allium crops. "
+            "Destroy and bury diseased crop residue post-harvest."
+        ),
+        "cultural_mr": (
+            "गादीवाफ्यावर (BBF) लागवड करा. कांद्यानंतर तृणधान्य किंवा कडधान्याची फेरपालट करा. रोगट अवशेष जाळून टाका."
+        ),
+        "chemical_en": (
+            "Apply Mancozeb 75% WP @ 2.5 g/L or Difenoconazole 25% EC @ 1.0 ml/L or Tebuconazole 25.9% EC @ 1.0 ml/L. "
+            f"Always add a non-ionic spreader/sticker (0.5 ml/L) due to waxy leaves. PHI: 14 days. {PPE_NOTICE_EN}"
+        ),
+        "chemical_mr": (
+            "मँकोझेब ७५% डब्ल्यूपी २.५ ग्रॅम/लिटर किंवा डायफेनोकोनाझोल १.० मिली/लिटर किंवा टेब्युकोनाझोल १.० मिली/लिटर फवारा. "
+            f"पानांवरील मेणाचा थर असल्यामुळे स्टिकर (०.५ मिली/लिटर) नक्की मिसळा. काढणीपूर्वी अंतर (PHI): १४ दिवस. {PPE_NOTICE_MR}"
+        ),
+    },
+    "Onion___stemphylium_blight": {
+        "disease_name_en": "Stemphylium Leaf Blight (Stemphylium vesicarium)",
+        "disease_name_mr": "कांद्यावरील स्टेम्फिलियम करपा",
+        "pathogen_type": "Fungal (Stemphylium vesicarium)",
+        "authoritative_source": "ICAR-DOGR & MPKV Rahuri Vegetable Pathology",
+        "phi_days": 14,
+        "symptoms_en": (
+            "Small, yellow to pale-orange flecks elongating into spindle-shaped lesions; "
+            "lesions turn dark olive brown to black with dense fungal sporulation."
+        ),
+        "symptoms_mr": (
+            "पानांवर पिवळसर-नारिंगी लांबट चट्टे पडतात, जे नंतर गडद तपकिरी व काळे पडून पाने टोकाकडून वाळतात."
+        ),
+        "cultural_en": (
+            "Maintain optimal plant spacing (15x10 cm). Avoid excessive nitrogen applications that promote succulent growth. "
+            "Ensure proper drainage during rainy periods."
+        ),
+        "cultural_mr": (
+            "लागवडीचे अंतर (१५x१० सेमी) योग्य ठेवा. नत्राचा अतिवापर टाळा. शेतात पाणी साचणार नाही याची काळजी घ्या."
+        ),
+        "chemical_en": (
+            "Spray Chlorothalonil 75% WP @ 2.0 g/L or Azoxystrobin 23% SC @ 1.0 ml/L. "
+            f"Use sticker/spreader agent. PHI: 7-14 days. {PPE_NOTICE_EN}"
+        ),
+        "chemical_mr": (
+            f"क्लोरोथॅलोनिल २.० ग्रॅम/लिटर किंवा अॅझॉक्सीस्ट्रॉबिन १.० मिली/लिटर स्टिकरसह फवारा. PHI: ७-१४ दिवस. {PPE_NOTICE_MR}"
+        ),
+    },
+    "Onion___iris_yellow_virus": {
+        "disease_name_en": "Iris Yellow Spot Virus (IYSV / Tospovirus)",
+        "disease_name_mr": "कांद्यावरील आयरीस यलो स्पॉट विषाणू (फुलकिडे प्रसार)",
+        "pathogen_type": "Viral (Tospovirus transmitted by Thrips tabaci)",
+        "authoritative_source": "ICAR-DOGR Thrips & Viral Disease Management Advisory",
+        "phi_days": 10,
+        "symptoms_en": (
+            "Diamond-shaped or spindle-shaped chlorotic or straw-colored spots on leaves and scapes; "
+            "green islands often visible inside necrotic lesions."
+        ),
+        "symptoms_mr": (
+            "पानांवर व फुलोऱ्याच्या दांड्यावर बदामी किंवा चौकोनी आकाराचे पिवळट-पांढरे डाग दिसतात, ज्यांच्या मध्यभागी हिरवट भाग राहतो."
+        ),
+        "cultural_en": (
+            "Install blue sticky traps (20-25/acre) to monitor and mass-trap thrips vectors. "
+            "Plant 2 rows of maize or pearl millet as border barrier crops. Rogue infected plants."
+        ),
+        "cultural_mr": (
+            "फुलकिड्यांच्या (थ्रिप्स) नियंत्रणासाठी एकरी २०-२५ निळे चिकट सापळे लावा. शेताभोवती मका किंवा बाजरीचे २ ओळींचे कुंपण लावा."
+        ),
+        "chemical_en": (
+            "Control vector thrips: Spray Fipronil 5% SC @ 1.5 ml/L or Spinetoram 11.7% SC @ 1.0 ml/L or Acetamiprid 20% SP @ 0.3 g/L. "
+            f"Rotate chemical modes of action. PHI: 7-10 days. {PPE_NOTICE_EN}"
+        ),
+        "chemical_mr": (
+            f"फुलकिड्यांच्या नियंत्रणासाठी फिप्रोनिल १.५ मिली किंवा स्पिनेटोरम १.० मिली किंवा ॲसिटामिप्रिड ०.३ ग्रॅम/लिटर फवारा. PHI: ७-१० दिवस. {PPE_NOTICE_MR}"
+        ),
+    },
+}
+
+
 
 @dataclass
 class DiagnosticInferenceResult:
@@ -437,6 +541,13 @@ class DiagnosticService:
             knowledge = TOMATO_PATHOLOGY_KNOWLEDGE.get(
                 predicted_class, TOMATO_PATHOLOGY_KNOWLEDGE["Early_blight"]
             )
+        elif "onion" in crop.lower():
+            lookup_key = predicted_class
+            if lookup_key not in ONION_PATHOLOGY_KNOWLEDGE:
+                lookup_key = f"Onion___{predicted_class}" if not predicted_class.startswith("Onion___") else predicted_class
+            knowledge = ONION_PATHOLOGY_KNOWLEDGE.get(
+                lookup_key, ONION_PATHOLOGY_KNOWLEDGE["Onion___purple_blotch"]
+            )
         else:
             knowledge = SUGARCANE_PATHOLOGY_KNOWLEDGE.get(
                 predicted_class, SUGARCANE_PATHOLOGY_KNOWLEDGE["RedRot"]
@@ -446,7 +557,7 @@ class DiagnosticService:
         # TIER 1: HIGH CONFIDENCE (>= 0.75)
         # -------------------------------------------------------------
         if confidence >= conf_high:
-            if predicted_class == "Healthy":
+            if predicted_class == "Healthy" or "healthy" in predicted_class.lower():
                 return DiagnosticInferenceResult(
                     disease_name_en=knowledge["disease_name_en"],
                     disease_name_mr=knowledge["disease_name_mr"],
@@ -605,9 +716,17 @@ class DiagnosticService:
         crop: str = "sugarcane",
         generate_gradcam: bool = False,
         save_heatmap: bool = True,
+        latitude: Optional[float] = None,
+        longitude: Optional[float] = None,
+        district: Optional[str] = None,
+        crop_variety: Optional[str] = None,
+        growth_stage: Optional[str] = None,
+        soil_type: Optional[str] = None,
+        irrigation_method: Optional[str] = None,
     ) -> PredictResponse:
         """Executes unauthenticated direct model inference with Grad-CAM and safety evaluation.
-        
+        If latitude/longitude or district is supplied, executes multi-window weather feature
+        engineering and Bayesian multimodal crop-health fusion.
         Does NOT touch the database, does not persist farmer records.
         """
         full_content, ext, filename = await storage_service.validate_upload_content(file)
@@ -660,6 +779,56 @@ class DiagnosticService:
             logger.warning(f"Advisory generation fallback: {adv_err}")
             adv_dict = None
 
+        # 5. Multimodal Weather & Physiological Stress Fusion (if coordinates or district provided)
+        multimodal_assessment_dict = None
+        if (latitude is not None and longitude is not None) or district:
+            try:
+                from app.services.weather.feature_engineer import weather_feature_engineer
+                from app.services.weather.crop_health_risk import weather_crop_health_risk_engine
+                from app.services.multimodal_fusion import multimodal_fusion_engine
+                from app.schemas.multimodal import (
+                    AgriculturalContextInput,
+                    ImageDiagnosisSummary,
+                )
+
+                ag_ctx = AgriculturalContextInput(
+                    crop_name=normalized_crop,
+                    crop_variety=crop_variety,
+                    growth_stage=growth_stage or "unknown",
+                    soil_type=soil_type or "unknown",
+                    irrigation_method=irrigation_method or "unknown",
+                )
+                weather_profile = await weather_feature_engineer.get_historical_profile(
+                    latitude=latitude or 18.5204,
+                    longitude=longitude or 73.8567,
+                    location_name=district,
+                    crop_name=normalized_crop,
+                )
+                weather_risk = weather_crop_health_risk_engine.evaluate_weather_risk(
+                    crop_name=normalized_crop,
+                    profile=weather_profile,
+                    context=ag_ctx,
+                )
+                image_summary = ImageDiagnosisSummary(
+                    crop=normalized_crop,
+                    predicted_class=pred["predicted_class"],
+                    confidence=pred["confidence"],
+                    class_scores=pred["class_scores"],
+                    model_version=pred["model_version"],
+                    explanation_status=pred["explanation_status"],
+                    heatmap_path=pred.get("heatmap_path"),
+                    foliar_severity=emp_severity.value,
+                    affected_area_percentage=emp_area,
+                )
+                fused = multimodal_fusion_engine.fuse(
+                    image_prediction=image_summary,
+                    weather_risk=weather_risk,
+                    context=ag_ctx,
+                )
+                multimodal_assessment_dict = fused.model_dump()
+            except Exception as mm_err:
+                logger.warning(f"Multimodal assessment synthesis fallback: {mm_err}")
+
         return PredictResponse(
             crop=normalized_crop,
             predicted_class=pred["predicted_class"],
@@ -684,6 +853,7 @@ class DiagnosticService:
                 "recommendations_en": safety_eval.recommendations_en,
                 "recommendations_mr": safety_eval.recommendations_mr,
                 "contextual_advisory": adv_dict,
+                "multimodal_assessment": multimodal_assessment_dict,
                 "statutory_disclaimer": STATUTORY_DISCLAIMER_EN,
             },
         )

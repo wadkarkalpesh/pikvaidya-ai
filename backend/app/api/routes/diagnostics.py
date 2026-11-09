@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 from typing import List, Optional
 from PIL import Image
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form, Response
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
@@ -21,6 +21,7 @@ from app.schemas.diagnosis import (
     DiagnosisSummaryResponse,
     PredictResponse,
 )
+from app.schemas.advisory import AdvisoryGenerateRequest
 from app.services.storage import storage_service
 from app.services.ai_service import ai_service
 from app.services.model_service import (
@@ -30,6 +31,8 @@ from app.services.model_service import (
     InferenceError,
 )
 from app.services.diagnostic_service import diagnostic_service
+from app.services.recommendation_engine import recommendation_engine
+from app.services.report_service import report_service
 
 router = APIRouter()
 
@@ -53,11 +56,15 @@ async def predict_crop_disease(
     crop: str = Form("sugarcane", description="Target crop (default: sugarcane)"),
     generate_gradcam: bool = Form(False, description="Generate Grad-CAM activation heatmap"),
     save_heatmap: bool = Form(True, description="Persist generated heatmap to disk"),
+    latitude: Optional[float] = Form(None, description="Farm latitude coordinate for multimodal weather fusion"),
+    longitude: Optional[float] = Form(None, description="Farm longitude coordinate for multimodal weather fusion"),
+    district: Optional[str] = Form(None, description="Maharashtra district name for weather risk assessment"),
 ):
     """Direct model-serving endpoint. Validates file integrity, evaluates PyTorch
     model inference, applies confidence safety evaluation, and optionally generates
-    Grad-CAM visual lesion heatmaps. Unauthenticated, ephemeral, and does not touch
-    the farmer database.
+    Grad-CAM visual lesion heatmaps. If coordinates or district are supplied, multi-window
+    historical weather telemetry is fused for multimodal crop health assessment.
+    Unauthenticated, ephemeral, and does not touch the farmer database.
     """
     try:
         result = await diagnostic_service.run_standalone_prediction(
@@ -65,6 +72,9 @@ async def predict_crop_disease(
             crop=crop,
             generate_gradcam=generate_gradcam,
             save_heatmap=save_heatmap,
+            latitude=latitude,
+            longitude=longitude,
+            district=district,
         )
         return result
     except HTTPException:
@@ -259,3 +269,52 @@ def delete_diagnosis(
     # Clean up physical file
     storage_service.remove_file(file_path)
     return None
+
+
+@router.get(
+    "/diagnose/{diagnosis_id}/pdf",
+    status_code=status.HTTP_200_OK,
+    summary="Download Official Field Diagnostic Advisory PDF for a saved diagnosis",
+)
+@router.get(
+    "/diagnostics/{diagnosis_id}/pdf",
+    status_code=status.HTTP_200_OK,
+    include_in_schema=False,
+)
+async def download_diagnosis_pdf(
+    diagnosis_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> Response:
+    """Generates an official PDF report for an existing diagnosis record."""
+    diagnosis = _get_user_diagnosis(diagnosis_id, current_user.id, db)
+
+    # Synthesize live advisory recommendations matching the diagnosed condition
+    adv_req = AdvisoryGenerateRequest(
+        crop_name=diagnosis.crop_name or "sugarcane",
+        predicted_disease=diagnosis.disease_name_en or "Healthy",
+        confidence=diagnosis.confidence or 0.95,
+        severity=diagnosis.severity.value if diagnosis.severity else "UNAVAILABLE",
+        affected_area_percentage=diagnosis.affected_area_percentage,
+        temperature=diagnosis.temperature,
+        humidity=diagnosis.humidity,
+        preferred_language="en",
+    )
+    advisory = await recommendation_engine.generate_advisory(adv_req, db=db)
+
+    pdf_bytes = report_service.generate_from_diagnosis(
+        diagnosis=diagnosis,
+        advisory=advisory,
+        farmer_name=current_user.name,
+    )
+
+    filename = f"PikVaidya_Diagnosis_{diagnosis_id}_{diagnosis.crop_name}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}",
+            "Content-Type": "application/pdf",
+        },
+    )
+

@@ -1,8 +1,8 @@
 # PikVaidya AI (पीकवैद्य AI)
 ## An Explainable Multimodal AI Framework for Crop Disease Diagnosis & Context-Aware Smart Farming Recommendations
 
-[![Test Suite](https://img.shields.io/badge/pytest-145%2F145%20Passed%20(100%25)-15803D?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/wadkarkalpesh/pikvaidya-ai)
-[![Version](https://img.shields.io/badge/version-v1.2.0--MultiCrop-0D233A?style=for-the-badge)](https://github.com/wadkarkalpesh/pikvaidya-ai)
+[![Test Suite](https://img.shields.io/badge/pytest-184%2F184%20Passed%20(100%25)-15803D?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/wadkarkalpesh/pikvaidya-ai)
+[![Version](https://img.shields.io/badge/version-v1.3.0--Multimodal-0D233A?style=for-the-badge)](https://github.com/wadkarkalpesh/pikvaidya-ai)
 [![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
@@ -84,12 +84,33 @@ PikVaidya AI has curated, trained, calibrated, and verified **4 deep neural mode
 | **Sugarcane** *(Saccharum)* | EfficientNet-B0 (v1.0) | 5 | 4,470,739 | **94.74%** | 0.9472 | 1.3460 | 3.42% | 115.69 ms | **18.36 ms** | **6.30x** | [`models/sugarcane/efficientnet_b0/pipeline_trained/best_model.pth`](models/sugarcane/efficientnet_b0/pipeline_trained/best_model.pth) |
 | **Sugarcane** *(Saccharum)* | MobileNetV3-Large (v1.0) | 5 | 3,401,140 | **93.68%** | 0.9360 | 1.2180 | 3.65% | 66.42 ms | **10.04 ms** | **6.62x** | [`models/sugarcane/mobilenet_v3/pipeline_trained/best_model.pth`](models/sugarcane/mobilenet_v3/pipeline_trained/best_model.pth) |
 | **Tomato** *(Solanum)* | MobileNetV3-Large (v1.0) | 10 | 3,402,425 | **96.00%** | 0.9592 | 1.8500 | 3.81% | 81.43 ms | **10.01 ms** | **8.14x** | [`models/tomato/mobilenet_v3/best_model.pth`](models/tomato/mobilenet_v3/best_model.pth) |
-| **Onion** *(Allium cepa)* | MobileNetV3-Large (v1.0) | 4 | 3,400,883 | **95.00%** | 0.9495 | 2.2000 | 2.94% | 74.20 ms | **9.88 ms** | **7.51x** | [`models/onion/mobilenet_v3/best_model.pth`](models/onion/mobilenet_v3/best_model.pth) |
+| **Onion** *(Allium cepa)* | MobileNetV3-Large (v1.1 - COLD Real Field) | 4 | 3,400,883 | **98.62%** | **0.9885** | **1.3047** | 2.15% | 22.41 ms | **14.10 ms** (INT8: 13.73 ms) | **1.63x** | [`models/onion/mobilenet_v3/best_model.pth`](models/onion/mobilenet_v3/best_model.pth) |
 
 ### Pathological Taxonomy Coverage (19 Distinct Classes)
 - **Sugarcane (ICAR-SBI):** Healthy, Sugarcane Mosaic Virus (SCMV), Red Rot (*Colletotrichum falcatum*), Common Rust (*Puccinia kuehnii*), Yellow Leaf Virus (SCYLV).
 - **Tomato (ICAR-IIHR):** Healthy, Bacterial Spot (*Xanthomonas*), Early Blight (*Alternaria solani*), Late Blight (*Phytophthora infestans*), Leaf Mold (*Passalora fulva*), Septoria Leaf Spot, Spider Mites (*Tetranychus urticae*), Target Spot (*Corynespora cassiicola*), Tomato Mosaic Virus (ToMV), Yellow Leaf Curl Virus (TYLCV).
 - **Onion (ICAR-DOGR):** Healthy, Purple Blotch (*Alternaria porri*), Stemphylium Blight (*Stemphylium vesicarium*), Iris Yellow Spot Virus (IYSV, Tospovirus).
+
+---
+
+## 🌐 Multimodal Crop-Health Prediction Engine (Vision + 14-Day Microclimate Fusion)
+
+PikVaidya AI goes beyond simple leaf image inference by actively fusing **computer vision pathology** with **multi-window historical microclimate telemetry** and **epidemiological pathogen models**:
+- **Multi-Window Microclimate Feature Engineering (`24h`, `3d`, `7d`, `14d`):** Extracts 336 continuous hours of atmospheric and soil telemetry from Open-Meteo in a single non-blocking request (`past_days=14`). Computes thermal units (GDD), diurnal temperature swings, prolonged moisture ($\text{RH} \ge 85\%$), cumulative precipitation, consecutive rainy days, and volumetric soil moisture dynamics ($0-7\text{ cm}$).
+- **Physiological Stress Quantification:** Quantifies environmental heat stress, water deficit/drought, root asphyxiation/waterlogging risk, and wind spray drift hazard.
+- **Epidemiological Pathogen Conduciveness Models:**
+  - *Tomato:* Tom-Cast Disease Severity Values (DSV) for Early Blight, Wallin criteria for Late Blight, bacterial splash risk, and TYLCV vector proliferation.
+  - *Sugarcane:* ICAR-SBI Colletotrichum falcatum (Red Rot) waterlogging conduciveness and Puccinia rust models.
+  - *Onion:* ICAR-DOGR Alternaria porri (Purple Blotch) and Stemphylium blight models.
+- **Calibrated Bayesian Evidence Fusion & Strict Non-Override Guarantee:**
+  - When visual confidence $c_{\text{img}} \ge 0.75$, the visual diagnosis **cannot be overturned** by weather conditions.
+  - When visual confidence is moderate ($0.50 \le c_{\text{img}} < 0.75$), an environmental prior adjusts the posterior distribution: $P(c) \propto P_{\text{img}}(c) \cdot \exp(\beta \cdot R_{\text{env}}(c))$ with bounded $\beta = 0.35$.
+  - Generates **Environmental Anomaly Alerts** if an active fungal disease is diagnosed under biologically hostile, arid weather ($R_{\text{env}} \le 0.15$).
+- **Composite Crop Health Index (0-100%):** Synthesizes visual severity, empirical lesion surface area, and physiological weather stress into a unified crop vitality metric.
+- **REST API Endpoints:**
+  - `POST /api/v1/multimodal/predict` — Complete vision + 14-day microclimate forward pass.
+  - `POST /api/v1/multimodal/weather-risk` — Standalone environmental crop-health and disease risk evaluation.
+  - `GET /api/v1/multimodal/crops` — Supported crops, growth stages, soil textures, and Maharashtra districts.
 
 ---
 
@@ -100,7 +121,22 @@ All PyTorch models were converted to **ONNX Opset 18** using [`scripts/export_on
 - **Sub-10ms Inference:** MobileNetV3 achieves **9.88 ms - 10.04 ms** inference latency on standard consumer CPUs.
 - **Speedup Factor:** 6.30x to 8.14x acceleration compared to PyTorch FP32 forward passes.
 - **Numerical Parity:** All ONNX computation graphs exhibit **Cosine Similarity = 1.000000** and Max Absolute Error $< 1 \times 10^{-5}$.
+- **Dynamic INT8 Quantization:** All 4 models dynamically quantized to signed 8-bit weights (`scripts/quantize_models.py`) with Pearson output correlation $r > 0.9999$ and sub-35ms CPU latency.
 - **Lightweight Footprint:** Quantized model size is **0.35 MB to 0.63 MB**, optimized for low-cost Android smartphones and solar-powered Krishi Vigyan Kendra (KVK) edge kiosks.
+
+---
+
+## 📑 Automated Multilingual PDF Field Advisory Report Generator
+
+PikVaidya AI provides an enterprise-grade field diagnostic PDF reporting engine built on `ReportLab 4.4.4`:
+- **Branded A4 Field Report Layout:** Styled in emerald `#065F46` and slate `#1E293B`, featuring official header banner, unique report reference UID (`PV-YYYYMMDD-XXXXXX`), issuance timestamp, and dynamic total page numbering (`Page X of Y`).
+- **Multimodal Visual Evidence:** Side-by-side juxtaposition of original leaf photograph and Grad-CAM lesion saliency heatmap.
+- **Microclimate & Spray Window Status:** Ingests live ambient temperature, relative humidity, wind speed, precipitation probability, and displays a prominent spray safety window indicator (`[OPTIMAL SPRAY WINDOW: GO]` vs `[SPRAY WINDOW GATED: CAUTION / NO-GO]`).
+- **ICAR & CIBRC Agronomic Prescriptions:** Structured tables specifying active ingredient, trade formulations, dosage per liter, dilution rate per hectare, Pre-Harvest Interval (PHI in days), and mandatory Personal Protective Equipment (PPE).
+- **Statutory Regulatory Disclaimers:** Mandatory legal notices formulated under the *Insecticides Act, 1968* & *Insecticides Rules, 1971*, paired with an agronomist verification seal and Krishi Sahayak signature block.
+- **REST API Endpoints:**
+  - `POST /api/v1/advisory/pdf` — Synthesizes ad-hoc advisory input into a downloadable PDF byte stream.
+  - `GET /api/v1/diagnose/{id}/pdf` — Generates a persistent field advisory PDF for any authenticated saved farmer diagnosis.
 
 ---
 

@@ -1,6 +1,72 @@
 {
-  "test_accuracy": 0.95,
-  "macro_f1": 0.9494949494949495,
-  "macro_precision": 0.9583333333333334,
-  "macro_recall": 0.95
+  "test_accuracy": 0.9862,
+  "macro_f1": 0.9885,
+  "macro_precision": 0.9883,
+  "macro_recall": 0.9888,
+  "avg_latency_ms": 22.41,
+  "confusion_matrix": [
+    [
+      246,
+      6,
+      0,
+      1
+    ],
+    [
+      4,
+      228,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      115,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      197
+    ]
+  ],
+  "per_class": {
+    "Onion___healthy": {
+      "precision": 0.984,
+      "recall": 0.9723320158102767,
+      "f1-score": 0.9781312127236581,
+      "support": 253.0
+    },
+    "Onion___iris_yellow_virus": {
+      "precision": 0.9743589743589743,
+      "recall": 0.9827586206896551,
+      "f1-score": 0.9785407725321889,
+      "support": 232.0
+    },
+    "Onion___purple_blotch": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 115.0
+    },
+    "Onion___stemphylium_blight": {
+      "precision": 0.9949494949494949,
+      "recall": 1.0,
+      "f1-score": 0.9974683544303797,
+      "support": 197.0
+    },
+    "accuracy": 0.986198243412798,
+    "macro avg": {
+      "precision": 0.9883271173271173,
+      "recall": 0.988772659124983,
+      "f1-score": 0.9885350849215566,
+      "support": 797.0
+    },
+    "weighted avg": {
+      "precision": 0.9862086983140934,
+      "recall": 0.986198243412798,
+      "f1-score": 0.9861855983304116,
+      "support": 797.0
+    }
+  }
 }

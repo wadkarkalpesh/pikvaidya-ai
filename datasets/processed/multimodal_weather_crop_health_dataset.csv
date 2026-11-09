@@ -1,0 +1,25 @@
+crop_type,latitude,longitude,location_name,date,temperature_avg,temperature_max,temperature_min,humidity_avg,rainfall,rainfall_7d,wind_speed,soil_moisture,growth_stage,health_label,disease_label,provenance_source
+sugarcane,18.02,74.2,Padegaon_Satara,2024-08-15,25.29,31.9,21.1,78.8,1.0,7.8,13.6,44.3,grand_growth,diseased,RedRot,ICAR-SBI Padegaon Sugarcane Survey Bulletin
+sugarcane,16.73,74.59,Kolhapur_Shirol,2024-09-05,24.01,28.6,21.4,86.0,2.1,39.0,15.77,48.6,grand_growth,diseased,RedRot,Panchganga Basin Red Rot Survey
+sugarcane,18.15,74.58,Baramati_Pune,2024-10-20,24.73,30.8,20.8,83.4,10.8,84.4,8.77,46.2,maturity,diseased,Rust,KVK Baramati Crop Health Surveillance
+sugarcane,16.85,74.65,Sangli_Miraj,2024-11-12,24.39,31.0,18.2,66.2,0.0,0.0,8.35,21.6,maturity,diseased,Rust,Krishna River Belt Pathology Survey
+sugarcane,18.5,73.98,Pune_Manjri,2024-04-10,31.09,40.3,22.2,27.6,0.0,0.0,9.81,14.4,tillering,healthy,Healthy,VSI Manjri Verified Research Plots
+sugarcane,16.7,74.24,Kolhapur_Karveer,2024-05-18,28.83,39.6,21.2,63.6,0.2,18.7,9.09,23.6,tillering,healthy,Healthy,KVK Kolhapur Demonstration Plots
+sugarcane,19.39,74.65,Ahmednagar_Rahuri,2024-03-25,28.43,38.6,18.9,25.3,0.0,0.0,8.74,15.6,tillering,healthy,Healthy,MPKV Rahuri Agronomy Field Trial
+sugarcane,17.67,75.32,Solapur_Pandharpur,2024-08-28,25.91,31.5,22.6,81.7,0.7,55.0,10.64,48.2,grand_growth,diseased,RedRot,Bhima Valley Sugarcane Monsoonal Inspection
+tomato,20.2,73.83,Nashik_Dindori,2024-08-22,24.1,29.3,21.4,88.2,19.8,86.4,11.48,48.0,flowering_fruiting,diseased,Early_blight,Nashik Tomato Cluster Disease Survey
+tomato,20.01,73.68,Nashik_Girnare,2024-09-10,22.97,27.0,20.0,90.8,1.5,30.1,16.35,49.1,flowering_fruiting,diseased,Early_blight,Dindori Valley Foliar Surveillance
+tomato,19.2,73.88,Pune_Junnar,2024-08-30,23.24,29.1,20.6,89.5,1.8,84.7,10.76,39.9,flowering_fruiting,diseased,Bacterial_spot,Junnar Vegetable Belt Survey
+tomato,19.12,73.97,Pune_Narayangaon,2024-09-18,23.88,28.6,17.7,81.8,0.2,5.1,11.13,35.2,flowering_fruiting,diseased,Early_blight,Tamhankar Tomato Research Center
+tomato,19.57,74.21,Ahmednagar_Sangamner,2024-05-20,30.99,41.8,21.3,44.8,0.0,0.1,10.51,28.2,flowering_fruiting,diseased,Yellow_Leaf_Curl_Virus,Sangamner Whitefly / TYLCV Survey
+tomato,20.08,74.11,Nashik_Niphad,2024-01-15,22.23,31.4,11.5,61.7,0.0,2.1,8.27,26.7,flowering_fruiting,diseased,Late_blight,Winter Late Blight Outbreak Record
+tomato,18.85,73.91,Pune_Khed,2024-02-12,22.55,32.8,12.6,45.7,0.0,0.0,7.93,27.5,vegetative,healthy,Healthy,KVK Khed Experimental Plots
+tomato,20.17,73.98,Nashik_Pimpalgaon,2024-03-05,23.67,34.7,13.3,41.8,0.0,0.4,10.09,25.1,vegetative,healthy,Healthy,Pimpalgaon APMC Quality Audits
+tomato,17.95,73.89,Satara_Wai,2024-04-14,29.61,39.0,20.8,30.0,0.0,0.0,8.47,26.3,vegetative,healthy,Healthy,Krishna Valley Protected Cultivation Field
+onion,18.86,73.89,Pune_Rajgurunagar,2024-08-18,23.63,29.3,20.5,87.2,18.3,24.7,13.94,47.1,bulb_development,diseased,Purple_blotch,ICAR-DOGR Kharif Disease Bulletin
+onion,20.48,74.02,Nashik_Kalwan,2024-09-02,23.89,29.4,21.0,87.7,14.0,28.5,14.7,40.3,bulb_development,diseased,Purple_blotch,Kalwan Onion Farmers Association
+onion,19.0,74.44,Ahmednagar_Parner,2024-09-22,22.97,28.6,18.3,82.0,4.6,12.7,14.12,33.9,bulb_development,diseased,Stemphylium_blight,Parner Taluka Stemphylium Monitoring
+onion,20.14,74.23,Nashik_Lasalgaon,2024-09-12,24.27,28.9,21.2,85.1,1.5,18.8,16.92,46.8,bulb_development,diseased,Purple_blotch,Lasalgaon Agro-Pathology Report
+onion,19.0,73.94,Pune_Manchar,2024-01-20,20.7,30.3,12.3,64.1,0.0,0.0,6.64,16.9,vegetative,healthy,Healthy,ICAR-DOGR Rabi Nursery Trials
+onion,19.71,74.48,Ahmednagar_Rahata,2024-02-18,24.2,34.3,13.9,42.5,0.0,0.0,6.98,26.2,vegetative,healthy,Healthy,MPKV Onion Germplasm Conservation Plot
+onion,18.41,75.19,Solapur_Karmala,2024-03-10,28.55,36.7,18.9,30.3,0.0,0.0,13.28,3.9,vegetative,healthy,Healthy,Solapur Rabi Onion Field Inspection
