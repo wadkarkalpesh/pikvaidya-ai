@@ -330,3 +330,4 @@ export async function getQueueStats() {
     req.onerror = () => reject(req.error);
   });
 }
+

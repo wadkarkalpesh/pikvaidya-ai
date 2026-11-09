@@ -110,3 +110,4 @@ async def test_offline_sync_empty_file_rejected():
         resp = await ac.post("/api/crop-health/predict", files=files, data=data)
         assert resp.status_code == 400
         assert "empty" in resp.json()["detail"].lower()
+

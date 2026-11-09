@@ -152,3 +152,4 @@ The unified prediction route `/api/crop-health/predict` natively supports offlin
 - Accepts `crop_type` or `crop_name`.
 - Accepts `captured_at` ISO string.
 - Returns `captured_at` and `is_offline_synced: true` in `UnifiedCropHealthPredictResponse`.
+

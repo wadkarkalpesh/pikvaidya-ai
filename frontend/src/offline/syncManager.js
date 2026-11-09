@@ -202,3 +202,4 @@ class BackgroundSyncManager {
 }
 
 export const syncManager = new BackgroundSyncManager();
+
