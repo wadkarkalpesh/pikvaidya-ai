@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { translations } from './i18n/translations';
+import { syncManager } from './offline/syncManager';
+import {
+  queueOfflineDiagnosis,
+  getQueueStats,
+  getHistoricalDiagnoses,
+  searchOfflineKnowledge,
+  saveDiagnosisToHistory
+} from './offline/db';
 
 export default function App() {
   const [lang, setLang] = useState('mr'); // Default Marathi for regional farmers
@@ -16,6 +24,15 @@ export default function App() {
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [forecastTab, setForecastTab] = useState('hourly'); // 'hourly' | 'daily'
 
+  // Offline-First & Network State
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [queueStats, setQueueStats] = useState({ pendingCount: 0, failedCount: 0, totalQueued: 0 });
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [offlineBanner, setOfflineBanner] = useState(null);
+  const [showOfflineModal, setShowOfflineModal] = useState(false);
+  const [offlineSearch, setOfflineSearch] = useState('');
+  const [offlineChunks, setOfflineChunks] = useState([]);
+
   // RAG Chatbot state
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
@@ -24,6 +41,43 @@ export default function App() {
   const chatBottomRef = useRef(null);
 
   const t = translations[lang] || translations.en;
+
+  // Refresh Queue Stats helper
+  const refreshQueue = async () => {
+    try {
+      const stats = await getQueueStats();
+      setQueueStats(stats);
+    } catch (e) {
+      console.warn('Could not read offline queue stats:', e);
+    }
+  };
+
+  // Subscribe to network & sync state
+  useEffect(() => {
+    const unsubNet = syncManager.addNetworkListener((online) => {
+      setIsOnline(online);
+      refreshQueue();
+    });
+
+    const unsubSync = syncManager.addSyncListener((res) => {
+      refreshQueue();
+      if (res.syncedCount > 0) {
+        setOfflineBanner(`✅ ${res.syncedCount} offline scans synchronized successfully!`);
+      }
+    });
+
+    refreshQueue();
+    // Pre-cache knowledge chunks when online
+    if (typeof navigator !== 'undefined' && navigator.onLine) {
+      syncManager.precacheAgriculturalKnowledge();
+      syncManager.precacheDistrictWeather(district);
+    }
+
+    return () => {
+      unsubNet();
+      unsubSync();
+    };
+  }, []);
 
   // Initial welcome message for chat
   useEffect(() => {
@@ -109,9 +163,68 @@ export default function App() {
     }
   };
 
+  const queueScanOffline = async () => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const dataUrl = e.target.result;
+        await queueOfflineDiagnosis({
+          image_data: dataUrl,
+          image_name: selectedImage.name || 'leaf_scan.jpg',
+          crop: crop,
+          district: district,
+          latitude: gpsLocation?.lat || null,
+          longitude: gpsLocation?.lon || null,
+          client_preview: imagePreview
+        });
+        await refreshQueue();
+        setOfflineBanner(t.offlineSavedMsg);
+
+        // Fetch offline knowledge for instant agronomic preview
+        const offlineChunks = await searchOfflineKnowledge(crop !== 'auto' ? crop : 'sugarcane', '', lang);
+        const topChunk = offlineChunks[0];
+
+        setDiagResult({
+          crop: crop !== 'auto' ? crop : 'sugarcane',
+          crop_detection_method: "offline_queue_pending",
+          predicted_class: lang === 'mr' ? "ऑफलाइन साठवले (कतार)" : (lang === 'hi' ? "ऑफ़लाइन कतार" : "Offline Queued"),
+          disease_name_multilingual: { en: "Offline Queued", mr: "ऑफलाइन साठवले (कतार)", hi: "ऑफ़लाइन कतार" },
+          confidence: 1.0,
+          heatmap_path: null,
+          model_version: "PikVaidya Offline Queue v1.0",
+          details: {
+            severity: "QUEUED_PENDING_SYNC",
+            offline_queued: true
+          },
+          recommendations: {
+            cultural: topChunk ? [topChunk.text] : [lang === 'mr' ? "इंटरनेट सुरू होताच AI विश्लेषणाचा निकाल आपोआप प्राप्त होईल." : "Full AI analysis will execute once connection restores."],
+            chemical: [lang === 'mr' ? "वैधानिक रासायनिक शिफारसी ऑनलाइन तपासणीनंतर उपलब्ध होतील." : "CIBRC chemical guidance will synchronize once online."]
+          }
+        });
+        setLoading(false);
+        resolve();
+      };
+      reader.readAsDataURL(selectedImage);
+    });
+  };
+
+  const handleManualSync = async () => {
+    if (isSyncing) return;
+    setIsSyncing(true);
+    await syncManager.syncPendingDiagnoses();
+    await refreshQueue();
+    setIsSyncing(false);
+  };
+
   const handleDiagnose = async () => {
     if (!selectedImage) return;
     setLoading(true);
+
+    // If browser is offline, queue directly into IndexedDB
+    if (typeof navigator !== 'undefined' && (!navigator.onLine || !isOnline)) {
+      await queueScanOffline();
+      return;
+    }
 
     try {
       const formData = new FormData();
@@ -172,6 +285,9 @@ export default function App() {
         setCrop(resolvedCrop);
       }
 
+      // Cache successful diagnosis locally in IndexedDB
+      await saveDiagnosisToHistory(formatted);
+
       // Auto-inject finding into chat assistant context
       const findingMsg = lang === 'mr'
         ? `[सिस्टम सूचना] ${resolvedCrop.toUpperCase()} पिकाचे निदान: ${formatted.predicted_class} (विश्वासार्हता: ${(formatted.confidence * 100).toFixed(1)}%).`
@@ -179,7 +295,13 @@ export default function App() {
 
       setChatMessages(prev => [...prev, { sender: 'bot', text: findingMsg, sources: [] }]);
     } catch (err) {
-      alert(`Diagnosis Error: ${err.message}`);
+      console.warn('Online diagnosis error; checking network fallback:', err);
+      // Network failure fallback
+      if (!navigator.onLine || err.name === 'TypeError' || err.message.includes('fetch')) {
+        await queueScanOffline();
+      } else {
+        alert(`Diagnosis Error: ${err.message}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -295,6 +417,36 @@ export default function App() {
           </div>
 
           <div className="nav-actions">
+            {/* Online / Offline Status Pill */}
+            <div className={`network-pill ${isOnline ? 'online' : 'offline'}`}>
+              {isOnline ? `🟢 ${t.onlineStatus}` : `🟠 ${t.offlineStatus}`}
+            </div>
+
+            {/* Offline Queue Badge & Sync Trigger */}
+            {queueStats.pendingCount > 0 && (
+              <button
+                className="sync-btn"
+                onClick={handleManualSync}
+                disabled={isSyncing || !isOnline}
+                title="Sync queued offline scans"
+              >
+                🔄 {queueStats.pendingCount} {isSyncing ? t.syncing : t.syncNow}
+              </button>
+            )}
+
+            {/* Offline Agricultural Guide Modal Button */}
+            <button
+              className="offline-guide-btn"
+              onClick={async () => {
+                setShowOfflineModal(true);
+                const initialChunks = await searchOfflineKnowledge(crop !== 'auto' ? crop : null, '', lang);
+                setOfflineChunks(initialChunks);
+              }}
+              title="Browse offline pathology knowledge"
+            >
+              📖 {t.offlineGuideTitle}
+            </button>
+
             <select
               className="lang-select"
               value={lang}
@@ -310,6 +462,14 @@ export default function App() {
 
       {/* Main Content */}
       <main className="main-content">
+        {/* Offline Notification Banner */}
+        {offlineBanner && (
+          <div className="offline-banner">
+            <span>📡 {offlineBanner}</span>
+            <button onClick={() => setOfflineBanner(null)}>✕</button>
+          </div>
+        )}
+
         {/* Hero Banner */}
         <section className="hero-card">
           <div className="hero-text">
@@ -1046,6 +1206,43 @@ export default function App() {
           </div>
         </div>
       </main>
+
+      {/* Offline Agricultural Guide Modal */}
+      {showOfflineModal && (
+        <div className="offline-modal-overlay" onClick={() => setShowOfflineModal(false)}>
+          <div className="offline-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="offline-modal-header">
+              <h3>📖 {t.offlineGuideTitle}</h3>
+              <button className="close-btn" onClick={() => setShowOfflineModal(false)}>✕</button>
+            </div>
+            <div className="offline-modal-body">
+              <input
+                type="text"
+                className="offline-search-input"
+                placeholder={t.searchOfflinePlaceholder}
+                value={offlineSearch}
+                onChange={async (e) => {
+                  const val = e.target.value;
+                  setOfflineSearch(val);
+                  const res = await searchOfflineKnowledge(crop !== 'auto' ? crop : null, val, lang);
+                  setOfflineChunks(res);
+                }}
+              />
+              <div className="offline-chunks-list">
+                {offlineChunks.map((c, i) => (
+                  <div key={i} className="offline-chunk-card">
+                    <h4>{c.disease_name || c.crop} ({c.section})</h4>
+                    <p>{c.text}</p>
+                  </div>
+                ))}
+                {offlineChunks.length === 0 && (
+                  <p className="no-data-text">{lang === 'mr' ? 'कोणतीही ऑफलाइन माहिती सापडली नाही.' : 'No offline knowledge chunks found.'}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

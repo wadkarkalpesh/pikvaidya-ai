@@ -43,6 +43,28 @@ export default defineConfig({
               },
             },
           },
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/api/v1/assistant/chunks'),
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'assistant-chunks-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 14, // 14 days
+              },
+            },
+          },
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/api/v1/weather/locations'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'weather-locations-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+            },
+          },
         ],
       },
     }),

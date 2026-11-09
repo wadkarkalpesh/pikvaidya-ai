@@ -65,3 +65,4 @@ The PikVaidya AI Farmer Assistant is an intelligent agronomic advisor designed s
 - **Low Confidence Notice:** If the image diagnosis has moderate/low confidence (< 70%), the assistant alerts you:  
   *"Please consult your local Krishi Vigyan Kendra (KVK) or Taluka Agriculture Officer before applying chemical treatments."*
 - **Out-of-Scope Questions:** The assistant will not answer questions unrelated to agriculture, crops, or farming.
+

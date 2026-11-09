@@ -104,3 +104,4 @@ Where:
 2. **Zero Invented Dosages:** All chemical names, concentrations, and dosages must be explicitly present in the retrieved chunk metadata verified by CIBRC.
 3. **Pre-Harvest Interval (PHI):** Always cited to prevent toxic pesticide residue in harvest.
 4. **Statutory Notices:** Automatically injects mandatory legal disclaimers under the Insecticides Act, 1968 in the user's preferred language (English, Marathi, Hindi).
+

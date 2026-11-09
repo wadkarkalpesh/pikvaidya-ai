@@ -82,3 +82,4 @@ Each agronomic chunk is maintained with verified parallel translations:
 - **English (en):** Primary technical and academic standard.
 - **Marathi (मराठी - mr):** Idiomatic, culturally natural terminology used by farmers across Maharashtra (e.g. *तांबडे कूज, तांबेरा, करपा, जांभळा करपा, बेणेप्रक्रिया, फवारणी, काढणीपूर्वीचा कालावधी*).
 - **Hindi (हिंदी - hi):** Clear standard terminology for North Indian and national extension (e.g. *लाल सड़न, अगेती झुलसा, पछेती झुलसा, बैंगनी धब्बा, छिड़काव, प्रतीक्षा अवधि*).
+

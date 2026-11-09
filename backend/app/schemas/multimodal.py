@@ -190,6 +190,8 @@ class MultimodalPredictResponse(BaseModel):
     agricultural_context: AgriculturalContextInput
     recommendations: Dict[str, Any]
     statutory_disclaimer: Dict[str, str]
+    captured_at: Optional[str] = Field(None, description="Original offline capture timestamp if synced from queue")
+    is_offline_synced: Optional[bool] = Field(None, description="Whether this diagnosis was captured offline and synced")
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -210,6 +212,8 @@ class WeatherRiskOnlyResponse(BaseModel):
     historical_weather_summary: Dict[str, Any]
     preventative_advisory: Dict[str, Any]
     statutory_disclaimer: Dict[str, str]
+    captured_at: Optional[str] = Field(None, description="Original offline capture timestamp if synced from queue")
+    is_offline_synced: Optional[bool] = Field(None, description="Whether this diagnosis was captured offline and synced")
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -237,6 +241,8 @@ class UnifiedCropHealthPredictResponse(BaseModel):
     explainability: MultimodalExplainability
     agricultural_context: AgriculturalContextInput
     statutory_disclaimer: Dict[str, str]
+    captured_at: Optional[str] = Field(None, description="Original offline capture timestamp if synced from queue")
+    is_offline_synced: Optional[bool] = Field(None, description="Whether this diagnosis was captured offline and synced")
 
     model_config = ConfigDict(from_attributes=True)
 

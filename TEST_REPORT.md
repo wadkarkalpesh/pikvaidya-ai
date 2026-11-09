@@ -1,7 +1,7 @@
 # PikVaidya AI — Comprehensive Automated Test Report
 **Test Execution Date:** November 9, 2026  
 **Test Framework:** Pytest 9.1.1 on Python 3.13.17 (win32)  
-**Overall Status:** **201 PASSED / 0 FAILED / 0 SKIPPED (100% Pass Rate)**
+**Overall Status:** **205 PASSED / 0 FAILED / 0 SKIPPED (100% Pass Rate)**
 
 ---
 
@@ -21,6 +21,7 @@
 | `backend/tests/test_frontend_serving.py` | Static SPA bundle serving & client routing | 4 | PASSED | 0.60s |
 | `backend/tests/test_model_serving.py` | Multi-crop architecture factory & forward pass | 11 | PASSED | 2.50s |
 | `backend/tests/test_multimodal_fusion.py` | Physiological stresses, pathogen models, onion models, Bayesian fusion & API | 12 | PASSED | 3.10s |
+| `backend/tests/test_offline_sync.py` | Offline queue ingestion, timestamp preservation, is_offline_synced telemetry | 4 | PASSED | 7.80s |
 | `backend/tests/test_onion_multi_crop.py` | Onion pathology inference, Grad-CAM & classification | 6 | PASSED | 1.45s |
 | `backend/tests/test_production_readiness.py` | Security headers, CORS, rate limiting & error masking | 5 | PASSED | 0.80s |
 | `backend/tests/test_quantization.py` | INT8 ONNX models, numerical correlation & latency | 8 | PASSED | 2.15s |
@@ -37,7 +38,7 @@
 | `tests/test_calibration.py` | Temperature scaling optimization & ECE reduction | 5 | PASSED | 2.20s |
 | `tests/test_gradcam.py` | Forward/backward hook lifecycle & normalization | 7 | PASSED | 3.50s |
 | `tests/test_pipeline_trained.py` | Checkpoint parameter matching & finite probability checks | 3 | PASSED | 4.80s |
-| **TOTAL** | **Entire PikVaidya AI Test Corpus** | **201** | **100% PASSED** | **~55s** |
+| **TOTAL** | **Entire PikVaidya AI Test Corpus** | **205** | **100% PASSED** | **~56s** |
 
 ---
 

@@ -31,3 +31,4 @@
   - Structured JSON (`.json`): 3 documents (19 chunks).
   - Portable Document Format (`.pdf`): 1 document (1 chunk).
 - **Deduplication Engine:** Verified SHA-256 chunk deduplication active; duplicate files or duplicate text paragraphs are rejected during ingestion.
+

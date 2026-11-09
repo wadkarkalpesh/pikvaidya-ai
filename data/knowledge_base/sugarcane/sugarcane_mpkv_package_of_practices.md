@@ -52,3 +52,4 @@ Primary source of red rot, smut, and grassy shoot transmission is infected seed 
 ## 5. Drip Irrigation Scheduling & Trash Mulching
 - Apply 8 to 10 tonnes/ha of sugarcane trash in alternate furrows after first earthing up. Trash mulching conserves 25–30% soil moisture, suppresses weed germination, and buffers soil temperature.
 - Water requirement: 1,800 to 2,200 mm per annual cycle. Under drip irrigation, schedule water at 0.8 Kc during formative stage, 1.1 Kc during grand growth phase, and 0.6 Kc during maturity. Avoid water stagnation to prevent fungal root rots.
+

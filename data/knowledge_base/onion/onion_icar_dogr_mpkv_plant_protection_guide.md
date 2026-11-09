@@ -50,3 +50,4 @@ In Maharashtra, kharif, late kharif (rangda), and rabi onion crops suffer heavy 
   2. Install blue sticky traps @ 25 to 30 traps/hectare (blue traps attract 2.5x more Thrips tabaci than yellow traps).
   3. Chemical control of thrips: Fipronil 5% SC @ 1.5 ml/litre OR Spinetoram 11.7% SC @ 0.8 ml/litre OR Cyantraniliprole 10.26% OD @ 1.2 ml/litre. Rotate insecticide classes to prevent insecticide resistance.
   4. Pre-Harvest Interval (PHI): 7 to 10 days.
+

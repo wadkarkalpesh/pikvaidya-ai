@@ -101,9 +101,11 @@ def _validate_image_file(file: UploadFile, content: bytes):
     include_in_schema=False,
 )
 async def predict_crop_health(
-    file: UploadFile = File(..., description="Crop leaf photograph (JPEG, PNG, WEBP)"),
+    file: Optional[UploadFile] = File(None, description="Crop leaf photograph (JPEG, PNG, WEBP)"),
+    image: Optional[UploadFile] = File(None, description="Alias for file upload"),
     crop_type: Optional[str] = Form(None, description="Target crop: sugarcane, tomato, onion (or 'auto' for automatic detection)"),
     crop: Optional[str] = Form(None, description="Alias for crop_type"),
+    crop_name: Optional[str] = Form(None, description="Alias for crop_type"),
     latitude: Optional[float] = Form(None, description="Farm latitude coordinate"),
     longitude: Optional[float] = Form(None, description="Farm longitude coordinate"),
     district: Optional[str] = Form(None, description="Maharashtra district name (e.g. Pune, Nashik, Kolhapur)"),
@@ -113,6 +115,7 @@ async def predict_crop_health(
     irrigation_method: Optional[str] = Form("unknown", description="Irrigation method: drip, sprinkler, flood, rainfed"),
     strategy: Optional[str] = Form("CALIBRATED_BAYESIAN", description="Fusion method: CALIBRATED_BAYESIAN or RULE_BASED_GATE"),
     generate_gradcam: bool = Form(True, description="Generate Grad-CAM activation heatmap overlay"),
+    captured_at: Optional[str] = Form(None, description="Original offline capture ISO timestamp if synced from queue"),
 ) -> UnifiedCropHealthPredictResponse:
     """
     Executes unified multi-crop health prediction workflow:
@@ -123,10 +126,17 @@ async def predict_crop_health(
     5. Evaluates crop-specific epidemiological pathogen models.
     6. Combines outputs into a tri-partite assessment with actionable recommendations.
     """
+    upload_file = file or image
+    if upload_file is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No image file provided. Please attach a valid leaf image.",
+        )
+
     # 1. Read & Validate Uploaded Image
     try:
-        content = await file.read()
-        _validate_image_file(file, content)
+        content = await upload_file.read()
+        _validate_image_file(upload_file, content)
     except HTTPException:
         raise
     except Exception as e:
@@ -147,7 +157,7 @@ async def predict_crop_health(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Image processing error: {err}")
 
     # 3. Resolve Target Crop (Auto-routing or Explicit Specification)
-    target_crop = (crop_type or crop or "auto").strip().lower()
+    target_crop = (crop_type or crop or crop_name or "auto").strip().lower()
     detection_method = "explicit_user_selection"
     detection_conf = None
 
@@ -256,5 +266,7 @@ async def predict_crop_health(
         explainability=multimodal_res.explainability,
         agricultural_context=context_obj,
         statutory_disclaimer=multimodal_res.statutory_disclaimer,
+        captured_at=captured_at,
+        is_offline_synced=bool(captured_at),
     )
 

@@ -41,3 +41,4 @@ Under the Insecticides Act, 1968 and Insecticides Rules, 1971:
 - Always read container labels for recommended dilution, approved target pests, and Pre-Harvest Interval (PHI).
 - Applicators must wear personal protective equipment (PPE): chemical-resistant nitrile gloves, vapor/particulate mask, apron, and protective goggles.
 - Dispose of empty pesticide containers safely by triple-rinsing, puncturing, and burying away from water sources. Never reuse containers for domestic or livestock purposes.
+

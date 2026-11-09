@@ -63,3 +63,4 @@ In Maharashtra's heavy Vertisols, direct seeding or flatbed transplanting leads 
   3. Foliar spray of Neem oil (10,000 ppm) @ 2.0 ml/litre or Pongamia oil @ 3.0 ml/litre at early vegetative stage.
   4. Vector chemical management: Imidacloprid 17.8% SL @ 0.3 ml/litre OR Thiamethoxam 25% WG @ 0.3 g/litre. Rotate with Cyantraniliprole 10.26% OD @ 1.8 ml/litre.
   5. Pre-Harvest Interval (PHI): 3 to 5 days.
+

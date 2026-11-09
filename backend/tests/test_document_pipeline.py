@@ -148,3 +148,4 @@ def test_pipeline_pdf_ingestion():
         combined_text = " ".join(c.text for c in chunks)
         assert "Sugarcane Smut" in combined_text or "Sporisorium" in combined_text
         assert "Carbendazim" in combined_text or "Propiconazole" in combined_text
+
