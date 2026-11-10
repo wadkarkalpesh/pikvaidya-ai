@@ -1,0 +1,61 @@
+{
+  "sugarcane": {
+    "class_to_idx": {
+      "Healthy": 0,
+      "Mosaic": 1,
+      "RedRot": 2,
+      "Rust": 3,
+      "Yellow": 4
+    },
+    "idx_to_class": {
+      "0": "Healthy",
+      "1": "Mosaic",
+      "2": "RedRot",
+      "3": "Rust",
+      "4": "Yellow"
+    }
+  },
+  "tomato": {
+    "class_to_idx": {
+      "Bacterial_spot": 0,
+      "Early_blight": 1,
+      "Healthy": 2,
+      "Late_blight": 3,
+      "Leaf_Mold": 4,
+      "Mosaic_virus": 5,
+      "Septoria_leaf_spot": 6,
+      "Spider_mites": 7,
+      "Target_Spot": 8,
+      "Yellow_Leaf_Curl_Virus": 9
+    },
+    "idx_to_class": {
+      "0": "Bacterial_spot",
+      "1": "Early_blight",
+      "2": "Healthy",
+      "3": "Late_blight",
+      "4": "Leaf_Mold",
+      "5": "Mosaic_virus",
+      "6": "Septoria_leaf_spot",
+      "7": "Spider_mites",
+      "8": "Target_Spot",
+      "9": "Yellow_Leaf_Curl_Virus"
+    },
+    "num_classes": 10,
+    "crop": "tomato",
+    "description": "10-Class PlantVillage Tomato Pathology Dataset"
+  },
+  "onion": {
+    "class_to_idx": {
+      "Onion___healthy": 0,
+      "Onion___iris_yellow_virus": 1,
+      "Onion___purple_blotch": 2,
+      "Onion___stemphylium_blight": 3
+    },
+    "idx_to_class": {
+      "0": "Onion___healthy",
+      "1": "Onion___iris_yellow_virus",
+      "2": "Onion___purple_blotch",
+      "3": "Onion___stemphylium_blight"
+    }
+  }
+}

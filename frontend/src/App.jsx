@@ -2,12 +2,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import { translations } from './i18n/translations';
 import { syncManager } from './offline/syncManager';
 import {
+  openDB,
+  saveDiagnosis,
+  getAllDiagnoses,
+  deleteDiagnosis,
+  getSyncQueueStats,
+  getStorageEstimate,
+  exportDatabaseToJson,
   queueOfflineDiagnosis,
-  getQueueStats,
-  getHistoricalDiagnoses,
-  searchOfflineKnowledge,
-  saveDiagnosisToHistory
+  searchOfflineKnowledge
 } from './offline/db';
+import {
+  runLocalEdgeInference,
+  isModelCached,
+  cacheModelForOffline
+} from './offline/edgeInference';
 
 export default function App() {
   const [lang, setLang] = useState('mr'); // Default Marathi for regional farmers
@@ -15,6 +24,7 @@ export default function App() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [edgeLoading, setEdgeLoading] = useState(false);
   const [diagResult, setDiagResult] = useState(null);
   const [pdfDownloading, setPdfDownloading] = useState(false);
   const [weatherData, setWeatherData] = useState(null);
@@ -33,6 +43,18 @@ export default function App() {
   const [offlineSearch, setOfflineSearch] = useState('');
   const [offlineChunks, setOfflineChunks] = useState([]);
 
+  // PWA Install Prompt
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  // Model Caching & Edge AI State
+  const [modelCachedMap, setModelCachedMap] = useState({ sugarcane: false, tomato: false, onion: false });
+  const [cachingCrop, setCachingCrop] = useState(null);
+
+  // Diagnosis History Modal & Storage State
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [historyList, setHistoryList] = useState([]);
+  const [storageInfo, setStorageInfo] = useState({ usageMB: '0.00', quotaMB: '0.00', percentUsed: 0 });
+
   // RAG Chatbot state
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
@@ -45,10 +67,51 @@ export default function App() {
   // Refresh Queue Stats helper
   const refreshQueue = async () => {
     try {
-      const stats = await getQueueStats();
+      const stats = await getSyncQueueStats();
       setQueueStats(stats);
     } catch (e) {
       console.warn('Could not read offline queue stats:', e);
+    }
+  };
+
+  const refreshStorage = async () => {
+    try {
+      const est = await getStorageEstimate();
+      setStorageInfo(est);
+    } catch (e) {
+      console.warn('Could not read storage estimate:', e);
+    }
+  };
+
+  const checkModelCaches = async () => {
+    try {
+      const [sc, tm, on] = await Promise.all([
+        isModelCached('sugarcane'),
+        isModelCached('tomato'),
+        isModelCached('onion')
+      ]);
+      setModelCachedMap({ sugarcane: sc, tomato: tm, onion: on });
+    } catch (e) {
+      console.warn('Could not check model cache:', e);
+    }
+  };
+
+  // PWA beforeinstallprompt handler
+  useEffect(() => {
+    const handleBeforeInstall = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
     }
   };
 
@@ -67,10 +130,12 @@ export default function App() {
     });
 
     refreshQueue();
+    refreshStorage();
+    checkModelCaches();
+
     // Pre-cache knowledge chunks when online
     if (typeof navigator !== 'undefined' && navigator.onLine) {
-      syncManager.precacheAgriculturalKnowledge();
-      syncManager.precacheDistrictWeather(district);
+      syncManager.refreshOfflineCaches();
     }
 
     return () => {
@@ -78,6 +143,11 @@ export default function App() {
       unsubSync();
     };
   }, []);
+
+  // Check model cache whenever crop changes
+  useEffect(() => {
+    checkModelCaches();
+  }, [crop]);
 
   // Initial welcome message for chat
   useEffect(() => {
@@ -99,25 +169,23 @@ export default function App() {
         const res = await fetch('/api/v1/weather/locations');
         if (res.ok) {
           const data = await res.json();
-          setDistrictsList(data.districts || []);
+          setDistrictsList(data.locations || []);
         }
       } catch (err) {
-        console.warn('Failed to fetch districts:', err);
+        console.warn('Could not load districts:', err);
       }
     }
     fetchDistricts();
   }, []);
 
-  // Fetch weather when district or GPS changes
+  // Fetch weather telemetry whenever district or GPS changes
   useEffect(() => {
-    async function loadWeather() {
+    async function fetchWeather() {
       setWeatherLoading(true);
       try {
-        let url = '';
-        if (gpsLocation) {
-          url = `/api/v1/weather/current?lat=${gpsLocation.lat}&lon=${gpsLocation.lon}&persist=true`;
-        } else {
-          url = `/api/v1/weather/current?district=${district}&persist=true`;
+        let url = `/api/v1/weather/current?district=${encodeURIComponent(district)}`;
+        if (gpsLocation?.lat && gpsLocation?.lon) {
+          url = `/api/v1/weather/current?latitude=${gpsLocation.lat}&longitude=${gpsLocation.lon}`;
         }
         const res = await fetch(url);
         if (res.ok) {
@@ -125,29 +193,32 @@ export default function App() {
           setWeatherData(data);
         }
       } catch (err) {
-        console.warn('Weather fetch error:', err);
+        console.warn('Weather fetch failed (possibly offline):', err);
       } finally {
         setWeatherLoading(false);
       }
     }
-    loadWeather();
+    fetchWeather();
   }, [district, gpsLocation]);
 
+  // Handle GPS location acquisition
   const handleUseGps = () => {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser");
-      return;
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setGpsLocation({
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude,
+          });
+        },
+        (err) => {
+          alert('GPS error: ' + err.message);
+        }
+      );
+    } else {
+      alert('Geolocation is not supported by your browser.');
     }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setGpsLocation({ lat: pos.coords.latitude, lon: pos.coords.longitude });
-      },
-      (err) => {
-        alert("GPS Error: " + err.message);
-      }
-    );
   };
-
 
   // Auto-scroll chat to bottom
   useEffect(() => {
@@ -163,66 +234,156 @@ export default function App() {
     }
   };
 
-  const queueScanOffline = async () => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const dataUrl = e.target.result;
-        await queueOfflineDiagnosis({
-          image_data: dataUrl,
-          image_name: selectedImage.name || 'leaf_scan.jpg',
-          crop: crop,
-          district: district,
-          latitude: gpsLocation?.lat || null,
-          longitude: gpsLocation?.lon || null,
-          client_preview: imagePreview
-        });
-        await refreshQueue();
-        setOfflineBanner(t.offlineSavedMsg);
-
-        // Fetch offline knowledge for instant agronomic preview
-        const offlineChunks = await searchOfflineKnowledge(crop !== 'auto' ? crop : 'sugarcane', '', lang);
-        const topChunk = offlineChunks[0];
-
-        setDiagResult({
-          crop: crop !== 'auto' ? crop : 'sugarcane',
-          crop_detection_method: "offline_queue_pending",
-          predicted_class: lang === 'mr' ? "ऑफलाइन साठवले (कतार)" : (lang === 'hi' ? "ऑफ़लाइन कतार" : "Offline Queued"),
-          disease_name_multilingual: { en: "Offline Queued", mr: "ऑफलाइन साठवले (कतार)", hi: "ऑफ़लाइन कतार" },
-          confidence: 1.0,
-          heatmap_path: null,
-          model_version: "PikVaidya Offline Queue v1.0",
-          details: {
-            severity: "QUEUED_PENDING_SYNC",
-            offline_queued: true
-          },
-          recommendations: {
-            cultural: topChunk ? [topChunk.text] : [lang === 'mr' ? "इंटरनेट सुरू होताच AI विश्लेषणाचा निकाल आपोआप प्राप्त होईल." : "Full AI analysis will execute once connection restores."],
-            chemical: [lang === 'mr' ? "वैधानिक रासायनिक शिफारसी ऑनलाइन तपासणीनंतर उपलब्ध होतील." : "CIBRC chemical guidance will synchronize once online."]
-          }
-        });
-        setLoading(false);
-        resolve();
-      };
-      reader.readAsDataURL(selectedImage);
-    });
-  };
-
   const handleManualSync = async () => {
     if (isSyncing) return;
     setIsSyncing(true);
-    await syncManager.syncPendingDiagnoses();
+    await syncManager.syncNow();
     await refreshQueue();
     setIsSyncing(false);
   };
 
+  // Model download for offline cache
+  const handleCacheModel = async (targetCrop) => {
+    try {
+      setCachingCrop(targetCrop);
+      await cacheModelForOffline(targetCrop);
+      setModelCachedMap(prev => ({ ...prev, [targetCrop]: true }));
+      setOfflineBanner(`✅ ${targetCrop.toUpperCase()} model downloaded and cached for offline use.`);
+      refreshStorage();
+    } catch (err) {
+      alert(`Failed to cache model: ${err.message}`);
+    } finally {
+      setCachingCrop(null);
+    }
+  };
+
+  // Open Diagnosis History Modal
+  const handleOpenHistory = async () => {
+    const list = await getAllDiagnoses({ limit: 50 });
+    setHistoryList(list);
+    setShowHistoryModal(true);
+    refreshStorage();
+  };
+
+  const handleDeleteHistory = async (diagId, e) => {
+    e.stopPropagation();
+    if (confirm('Delete this saved diagnostic record?')) {
+      await deleteDiagnosis(diagId);
+      const updated = await getAllDiagnoses({ limit: 50 });
+      setHistoryList(updated);
+      refreshStorage();
+    }
+  };
+
+  const handleExportHistory = async () => {
+    const jsonStr = await exportDatabaseToJson();
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pikvaidya_offline_backup_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleSelectHistoryItem = (item) => {
+    setImagePreview(item.image_reference);
+    setDiagResult({
+      crop: item.crop_type,
+      crop_detection_method: item.is_local_inference ? 'edge_onnx_wasm_int8' : 'cloud_pytorch',
+      predicted_class: item.predicted_disease,
+      disease_name_multilingual: { en: item.predicted_disease, mr: item.predicted_disease, hi: item.predicted_disease },
+      confidence: item.confidence,
+      confidence_percentage: Math.round(item.confidence * 1000) / 10,
+      heatmap_path: item.gradcam_reference,
+      is_local_inference: item.is_local_inference,
+      inference_time_ms: null,
+      top_predictions: [],
+      gradcam_notice: item.is_local_inference && !item.gradcam_reference
+        ? t.gradcamOfflineNote
+        : null,
+      model_version: item.is_local_inference ? 'MobileNetV3 INT8 Edge WASM' : 'PikVaidya Cloud PyTorch',
+      details: {
+        severity: item.risk_level || 'ANALYZED',
+        offline_queued: item.sync_status === 'pending_sync'
+      },
+      recommendations: {
+        cultural: item.recommendations?.length > 0 ? [item.recommendations[0]] : [],
+        chemical: item.recommendations?.length > 1 ? item.recommendations.slice(1) : []
+      }
+    });
+    setShowHistoryModal(false);
+  };
+
+  // Client-Side Edge AI Inference (WASM INT8)
+  const handleEdgeDiagnose = async () => {
+    if (!selectedImage && !imagePreview) return;
+    setEdgeLoading(true);
+
+    try {
+      const targetCrop = crop === 'auto' ? 'sugarcane' : crop;
+      const edgeResult = await runLocalEdgeInference(targetCrop, imagePreview);
+
+      // Save into diagnosis_history and sync_queue
+      await queueOfflineDiagnosis({
+        image_data: imagePreview,
+        image_name: selectedImage ? selectedImage.name : 'edge_capture.jpg',
+        crop: targetCrop,
+        district: district,
+        latitude: gpsLocation?.lat || null,
+        longitude: gpsLocation?.lon || null,
+        captured_at: new Date().toISOString(),
+        client_preview: edgeResult,
+        is_local_inference: true
+      });
+
+      await refreshQueue();
+      await refreshStorage();
+
+      setDiagResult({
+        crop: targetCrop,
+        crop_detection_method: 'edge_onnx_wasm_int8',
+        predicted_class: edgeResult.predicted_disease,
+        disease_name_multilingual: {
+          en: edgeResult.predicted_disease,
+          mr: edgeResult.predicted_disease,
+          hi: edgeResult.predicted_disease
+        },
+        confidence: edgeResult.confidence,
+        confidence_percentage: edgeResult.confidence_percentage,
+        heatmap_path: null,
+        is_local_inference: true,
+        inference_time_ms: edgeResult.inference_time_ms,
+        top_predictions: edgeResult.top_predictions,
+        gradcam_notice: edgeResult.gradcam_notice,
+        model_version: `MobileNetV3 INT8 Edge WASM (${edgeResult.inference_time_ms}ms)`,
+        details: {
+          severity: 'ON_DEVICE_ANALYSIS',
+          offline_queued: true
+        },
+        recommendations: {
+          cultural: edgeResult.recommendations.slice(0, 1),
+          chemical: edgeResult.recommendations.slice(1)
+        }
+      });
+
+      setOfflineBanner(`⚡ Local diagnosis complete in ${edgeResult.inference_time_ms}ms! Saved to offline history.`);
+    } catch (err) {
+      alert(`Edge AI inference failed: ${err.message}. If the model is not cached, please connect to internet to download.`);
+    } finally {
+      setEdgeLoading(false);
+    }
+  };
+
+  // Cloud / Primary Server Diagnosis (with Grad-CAM)
   const handleDiagnose = async () => {
     if (!selectedImage) return;
     setLoading(true);
 
-    // If browser is offline, queue directly into IndexedDB
+    // If browser is offline, automatically redirect to Edge AI inference!
     if (typeof navigator !== 'undefined' && (!navigator.onLine || !isOnline)) {
-      await queueScanOffline();
+      setLoading(false);
+      await handleEdgeDiagnose();
       return;
     }
 
@@ -247,61 +408,37 @@ export default function App() {
       });
 
       if (!response.ok) {
-        // Fallback to legacy endpoint if required
-        response = await fetch('/api/v1/diagnose/predict', {
+        response = await fetch('/api/v1/diagnose', {
           method: 'POST',
           body: formData,
         });
       }
 
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.detail || 'Diagnosis failed');
+        throw new Error(`Diagnosis failed: HTTP ${response.status}`);
       }
 
       const data = await response.json();
-      
-      // Adapt unified response contract to UI state
-      const resolvedCrop = data.crop_type || data.crop || crop;
-      const formatted = {
-        crop: resolvedCrop,
-        crop_detection_method: data.crop_detection_method || "explicit_user_selection",
-        crop_detection_confidence: data.crop_detection_confidence,
-        predicted_class: data.predicted_disease || data.predicted_class,
-        disease_name_multilingual: data.disease_name_multilingual || {},
-        confidence: data.model_confidence ?? data.confidence,
-        heatmap_path: data.gradcam_image_url || data.heatmap_path,
-        model_version: data.image_prediction?.model_version || data.model_version || "PikVaidya Multi-Crop v2.2.0",
-        details: {
-          severity: data.image_prediction?.foliar_severity || data.details?.severity || "UNAVAILABLE",
-          affected_area_percentage: data.image_prediction?.affected_area_percentage || data.details?.affected_area_percentage,
-          multimodal_assessment: data.multimodal_assessment ? data : data.details?.multimodal_assessment,
-        },
-        recommendations: data.advisory_recommendations || data.recommendations,
-      };
+      setDiagResult(data);
 
-      setDiagResult(formatted);
-      if (crop === 'auto' && resolvedCrop) {
-        setCrop(resolvedCrop);
-      }
+      // Save to local IndexedDB history
+      await saveDiagnosis({
+        crop_type: data.crop || crop,
+        predicted_disease: data.predicted_class,
+        confidence: data.confidence,
+        image_reference: imagePreview,
+        gradcam_reference: data.heatmap_path,
+        latitude: gpsLocation?.lat || null,
+        longitude: gpsLocation?.lon || null,
+        diagnosis_timestamp: new Date().toISOString(),
+        sync_status: 'synced',
+        is_local_inference: false,
+        recommendations: data.details?.contextual_advisory?.cultural_practices || []
+      });
 
-      // Cache successful diagnosis locally in IndexedDB
-      await saveDiagnosisToHistory(formatted);
-
-      // Auto-inject finding into chat assistant context
-      const findingMsg = lang === 'mr'
-        ? `[सिस्टम सूचना] ${resolvedCrop.toUpperCase()} पिकाचे निदान: ${formatted.predicted_class} (विश्वासार्हता: ${(formatted.confidence * 100).toFixed(1)}%).`
-        : `[System Notice] ${resolvedCrop.toUpperCase()} diagnosed: ${formatted.predicted_class} (Confidence: ${(formatted.confidence * 100).toFixed(1)}%).`;
-
-      setChatMessages(prev => [...prev, { sender: 'bot', text: findingMsg, sources: [] }]);
+      await refreshStorage();
     } catch (err) {
-      console.warn('Online diagnosis error; checking network fallback:', err);
-      // Network failure fallback
-      if (!navigator.onLine || err.name === 'TypeError' || err.message.includes('fetch')) {
-        await queueScanOffline();
-      } else {
-        alert(`Diagnosis Error: ${err.message}`);
-      }
+      alert('Diagnostic Error: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -310,68 +447,98 @@ export default function App() {
   const handleDownloadPdf = async () => {
     if (!diagResult) return;
     setPdfDownloading(true);
+
     try {
       const payload = {
-        crop_name: diagResult.crop || crop,
-        predicted_disease: diagResult.predicted_class,
+        crop: diagResult.crop || crop,
+        disease_name: diagResult.predicted_class,
         confidence: diagResult.confidence,
-        severity: diagResult.details?.severity || "UNAVAILABLE",
-        affected_area_percentage: diagResult.details?.affected_area_percentage || null,
+        severity: diagResult.details?.severity || "MODERATE",
+        language: lang,
+        district: district,
         latitude: gpsLocation?.lat || null,
         longitude: gpsLocation?.lon || null,
-        crop_stage: "grand_growth",
-        preferred_language: lang,
+        image_path: diagResult.image_path || null,
+        heatmap_path: diagResult.heatmap_path || null,
+        contextual_advisory: diagResult.details?.contextual_advisory || null,
+        weather_telemetry: weatherData?.current || null,
+        spray_window: weatherData?.spray_window || null
       };
 
       const res = await fetch('/api/v1/advisory/pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload)
       });
 
-      if (!res.ok) {
-        throw new Error('Server returned error while generating PDF');
-      }
+      if (!res.ok) throw new Error('PDF generation failed');
 
       const blob = await res.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const downloadLink = document.createElement('a');
-      downloadLink.href = blobUrl;
-      downloadLink.download = `PikVaidya_Field_Advisory_${diagResult.crop}_${diagResult.predicted_class}.pdf`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-      window.URL.revokeObjectURL(blobUrl);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `PikVaidya_Advisory_${diagResult.crop}_${diagResult.predicted_class.replace(/\s+/g, '_')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
     } catch (err) {
-      alert("Failed to download PDF report: " + err.message);
+      alert('PDF generation error: ' + err.message);
     } finally {
       setPdfDownloading(false);
     }
   };
 
-  const handleSendMessage = async (textToSend) => {
-    const query = textToSend || chatInput;
-    if (!query.trim() || chatLoading) return;
+  const handleSendMessage = async (customText = null) => {
+    const textToSend = customText || chatInput;
+    if (!textToSend.trim() || chatLoading) return;
 
-    // Add user message
-    setChatMessages(prev => [...prev, { sender: 'user', text: query }]);
-    if (!textToSend) setChatInput('');
+    const userMsg = { sender: 'user', text: textToSend };
+    setChatMessages(prev => [...prev, userMsg]);
+    if (!customText) setChatInput('');
     setChatLoading(true);
+
+    // If offline, search client-side IndexedDB knowledge base directly
+    if (typeof navigator !== 'undefined' && (!navigator.onLine || !isOnline)) {
+      try {
+        const localChunks = await searchOfflineKnowledge(crop !== 'auto' ? crop : null, textToSend, lang);
+        if (localChunks.length > 0) {
+          const reply = lang === 'mr'
+            ? `[ऑफलाइन माहिती] ${localChunks[0].text}`
+            : `[Offline Knowledge] ${localChunks[0].text}`;
+          setChatMessages(prev => [
+            ...prev,
+            { sender: 'bot', text: reply, sources: localChunks.map(c => ({ source_name: c.source || 'ICAR' })) }
+          ]);
+        } else {
+          setChatMessages(prev => [
+            ...prev,
+            {
+              sender: 'bot',
+              text: lang === 'mr'
+                ? "ऑफलाइन उपलब्ध माहितीमध्ये उत्तर सापडले नाही. इंटरनेट जोडणी झाल्यावर पूर्ण RAG उत्तरे मिळतील."
+                : "No matching offline information found. Online connection required for complete RAG AI assistant."
+            }
+          ]);
+        }
+      } catch (err) {
+        setChatMessages(prev => [
+          ...prev,
+          { sender: 'bot', text: `Offline search error: ${err.message}` }
+        ]);
+      } finally {
+        setChatLoading(false);
+      }
+      return;
+    }
 
     try {
       const payload = {
-        message: query,
-        crop: crop,
-        preferred_language: lang,
+        query: textToSend,
         language: lang,
         session_id: sessionId,
-        diagnostic_context: diagResult ? {
-          crop: crop,
-          crop_name: crop,
-          predicted_disease: diagResult.predicted_class,
-          confidence: diagResult.confidence,
-        } : null,
-        weather_context: weatherData?.current_telemetry || null,
+        crop_context: diagResult ? diagResult.crop : (crop !== 'auto' ? crop : null),
+        disease_context: diagResult ? diagResult.predicted_class : null
       };
 
       const res = await fetch('/api/v1/assistant/chat', {
@@ -403,6 +570,9 @@ export default function App() {
     }
   };
 
+  const currentCropKey = crop === 'auto' ? 'sugarcane' : crop;
+  const isCurrentModelCached = modelCachedMap[currentCropKey];
+
   return (
     <div className="app-container">
       {/* Navigation */}
@@ -417,6 +587,13 @@ export default function App() {
           </div>
 
           <div className="nav-actions">
+            {/* PWA Install Button (When prompt available) */}
+            {deferredPrompt && (
+              <button className="pwa-install-btn" onClick={handleInstallClick} title="Install PikVaidya Progressive Web App">
+                📲 {t.installApp}
+              </button>
+            )}
+
             {/* Online / Offline Status Pill */}
             <div className={`network-pill ${isOnline ? 'online' : 'offline'}`}>
               {isOnline ? `🟢 ${t.onlineStatus}` : `🟠 ${t.offlineStatus}`}
@@ -433,6 +610,15 @@ export default function App() {
                 🔄 {queueStats.pendingCount} {isSyncing ? t.syncing : t.syncNow}
               </button>
             )}
+
+            {/* History Modal Trigger */}
+            <button
+              className="offline-guide-btn"
+              onClick={handleOpenHistory}
+              title="View saved local and cloud diagnoses"
+            >
+              📋 {t.offlineHistoryTitle}
+            </button>
 
             {/* Offline Agricultural Guide Modal Button */}
             <button
@@ -476,12 +662,12 @@ export default function App() {
             <h2>{t.appSubtitle}</h2>
             <p>
               {lang === 'mr'
-                ? "कृत्रिम बुद्धिमत्ता (PyTorch EfficientNet-B0 / MobileNetV3) आणि सूक्ष्म हवामान माहितीचा वापर करून शेतकरी बांधवांना थेट अचूक, वैधानिक व सुरक्षित शेती सल्ला."
-                : "Combining edge-to-cloud PyTorch deep learning with microclimate weather telemetry to deliver grounded, explainable, and legal farming advisories."}
+                ? "कृत्रिम बुद्धिमत्ता (PyTorch EfficientNet-B0 / MobileNetV3 INT8 WASM) आणि सूक्ष्म हवामान माहितीचा वापर करून शेतकरी बांधवांना थेट अचूक, वैधानिक व सुरक्षित शेती सल्ला — अगदी इंटरनेट नसतानाही!"
+                : "Combining on-device Edge AI (MobileNetV3 WASM INT8) with cloud PyTorch and microclimate telemetry to deliver grounded, explainable, and offline-resilient farming advisories."}
             </p>
           </div>
           <div className="hero-badges">
-            <div className="hero-badge">⚡ Calibrated PyTorch XAI</div>
+            <div className="hero-badge">⚡ Edge INT8 WASM (Offline)</div>
             <div className="hero-badge">🌦️ Open-Meteo Weather Gating</div>
             <div className="hero-badge">📜 ICAR & CIBRC Grounded</div>
           </div>
@@ -527,6 +713,22 @@ export default function App() {
                 </button>
               </div>
 
+              {/* Model Offline Cache Chip */}
+              {crop !== 'auto' && (
+                <div className={`model-cache-chip ${isCurrentModelCached ? 'cached' : ''}`}>
+                  <span>{isCurrentModelCached ? '⚡ ' + t.modelCached : '📦 ' + t.modelNotCached}</span>
+                  {!isCurrentModelCached && (
+                    <button
+                      onClick={() => handleCacheModel(crop)}
+                      disabled={cachingCrop === crop || !isOnline}
+                      title="Download 11.8MB INT8 model for offline use"
+                    >
+                      {cachingCrop === crop ? '⏳ Downloading...' : '⬇️ ' + t.cacheModelAction}
+                    </button>
+                  )}
+                </div>
+              )}
+
               {/* Upload Dropzone */}
               <label className="dropzone">
                 <input
@@ -547,13 +749,23 @@ export default function App() {
                 </div>
               )}
 
-              {/* Action Button */}
+              {/* Primary Action Button (Cloud PyTorch + Grad-CAM) */}
               <button
                 className="btn-primary"
                 onClick={handleDiagnose}
-                disabled={!selectedImage || loading}
+                disabled={!selectedImage || loading || edgeLoading}
               >
-                {loading ? t.diagnosing : t.diagnoseButton}
+                {loading ? t.diagnosing : (!isOnline ? '⚡ ' + t.runEdgeDiagnose : t.diagnoseButton)}
+              </button>
+
+              {/* On-Device Edge Inference Button (Instant WASM) */}
+              <button
+                className="btn-edge-diagnose"
+                onClick={handleEdgeDiagnose}
+                disabled={!selectedImage || loading || edgeLoading}
+                title="Runs dynamic INT8 quantized MobileNetV3 directly in the browser via WebAssembly"
+              >
+                {edgeLoading ? '⏳ Running On-Device WASM...' : '⚡ ' + t.runEdgeDiagnose}
               </button>
             </div>
 
@@ -621,28 +833,29 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* Spray Window Banner */}
+                  {/* Spray Window Status Pill */}
                   {weatherData.spray_window && (
-                    <div className={`weather-status-box ${
-                      weatherData.spray_window.is_safe_to_spray || weatherData.spray_window.is_suitable ? 'optimal' : 'cancelled'
-                    }`}>
-                      <div>
+                    <div className={`weather-status-box ${weatherData.spray_window.status || 'optimal'}`}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <strong>
-                          {weatherData.spray_window.is_safe_to_spray ? '✅ ' + t.optimalSpray : '⛔ ' + t.cancelledSpray}
+                          {weatherData.spray_window.status === 'optimal'
+                            ? `✅ ${t.optimalSpray}`
+                            : weatherData.spray_window.status === 'cancelled'
+                            ? `❌ ${t.cancelledSpray}`
+                            : `⚠️ ${t.postponedSpray}`}
                         </strong>
-                        <p style={{ fontSize: '0.8rem', marginTop: '0.2rem', marginBottom: 0 }}>
-                          {weatherData.spray_window.summary?.[lang] ||
-                           weatherData.spray_window.summary?.en ||
-                           weatherData.spray_window.summary_en ||
-                           weatherData.spray_window.advisory_recommendation?.[lang] ||
-                           weatherData.spray_window.advisory_recommendation?.en}
-                        </p>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>
+                          Delta-T: {weatherData.spray_window.delta_t_c ? weatherData.spray_window.delta_t_c.toFixed(1) : '--'}°C
+                        </span>
                       </div>
+                      <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.8rem' }}>
+                        {weatherData.spray_window.reason || weatherData.spray_window.advisory_message}
+                      </p>
                     </div>
                   )}
 
-                  {/* Atmospheric Telemetry Grid */}
-                  <div className="weather-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+                  {/* 6-Grid Telemetry */}
+                  <div className="weather-grid">
                     <div className="weather-item">
                       <span>Temp</span>
                       <strong>
@@ -782,9 +995,16 @@ export default function App() {
                   <h3 className="card-title">
                     <span>🔍</span> {t.resultsTitle}
                   </h3>
-                  <span className="confidence-badge">
-                    {t.calibratedConfidence}: {(diagResult.confidence * 100).toFixed(1)}%
-                  </span>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    {diagResult.is_local_inference ? (
+                      <span className="edge-badge">{t.localInferenceBadge}</span>
+                    ) : (
+                      <span className="cloud-badge">{t.cloudInferenceBadge}</span>
+                    )}
+                    <span className="confidence-badge">
+                      {t.calibratedConfidence}: {(diagResult.confidence * 100).toFixed(1)}%
+                    </span>
+                  </div>
                 </div>
 
                 {/* XAI Side-by-Side Visuals */}
@@ -795,10 +1015,15 @@ export default function App() {
                   </div>
                   <div className="xai-panel">
                     <div className="xai-panel-header">{t.gradcamOverlay}</div>
-                    <img
-                      src={diagResult.heatmap_path ? `/${diagResult.heatmap_path}` : imagePreview}
-                      alt="Grad-CAM Overlay"
-                    />
+                    {diagResult.heatmap_path ? (
+                      <img src={`/${diagResult.heatmap_path}`} alt="Grad-CAM Overlay" />
+                    ) : (
+                      <div className="gradcam-offline-placeholder">
+                        <span className="icon">📡</span>
+                        <h5>Grad-CAM Requires Cloud Connectivity</h5>
+                        <p>{t.gradcamOfflineNote}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -816,40 +1041,58 @@ export default function App() {
                         </span>
                       )}
                       {' | '}Model: {diagResult.model_version}
+                      {diagResult.inference_time_ms && ` (${diagResult.inference_time_ms} ms)`}
                     </div>
                   </div>
                   {diagResult.details?.severity && (
                     <div className="hero-badge" style={{ background: '#059669', color: '#fff' }}>
-                      {t.severityLevel}: {diagResult.details.severity} ({diagResult.details.affected_area_percentage?.toFixed(1)}%)
+                      {t.severityLevel}: {diagResult.details.severity} {diagResult.details.affected_area_percentage ? `(${diagResult.details.affected_area_percentage.toFixed(1)}%)` : ''}
                     </div>
                   )}
                 </div>
 
-                {/* Download PDF Field Advisory Action */}
-                <div style={{ marginTop: '0.75rem', marginBottom: '0.75rem' }}>
-                  <button
-                    onClick={handleDownloadPdf}
-                    disabled={pdfDownloading}
-                    className="btn"
-                    style={{
-                      width: '100%',
-                      background: '#065f46',
-                      color: '#ffffff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem',
-                      fontWeight: 600,
-                      padding: '0.65rem 1rem',
-                      borderRadius: '0.5rem',
-                      cursor: pdfDownloading ? 'not-allowed' : 'pointer',
-                      border: 'none',
-                    }}
-                  >
-                    <span>📄</span>
-                    {pdfDownloading ? t.downloadingPdf : t.downloadReportPdf}
-                  </button>
-                </div>
+                {/* Top-K Predictions Bar if Edge Inference */}
+                {diagResult.top_predictions?.length > 1 && (
+                  <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+                    <h5 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: '0.4rem' }}>
+                      📊 Top Pathology Classifications:
+                    </h5>
+                    {diagResult.top_predictions.slice(0, 3).map((p, idx) => (
+                      <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.2rem' }}>
+                        <span>{p.disease}</span>
+                        <strong>{p.confidence_percentage}%</strong>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Download PDF Field Advisory Action (When online) */}
+                {isOnline && (
+                  <div style={{ marginTop: '0.75rem', marginBottom: '0.75rem' }}>
+                    <button
+                      onClick={handleDownloadPdf}
+                      disabled={pdfDownloading}
+                      className="btn"
+                      style={{
+                        width: '100%',
+                        background: '#065f46',
+                        color: '#ffffff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        fontWeight: 600,
+                        padding: '0.65rem 1rem',
+                        borderRadius: '0.5rem',
+                        cursor: pdfDownloading ? 'not-allowed' : 'pointer',
+                        border: 'none',
+                      }}
+                    >
+                      <span>📄</span>
+                      {pdfDownloading ? t.downloadingPdf : t.downloadReportPdf}
+                    </button>
+                  </div>
+                )}
 
                 {/* Multimodal Crop Health & Microclimate Fusion Card */}
                 {diagResult.details?.multimodal_assessment && (() => {
@@ -955,116 +1198,9 @@ export default function App() {
                           }}
                         >
                           <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{t.infectionVelocity}</div>
-                          <div
-                            style={{
-                              fontSize: '1rem',
-                              fontWeight: 700,
-                              color:
-                                velocity === 'RAPID'
-                                  ? '#ef4444'
-                                  : velocity === 'MODERATE'
-                                  ? '#f59e0b'
-                                  : '#10b981',
-                            }}
-                          >
-                            ⚡ {velocity}
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#f59e0b' }}>
+                            {velocity}
                           </div>
-                        </div>
-
-                        <div
-                          style={{
-                            background: '#0f172a',
-                            padding: '0.5rem 0.75rem',
-                            borderRadius: '0.5rem',
-                            border: '1px solid #1e293b',
-                          }}
-                        >
-                          <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{t.environmentalConduciveness}</div>
-                          <div
-                            style={{
-                              fontSize: '1rem',
-                              fontWeight: 700,
-                              color:
-                                (mm.weather_risk?.overall_disease_pressure || 0) >= 0.6
-                                  ? '#ef4444'
-                                  : (mm.weather_risk?.overall_disease_pressure || 0) >= 0.3
-                                  ? '#f59e0b'
-                                  : '#10b981',
-                            }}
-                          >
-                            {((mm.weather_risk?.overall_disease_pressure || 0) * 100).toFixed(0)}%
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Physiological Environmental Stresses */}
-                      <div
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(4, 1fr)',
-                          gap: '0.4rem',
-                          marginBottom: '0.75rem',
-                          textAlign: 'center',
-                        }}
-                      >
-                        <div style={{ background: '#1e293b', padding: '0.4rem', borderRadius: '0.375rem' }}>
-                          <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{t.heatStress}</div>
-                          <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#f87171' }}>
-                            {((stresses.heat_stress_index || 0) * 100).toFixed(0)}%
-                          </div>
-                        </div>
-                        <div style={{ background: '#1e293b', padding: '0.4rem', borderRadius: '0.375rem' }}>
-                          <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{t.waterDeficit}</div>
-                          <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#fbbf24' }}>
-                            {((stresses.water_stress_index || 0) * 100).toFixed(0)}%
-                          </div>
-                        </div>
-                        <div style={{ background: '#1e293b', padding: '0.4rem', borderRadius: '0.375rem' }}>
-                          <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{t.floodRisk}</div>
-                          <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#60a5fa' }}>
-                            {((stresses.excess_water_flood_index || 0) * 100).toFixed(0)}%
-                          </div>
-                        </div>
-                        <div style={{ background: '#1e293b', padding: '0.4rem', borderRadius: '0.375rem' }}>
-                          <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{t.windDrift}</div>
-                          <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#c084fc' }}>
-                            {((stresses.wind_damage_risk || 0) * 100).toFixed(0)}%
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Multimodal Explainability Narrative & Bayesian Weights */}
-                      <div
-                        style={{
-                          background: '#0f172a',
-                          padding: '0.6rem 0.75rem',
-                          borderRadius: '0.5rem',
-                          borderLeft: '3px solid #38bdf8',
-                          fontSize: '0.8rem',
-                          color: '#cbd5e1',
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        <div style={{ marginBottom: '0.4rem' }}>
-                          {explain.multimodal_narrative?.[lang] || explain.multimodal_narrative?.en || ""}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: '0.7rem',
-                            color: '#64748b',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            marginTop: '0.4rem',
-                            borderTop: '1px solid #1e293b',
-                            paddingTop: '0.3rem',
-                          }}
-                        >
-                          <span>
-                            {t.evidenceWeight}: {t.visualWeight} {Math.round(explain.image_contribution_pct ?? 70)}% | {t.weatherWeight} {Math.round(explain.weather_contribution_pct ?? 30)}%
-                          </span>
-                          <span>
-                            Model: {mm.weather_risk?.dominant_weather_risk || 'ICAR Epidemiological'}
-                          </span>
                         </div>
                       </div>
 
@@ -1140,7 +1276,7 @@ export default function App() {
                 <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🌿</div>
                 <h3 style={{ color: '#1e293b', marginBottom: '0.5rem' }}>Ready for Crop Leaf Diagnosis</h3>
                 <p style={{ maxWidth: '420px', margin: '0 auto', fontSize: '0.9rem' }}>
-                  Upload a crop leaf photograph on the left to inspect native PyTorch inference, Grad-CAM visual heatmaps, and ICAR/CIBRC recommendations.
+                  Upload a crop leaf photograph on the left to inspect native PyTorch inference, Grad-CAM visual heatmaps, or run on-device Edge WASM AI directly offline.
                 </p>
               </div>
             )}
@@ -1243,7 +1379,94 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Diagnosis History Modal */}
+      {showHistoryModal && (
+        <div className="offline-modal-overlay" onClick={() => setShowHistoryModal(false)}>
+          <div className="offline-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="offline-modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <h3>📋 {t.offlineHistoryTitle} ({historyList.length})</h3>
+                <button
+                  onClick={handleExportHistory}
+                  style={{
+                    background: '#0284c7',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '0.25rem 0.6rem',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  📥 {t.exportHistory}
+                </button>
+              </div>
+              <button className="close-btn" onClick={() => setShowHistoryModal(false)}>✕</button>
+            </div>
+            <div className="offline-modal-body">
+              {/* Storage Meter */}
+              <div className="storage-meter">
+                <span>💾 {t.storageUsage}: <strong>{storageInfo.usageMB} MB</strong></span>
+                <span>Quota: <strong>{storageInfo.quotaMB} MB</strong> ({storageInfo.percentUsed}%)</span>
+              </div>
+
+              {/* History Items List */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {historyList.map((item) => (
+                  <div
+                    key={item.diagnosis_id}
+                    className="history-card-item"
+                    onClick={() => handleSelectHistoryItem(item)}
+                  >
+                    <img
+                      src={item.image_reference || '/pwa-192x192.png'}
+                      alt={item.predicted_disease}
+                      className="history-card-thumb"
+                    />
+                    <div className="history-card-info">
+                      <h4>{item.predicted_disease}</h4>
+                      <p>
+                        Crop: <strong>{item.crop_type.toUpperCase()}</strong> | Confidence: <strong>{(item.confidence * 100).toFixed(1)}%</strong>
+                      </p>
+                      <p style={{ marginTop: '0.15rem' }}>
+                        📅 {new Date(item.diagnosis_timestamp).toLocaleString()}
+                      </p>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.4rem' }}>
+                      <span className={`sync-status-pill ${item.sync_status}`}>
+                        {item.sync_status === 'synced'
+                          ? `🟢 ${t.syncStatusSynced}`
+                          : item.sync_status === 'pending_sync'
+                          ? `🟠 ${t.syncStatusPending}`
+                          : `⚡ ${t.syncStatusLocalOnly}`}
+                      </span>
+                      <button
+                        onClick={(e) => handleDeleteHistory(item.diagnosis_id, e)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#ef4444',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          padding: '0.2rem'
+                        }}
+                        title="Delete record"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {historyList.length === 0 && (
+                  <p className="no-data-text">{t.noOfflineHistory}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-

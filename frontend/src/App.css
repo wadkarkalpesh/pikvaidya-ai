@@ -1037,3 +1037,223 @@ body {
 }
 
 
+
+/* ========================================================
+   Phase 8: Offline PWA, Edge WASM AI & History Styles
+   ======================================================== */
+
+.pwa-install-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  font-size: 0.825rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);
+  transition: all 0.2s ease;
+}
+
+.pwa-install-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(22, 163, 74, 0.35);
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+}
+
+.model-cache-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  background: #f1f5f9;
+  border: 1px solid var(--slate-300);
+  border-radius: var(--radius-md);
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: var(--slate-700);
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.model-cache-chip.cached {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+
+.model-cache-chip button {
+  background: #15803d;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-edge-diagnose {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 6px rgba(2, 132, 199, 0.2);
+  transition: all 0.2s ease;
+}
+
+.btn-edge-diagnose:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(2, 132, 199, 0.3);
+}
+
+.btn-edge-diagnose:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.edge-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.cloud-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.gradcam-offline-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--radius-md);
+  text-align: center;
+  color: var(--slate-600);
+  gap: 0.75rem;
+}
+
+.gradcam-offline-placeholder span.icon {
+  font-size: 2.2rem;
+}
+
+.gradcam-offline-placeholder h5 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--slate-800);
+}
+
+.gradcam-offline-placeholder p {
+  font-size: 0.8rem;
+  color: var(--slate-500);
+  max-width: 320px;
+}
+
+.history-card-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem;
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.history-card-item:hover {
+  background: #f8fafc;
+  border-color: var(--primary-300);
+}
+
+.history-card-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--slate-200);
+}
+
+.history-card-info {
+  flex: 1;
+}
+
+.history-card-info h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--slate-900);
+  margin-bottom: 0.2rem;
+}
+
+.history-card-info p {
+  font-size: 0.75rem;
+  color: var(--slate-500);
+}
+
+.sync-status-pill {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.sync-status-pill.synced {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.sync-status-pill.pending_sync {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.sync-status-pill.local_only {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.storage-meter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.85rem;
+  background: #f8fafc;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: var(--slate-600);
+  font-weight: 600;
+}

@@ -68,6 +68,11 @@ uploads_dir = Path("uploads")
 uploads_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
 
+# Model serving for Edge AI / PWA offline model caching
+models_dir = Path("models")
+if models_dir.exists():
+    app.mount("/models", StaticFiles(directory=str(models_dir)), name="models")
+
 # Frontend static asset serving (if compiled)
 frontend_dist = _backend_dir.parent / "frontend" / "dist"
 if not frontend_dist.exists():

@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt'],
+      includeAssets: ['favicon.ico', 'robots.txt', '*.wasm'],
       manifest: {
         name: 'PikVaidya AI — Agricultural Diagnostic Platform',
         short_name: 'PikVaidya',
@@ -30,8 +30,20 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
+        maximumFileSizeToCacheInBytes: 35 * 1024 * 1024, // 35 MB to support ONNX models and WASM binaries
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,wasm}'],
         runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/models/') || url.pathname.endsWith('.wasm') || url.pathname.endsWith('.onnx'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'pikvaidya-models-wasm-cache',
+              expiration: {
+                maxEntries: 25,
+                maxAgeSeconds: 60 * 60 * 24 * 60, // 60 days
+              },
+            },
+          },
           {
             urlPattern: ({ url }) => url.pathname.startsWith('/api/v1/diseases'),
             handler: 'StaleWhileRevalidate',
@@ -77,6 +89,10 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/uploads': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/models': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
       },

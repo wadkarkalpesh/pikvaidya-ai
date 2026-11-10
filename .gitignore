@@ -65,6 +65,9 @@ dist/
 *.pt
 *.onnx
 *.onnx.data
+*.wasm
+frontend/public/*.mjs
+frontend/public/*.wasm
 checkpoints/
 wandb/
 
