@@ -126,3 +126,4 @@ Guarantees resilient, idempotent background synchronization for offline captures
     }
   }
   ```
+

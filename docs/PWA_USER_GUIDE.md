@@ -44,3 +44,4 @@
 1. Tap **"📋 Offline Diagnostic History"** (`तपासणी इतिहास`) in the top navigation bar.
 2. View all past scans, dates, and diagnosed conditions.
 3. Tap **"📥 Export History (JSON)"** to save a complete backup file to your phone's storage.
+

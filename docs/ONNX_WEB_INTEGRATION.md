@@ -80,3 +80,4 @@ Raw model logits are calibrated into probability distributions using numerically
 $$\hat{p}_i = \frac{\exp(z_i - z_{\max})}{\sum_{j=1}^{C} \exp(z_j - z_{\max})}$$
 
 Top-K predictions are ranked descending, mapping tensor indices to standardized pathology labels in English, Marathi, and Hindi.
+

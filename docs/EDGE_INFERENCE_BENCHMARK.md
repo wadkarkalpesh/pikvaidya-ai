@@ -47,3 +47,4 @@ Independent test evaluations confirm that the INT8 quantized models preserve hig
 ## 5. Conclusions
 
 The INT8 MobileNetV3 models demonstrate exceptional execution velocity ($< 3\text{ ms}$ per inference), making real-time, interactive leaf diagnostics possible on virtually all Android smartphones distributed through government agricultural subsidy schemes.
+

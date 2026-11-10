@@ -85,3 +85,4 @@ sequenceDiagram
 
     SyncMgr-->>Farmer: Toast Notification: "Scans synchronized!"
 ```
+
