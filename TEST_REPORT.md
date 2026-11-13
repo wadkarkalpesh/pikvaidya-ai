@@ -2,9 +2,9 @@
 
 **Test Execution Date:** November 13, 2026  
 **Test Framework:** Pytest 9.1.1 on Python 3.13.17 (win32)  
-**Overall Status:** **228 PASSED / 0 FAILED / 0 SKIPPED (100% Pass Rate)**  
-**Total Test Suites:** 35 Test Modules across `backend/tests/` and `tests/`  
-**Total Execution Time:** ~52 seconds  
+**Overall Status:** **233 PASSED / 0 FAILED / 0 SKIPPED (100% Pass Rate)**  
+**Total Test Suites:** 36 Test Modules across `backend/tests/` and `tests/`  
+**Total Execution Time:** ~48 seconds  
 
 ---
 
@@ -12,6 +12,7 @@
 
 | Test Module | Test Focus | Cases | Result | Execution Time |
 | :--- | :--- | :--- | :--- | :--- |
+| **`backend/tests/test_multimodal_orchestrator.py`** | Multimodal inputs (Text, Image, PDF, Voice) & Tri-Tool Dispatch | **5** | **PASSED** | **1.67s** |
 | `backend/tests/test_advisory_endpoints.py` | Context-aware advisory synthesis & weather gating | 3 | PASSED | 0.85s |
 | `backend/tests/test_auth.py` | JWT authentication, hashing & farmer registration | 12 | PASSED | 1.95s |
 | `backend/tests/test_crops.py` | Crop cycle CRUD, validation & multi-crop routing | 6 | PASSED | 0.90s |
@@ -47,7 +48,7 @@
 | `tests/test_calibration.py` | Temperature scaling optimization & ECE reduction | 5 | PASSED | 2.20s |
 | `tests/test_gradcam.py` | Forward/backward hook lifecycle & normalization | 7 | PASSED | 3.50s |
 | `tests/test_pipeline_trained.py` | Checkpoint parameter matching & finite probability checks | 3 | PASSED | 4.80s |
-| **TOTAL** | **Entire PikVaidya AI Test Corpus** | **228** | **100% PASSED** | **~52s** |
+| **TOTAL** | **Entire PikVaidya AI Test Corpus** | **233** | **100% PASSED** | **~48s** |
 
 ---
 

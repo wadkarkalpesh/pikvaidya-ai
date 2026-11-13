@@ -53,3 +53,4 @@ class SyncPullResponse(BaseModel):
         "onion": "onion_mobilenetv3_large_v1.0.onnx"
     })
     disease_catalog_checksum: str = Field(default="sha256:d8a9f24e1b8c")
+

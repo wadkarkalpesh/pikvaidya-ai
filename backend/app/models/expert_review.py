@@ -64,3 +64,4 @@ class ExpertReview(Base):
     diagnosis: Mapped["Diagnosis"] = relationship("Diagnosis", backref="expert_review")
     farmer: Mapped["User"] = relationship("User", foreign_keys=[farmer_id], backref="requested_reviews")
     expert: Mapped[Optional["User"]] = relationship("User", foreign_keys=[expert_id], backref="completed_reviews")
+

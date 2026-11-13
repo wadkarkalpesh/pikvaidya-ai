@@ -138,7 +138,7 @@ def test_complete_19_step_farmer_workflow(client: TestClient, db: Session):
     # Step 12 & 13: Multilingual RAG knowledge retrieval & Advisory generation
     # --------------------------------------------------------------------------
     rag_payload = {
-        "message": "ऊसावरील तांबडे कूज रोगाची लक्षणे आणि उपाय काय आहेत?",
+        "query": "ऊसावरील तांबडे कूज रोगाची लक्षणे आणि उपाय काय आहेत?",
         "crop": "sugarcane",
         "language": "mr"
     }
@@ -208,3 +208,4 @@ def test_complete_19_step_farmer_workflow(client: TestClient, db: Session):
     sync_res = client.post("/api/v1/sync/push", json=sync_payload, headers=headers)
     assert sync_res.status_code == 200
     assert sync_res.json()["status"] == "success"
+

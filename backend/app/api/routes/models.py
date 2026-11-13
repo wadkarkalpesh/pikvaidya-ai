@@ -144,3 +144,4 @@ def get_model_by_crop(crop: str):
             detail=f"Model for crop '{crop}' not found. Supported crops: {list(MODEL_CATALOG.keys())}"
         )
     return MODEL_CATALOG[norm_crop]
+

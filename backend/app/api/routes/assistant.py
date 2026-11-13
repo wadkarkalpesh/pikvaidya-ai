@@ -15,10 +15,13 @@ from sqlalchemy.orm import Session
 from app.dependencies import get_db
 from app.services.rag.assistant import rag_assistant
 from app.services.rag.indexer import rag_indexer
+from app.services.rag.orchestrator import llm_orchestrator
 from app.schemas.assistant import (
     ChatQueryRequest,
     ChatQueryResponse,
     KnowledgeChunkResponse,
+    MultimodalChatRequest,
+    MultimodalChatResponse,
 )
 
 logger = logging.getLogger(__name__)
@@ -79,6 +82,25 @@ async def query_assistant(
         db=db,
     )
     return ChatQueryResponse(**res)
+
+
+@router.post(
+    "/multimodal-chat",
+    response_model=MultimodalChatResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Multimodal Conversational AI & LLM Agent Orchestrator",
+    description=(
+        "Processes multimodal farmer inputs (Text, Image, PDF, Voice) through the LLM Orchestrator, "
+        "dispatching AI Model tools (foliar pathology), Weather tools (microclimate & spray safety), "
+        "and RAG tools (ICAR/MPKV knowledge) with full session memory and database telemetry binding."
+    ),
+)
+async def multimodal_chat(
+    request: MultimodalChatRequest,
+    db: Session = Depends(get_db),
+) -> MultimodalChatResponse:
+    """Dispatches multimodal input to specialized tools and synthesizes grounded agent response."""
+    return await llm_orchestrator.orchestrate(request=request, db=db)
 
 
 @router.get(

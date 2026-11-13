@@ -249,3 +249,4 @@ The platform uses 10 core tables:
 - `expert_reviews`: Farmer review requests, agronomist notes, diagnosis confirmations/overrides.
 - `audit_logs`: Immutable security and data synchronization audit trails.
 - `alembic_version`: Database migration tracking.
+

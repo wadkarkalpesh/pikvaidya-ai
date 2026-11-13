@@ -90,3 +90,4 @@ Endpoints are tagged with three security scopes:
 | **System Health** | `GET` | `/api/v1/health` | Versioned service health check | Public | None | `{"status": "healthy"}` |
 | **System Health** | `GET` | `/health` | Root unversioned health probe | Public | None | `{"status": "healthy"}` |
 | **Root UI** | `GET` | `/` | Application index / PWA bootstrap | Public | None | PWA HTML or JSON root |
+

@@ -134,3 +134,4 @@ Models were quantized using ONNX Runtime with static calibration (PTQ) over a re
 1. **Anti-Hallucination Chemical Guard:** Predictions below 0.65 confidence are disallowed from triggering automated chemical spray recommendations.
 2. **Crop Gate Verification:** If a farmer submits an onion leaf under a sugarcane crop cycle, the platform detects the mismatch and prompts the user rather than forcing an invalid sugarcane diagnosis.
 3. **Expert Verification Channel:** Any diagnosis can be escalated to certified agricultural extension scientists via `/api/v1/experts/request-review`.
+

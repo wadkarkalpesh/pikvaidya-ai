@@ -50,3 +50,4 @@ def test_create_and_list_notifications(client: TestClient, auth_headers: dict, t
     # Re-check unread count
     cnt_res2 = client.get("/api/v1/notifications/unread-count", headers=auth_headers)
     assert cnt_res2.json()["unread_count"] == 0
+

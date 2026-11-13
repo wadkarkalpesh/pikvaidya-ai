@@ -50,3 +50,4 @@ def test_get_model_unknown_crop_404(client: TestClient):
     response = client.get("/api/v1/models/pineapple")
     assert response.status_code == 404
     assert "not found" in response.json()["detail"].lower()
+

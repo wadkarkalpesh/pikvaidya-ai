@@ -59,3 +59,4 @@ class Notification(Base):
 
     # Relationships
     user: Mapped["User"] = relationship("User", backref="notifications")
+

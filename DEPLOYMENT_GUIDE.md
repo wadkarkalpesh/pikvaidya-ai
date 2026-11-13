@@ -262,3 +262,4 @@ pg_dump -U pikvaidya_user -h 127.0.0.1 -Fc pikvaidya_prod > "$BACKUP_DIR/db_$TIM
 # Retain only last 14 days of backups
 find "$BACKUP_DIR" -type f -name "*.dump" -mtime +14 -delete
 ```
+

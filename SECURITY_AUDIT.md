@@ -94,3 +94,4 @@ PikVaidya AI complies with the principles of the **Digital Personal Data Protect
 - **Data Minimization:** Only operational farmer data (name, phone, farm coordinates) is collected.
 - **Geospatial Privacy:** Farm GPS coordinates can be fuzzily rounded to 3 decimal places ($\sim 110\text{ meters}$) upon farmer preference to prevent micro-parcel pinpointing.
 - **Right to Erasure:** Deleting a farm parcel or diagnostic record via `/api/v1/diagnostics/{id}` performs a cascading deletion that removes both the database tuple and the raw image files from physical disk storage.
+

@@ -272,3 +272,4 @@ Manages database migration version hashing.
 - **RTO / RPO Targets:**
   - Recovery Time Objective (RTO): $< 30\text{ minutes}$.
   - Recovery Point Objective (RPO): $< 15\text{ minutes}$.
+

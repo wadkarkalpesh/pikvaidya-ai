@@ -66,3 +66,4 @@ timeline
    - NDVI (Normalized Difference Vegetation Index) orthomosaic mapping for early field-scale canopy stress detection.
 4. **Government Agricultural Scheme Integration:**
    - Integration with MahaDBT and PM-KISAN APIs to surface customized fertilizer subsidy information directly inside farmer advisories.
+

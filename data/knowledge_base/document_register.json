@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updated_at": "2026-11-13T07:52:45.009966",
+  "updated_at": "2026-11-13T08:20:58.685973",
   "documents": {
     "maharashtra_soils_irrigation_weather_risk_guide": {
       "document_id": "maharashtra_soils_irrigation_weather_risk_guide",
@@ -15,7 +15,7 @@
       "file_format": "md",
       "file_sha256": "fb39a53a96ac48c710adad8db07b9c3dc6c78e582a583924988cccc7058df3a4",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T07:52:44.978248",
+      "ingestion_timestamp": "2026-11-13T08:20:58.657861",
       "chunk_count": 2
     },
     "onion_icar_dogr_mpkv_plant_protection_guide": {
@@ -31,7 +31,7 @@
       "file_format": "md",
       "file_sha256": "5b9821b9b00c469d8ef357ac4ab4b4a470fceaf901d668ccff87edaf1b7c3046",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T07:52:44.980538",
+      "ingestion_timestamp": "2026-11-13T08:20:58.661186",
       "chunk_count": 3
     },
     "onion_integrated_pest_disease_management": {
@@ -47,7 +47,7 @@
       "file_format": "json",
       "file_sha256": "a40583162b4e6aa6140754f1000b1d462333b843a75c466cdb063ae2af767022",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T07:52:44.982581",
+      "ingestion_timestamp": "2026-11-13T08:20:58.664324",
       "chunk_count": 7
     },
     "sugarcane_icar_bulletin": {
@@ -63,7 +63,7 @@
       "file_format": "pdf",
       "file_sha256": "b5c9fa97bbcc31659887a3f68d663d2e4f84c2663c990f31e51b860b260d8ac7",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T07:52:44.983985",
+      "ingestion_timestamp": "2026-11-13T08:20:58.666792",
       "chunk_count": 1
     },
     "sugarcane_integrated_pest_disease_management": {
@@ -79,7 +79,7 @@
       "file_format": "json",
       "file_sha256": "419f0134e1b421b2743f4f3ce3fe8cd0e3625662ed1422b9aef79d207587b748",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T07:52:45.003410",
+      "ingestion_timestamp": "2026-11-13T08:20:58.675294",
       "chunk_count": 6
     },
     "sugarcane_mpkv_package_of_practices": {
@@ -95,7 +95,7 @@
       "file_format": "md",
       "file_sha256": "9ea89a0152184162e4f6cd761d612167b60e9b4ca066aa1c6249cb2b4865f320",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T07:52:45.004697",
+      "ingestion_timestamp": "2026-11-13T08:20:58.677476",
       "chunk_count": 3
     },
     "tomato_integrated_pest_disease_management": {
@@ -111,7 +111,7 @@
       "file_format": "json",
       "file_sha256": "7497792412355a18858c78374de91d2e7b40a975f3b2d624dc10b5fd25e1fc34",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T07:52:45.007045",
+      "ingestion_timestamp": "2026-11-13T08:20:58.681140",
       "chunk_count": 6
     },
     "tomato_maharashtra_cultivation_and_plant_protection": {
@@ -127,7 +127,7 @@
       "file_format": "md",
       "file_sha256": "4cc2c34ba66d420064728d0a52b440bbf86fca2ce054f94f001692e072f23b8c",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T07:52:45.008624",
+      "ingestion_timestamp": "2026-11-13T08:20:58.683572",
       "chunk_count": 4
     }
   }

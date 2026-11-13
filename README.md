@@ -1,7 +1,7 @@
 # PikVaidya AI (पीकवैद्य AI)
 ## An Explainable Multimodal AI Framework for Crop Disease Diagnosis & Context-Aware Smart Farming Recommendations
 
-[![Test Suite](https://img.shields.io/badge/pytest-228%2F228%20Passed%20(100%25)-15803D?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/wadkarkalpesh/pikvaidya-ai)
+[![Test Suite](https://img.shields.io/badge/pytest-233%2F233%20Passed%20(100%25)-15803D?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/wadkarkalpesh/pikvaidya-ai)
 [![Version](https://img.shields.io/badge/version-v2.0.0--Enterprise-0D233A?style=for-the-badge)](https://github.com/wadkarkalpesh/pikvaidya-ai)
 [![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)

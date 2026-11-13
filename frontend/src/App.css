@@ -624,6 +624,73 @@ body {
   cursor: pointer;
 }
 
+/* Multimodal Chat Input & Tool Styling */
+.chat-attach-btn {
+  background: var(--slate-100);
+  border: 1px solid var(--slate-300);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.75rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.chat-attach-btn:hover {
+  background: var(--primary-50);
+  border-color: var(--primary-500);
+}
+
+.chat-voice-btn.recording {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #b91c1c;
+  animation: pulse-offline 1.5s infinite;
+}
+
+.chat-attachments-preview {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.4rem 1.25rem;
+  background: var(--slate-50);
+  border-top: 1px solid var(--slate-200);
+  flex-wrap: wrap;
+}
+
+.attachment-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  background: var(--white);
+  border: 1px solid var(--primary-300);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--primary-800);
+}
+
+.attachment-chip button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: #ef4444;
+}
+
+.tool-trace-badge {
+  display: inline-block;
+  margin: 0.35rem 0.25rem 0 0;
+  padding: 0.15rem 0.45rem;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: #334155;
+  font-weight: 500;
+}
+
 /* Enhanced Weather Intelligence Styles */
 .weather-location-bar {
   display: flex;

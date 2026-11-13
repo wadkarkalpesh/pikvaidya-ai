@@ -68,3 +68,4 @@ def test_resolution_boundaries():
     assert metrics["width"] == 300
     assert metrics["height"] == 300
     assert metrics["foliage_coverage"] > 0.05
+

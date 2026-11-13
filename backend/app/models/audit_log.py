@@ -34,3 +34,4 @@ class AuditLog(Base):
 
     # Relationships
     user: Mapped[Optional["User"]] = relationship("User", backref="audit_logs")
+

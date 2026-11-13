@@ -55,12 +55,17 @@ export default function App() {
   const [historyList, setHistoryList] = useState([]);
   const [storageInfo, setStorageInfo] = useState({ usageMB: '0.00', quotaMB: '0.00', percentUsed: 0 });
 
-  // RAG Chatbot state
+  // Multimodal RAG Chatbot state
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
+  const [attachedImage, setAttachedImage] = useState(null);
+  const [attachedPdf, setAttachedPdf] = useState(null);
+  const [isListening, setIsListening] = useState(false);
   const chatBottomRef = useRef(null);
+  const chatImageInputRef = useRef(null);
+  const chatPdfInputRef = useRef(null);
 
   const t = translations[lang] || translations.en;
 
@@ -489,11 +494,66 @@ export default function App() {
     }
   };
 
+  const handleChatImageSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const b64 = reader.result.split(',')[1];
+      setAttachedImage({ name: file.name, base64: b64, preview: reader.result });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleChatPdfSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const b64 = reader.result.split(',')[1];
+      setAttachedPdf({ name: file.name, base64: b64 });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleStartVoice = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert(lang === 'mr' ? 'आपल्या ब्राउझरमध्ये व्हॉइस इनपुट उपलब्ध नाही.' : 'Voice recognition is not supported in this browser.');
+      return;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = lang === 'mr' ? 'mr-IN' : (lang === 'hi' ? 'hi-IN' : 'en-IN');
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+    recognition.onresult = (event) => {
+      const speechText = event.results[0][0].transcript;
+      setChatInput(prev => (prev ? prev + ' ' + speechText : speechText));
+    };
+    recognition.start();
+  };
+
   const handleSendMessage = async (customText = null) => {
     const textToSend = customText || chatInput;
-    if (!textToSend.trim() || chatLoading) return;
+    if ((!textToSend.trim() && !attachedImage && !attachedPdf) || chatLoading) return;
 
-    const userMsg = { sender: 'user', text: textToSend };
+    const currentImg = attachedImage;
+    const currentPdf = attachedPdf;
+    setAttachedImage(null);
+    setAttachedPdf(null);
+
+    const userMsg = {
+      sender: 'user',
+      text: textToSend,
+      attachedImage: currentImg?.name,
+      attachedPdf: currentPdf?.name
+    };
     setChatMessages(prev => [...prev, userMsg]);
     if (!customText) setChatInput('');
     setChatLoading(true);
@@ -534,20 +594,23 @@ export default function App() {
 
     try {
       const payload = {
-        query: textToSend,
+        message: textToSend,
         language: lang,
         session_id: sessionId,
-        crop_context: diagResult ? diagResult.crop : (crop !== 'auto' ? crop : null),
-        disease_context: diagResult ? diagResult.predicted_class : null
+        crop: crop !== 'auto' ? crop : 'sugarcane',
+        image_base64: currentImg?.base64,
+        image_filename: currentImg?.name,
+        pdf_base64: currentPdf?.base64,
+        pdf_filename: currentPdf?.name,
       };
 
-      const res = await fetch('/api/v1/assistant/chat', {
+      const res = await fetch('/api/v1/assistant/multimodal-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error('Assistant query failed');
+      if (!res.ok) throw new Error('Multimodal Assistant query failed');
 
       const data = await res.json();
       setSessionId(data.session_id);
@@ -557,7 +620,10 @@ export default function App() {
           sender: 'bot',
           text: data.reply || data.answer,
           sources: data.sources || data.retrieved_sources || [],
-          recommendations: data.key_recommendations || []
+          recommendations: data.key_recommendations || [],
+          tools: data.tools_invoked || [],
+          diagnostic: data.diagnostic_result,
+          weather: data.weather_result,
         }
       ]);
     } catch (err) {
@@ -1291,9 +1357,31 @@ export default function App() {
               <div className="chat-messages">
                 {chatMessages.map((msg, i) => (
                   <div key={i} className={`chat-msg ${msg.sender}`}>
-                    <p>{msg.text}</p>
+                    {msg.attachedImage && (
+                      <div className="attachment-chip" style={{ marginBottom: '0.35rem' }}>
+                        📷 {msg.attachedImage}
+                      </div>
+                    )}
+                    {msg.attachedPdf && (
+                      <div className="attachment-chip" style={{ marginBottom: '0.35rem' }}>
+                        📄 {msg.attachedPdf}
+                      </div>
+                    )}
+                    <p style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</p>
+                    
+                    {/* Tool Execution Badges */}
+                    {msg.tools?.length > 0 && (
+                      <div style={{ marginTop: '0.4rem' }}>
+                        {msg.tools.map((t, ti) => (
+                          <span key={ti} className="tool-trace-badge" title={t.summary}>
+                            ⚡ {t.tool_name.replace('_tool', '')} ({t.latency_ms}ms)
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
                     {msg.sources?.length > 0 && (
-                      <div>
+                      <div style={{ marginTop: '0.35rem' }}>
                         {msg.sources.map((s, si) => (
                           <span key={si} className="citation">
                             📚 {s.source_name || s.organization}
@@ -1320,12 +1408,73 @@ export default function App() {
                 ))}
               </div>
 
+              {/* Attached Media Previews */}
+              {(attachedImage || attachedPdf) && (
+                <div className="chat-attachments-preview">
+                  {attachedImage && (
+                    <div className="attachment-chip">
+                      <span>📷 {attachedImage.name}</span>
+                      <button onClick={() => setAttachedImage(null)}>✕</button>
+                    </div>
+                  )}
+                  {attachedPdf && (
+                    <div className="attachment-chip">
+                      <span>📄 {attachedPdf.name}</span>
+                      <button onClick={() => setAttachedPdf(null)}>✕</button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Hidden File Inputs for Multimodal Ingestion */}
+              <input
+                type="file"
+                ref={chatImageInputRef}
+                accept="image/jpeg,image/png,image/webp"
+                style={{ display: 'none' }}
+                onChange={handleChatImageSelect}
+              />
+              <input
+                type="file"
+                ref={chatPdfInputRef}
+                accept="application/pdf"
+                style={{ display: 'none' }}
+                onChange={handleChatPdfSelect}
+              />
+
               {/* Chat Input Bar */}
               <div className="chat-input-row">
+                <button
+                  type="button"
+                  className="chat-attach-btn"
+                  title={lang === 'mr' ? 'पानाचा फोटो जोडा' : 'Attach Leaf Photo'}
+                  onClick={() => chatImageInputRef.current?.click()}
+                  disabled={chatLoading}
+                >
+                  📷
+                </button>
+                <button
+                  type="button"
+                  className="chat-attach-btn"
+                  title={lang === 'mr' ? 'पीडीएफ अहवाल जोडा' : 'Attach PDF Report'}
+                  onClick={() => chatPdfInputRef.current?.click()}
+                  disabled={chatLoading}
+                >
+                  📄
+                </button>
+                <button
+                  type="button"
+                  className={`chat-attach-btn chat-voice-btn ${isListening ? 'recording' : ''}`}
+                  title={isListening ? (lang === 'mr' ? 'ऐकत आहे...' : 'Listening...') : (lang === 'mr' ? 'व्हॉइस बोला' : 'Voice Input')}
+                  onClick={handleStartVoice}
+                  disabled={chatLoading}
+                >
+                  🎙️
+                </button>
                 <input
                   type="text"
                   className="chat-input"
-                  placeholder={t.chatPlaceholder}
+                  placeholder={isListening ? (lang === 'mr' ? 'बोला, ऐकत आहे...' : 'Listening...') : t.chatPlaceholder}
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
