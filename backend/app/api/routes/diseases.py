@@ -115,7 +115,7 @@ def get_diseases_by_crop(
 )
 def get_disease_rag_document(
     disease_id: str,
-    lang: str = Query("en", regex="^(en|mr|hi)$", description="Target language ('en', 'mr', 'hi')"),
+    lang: str = Query("en", pattern="^(en|mr|hi)$", description="Target language ('en', 'mr', 'hi')"),
     db: Session = Depends(get_db),
 ):
     """Generates a dense textual RAG document for vector embeddings and LLM context."""

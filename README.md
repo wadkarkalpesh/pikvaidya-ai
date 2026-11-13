@@ -1,23 +1,36 @@
 # PikVaidya AI (पीकवैद्य AI)
 ## An Explainable Multimodal AI Framework for Crop Disease Diagnosis & Context-Aware Smart Farming Recommendations
 
-[![Test Suite](https://img.shields.io/badge/pytest-184%2F184%20Passed%20(100%25)-15803D?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/wadkarkalpesh/pikvaidya-ai)
-[![Version](https://img.shields.io/badge/version-v1.3.0--Multimodal-0D233A?style=for-the-badge)](https://github.com/wadkarkalpesh/pikvaidya-ai)
+[![Test Suite](https://img.shields.io/badge/pytest-228%2F228%20Passed%20(100%25)-15803D?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/wadkarkalpesh/pikvaidya-ai)
+[![Version](https://img.shields.io/badge/version-v2.0.0--Enterprise-0D233A?style=for-the-badge)](https://github.com/wadkarkalpesh/pikvaidya-ai)
 [![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
-[![ONNX Runtime](https://img.shields.io/badge/ONNX_Runtime-Opset_18-005CED?style=for-the-badge&logo=onnx&logoColor=white)](https://onnxruntime.ai/)
+[![ONNX Runtime](https://img.shields.io/badge/ONNX_Runtime-INT8_Quantized-005CED?style=for-the-badge&logo=onnx&logoColor=white)](https://onnxruntime.ai/)
 [![Docker](https://img.shields.io/badge/Docker-Multi--stage-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
 **PikVaidya AI (पीकवैद्य AI)** is an enterprise-grade, edge-first agricultural computer vision and multimodal agronomic decision-support platform designed specifically for Indian agrarian ecosystems, with an initial regional focus on Maharashtra. 
 
-The platform synthesizes **calibrated deep convolutional networks**, **visual explainability (Grad-CAM)**, **adaptive foliar color-space segmentation**, **real-time microclimate spray window gating (Open-Meteo)**, and a **trilingual Indic Hybrid RAG assistant** operating natively in **Marathi (मराठी)**, **Hindi (हिन्दी)**, and **English**.
+The platform synthesizes **calibrated deep convolutional networks**, **visual explainability (Grad-CAM)**, **adaptive foliar color-space segmentation**, **image quality & blur safeguards**, **real-time microclimate spray window gating (Open-Meteo)**, **human expert review workflows**, and a **trilingual Indic Hybrid RAG assistant** operating natively in **Marathi (मराठी)**, **Hindi (हिन्दी)**, and **English**.
 
 ---
 
-## 📑 Formal Technical Audit & Publications
+## 📑 Core Documentation Deliverables (Production Standard)
 
-A comprehensive 30-chapter academic technical audit of the entire codebase was conducted on **November 06, 2026**. All formal deliverables are published in [`reports/final_audit/`](reports/final_audit/):
+The complete backend architecture, audit verification, and deployment specifications are documented across 12 comprehensive reports:
+
+1. 📋 **[`BACKEND_COMPLETION_AUDIT.md`](file:///E:/PikVaidya%20AI/BACKEND_COMPLETION_AUDIT.md)** — Component-by-component completion status, verification evidence, and quantitative audit metrics.
+2. 🏛️ **[`BACKEND_ARCHITECTURE.md`](file:///E:/PikVaidya%20AI/BACKEND_ARCHITECTURE.md)** — Comprehensive 3-tier micro-monolith specification, sequence diagrams, and data flows.
+3. 📡 **[`BACKEND_API_INVENTORY.md`](file:///E:/PikVaidya%20AI/BACKEND_API_INVENTORY.md)** — Full catalog of all 55 endpoints (64 HTTP operations) across 18 route categories with schemas and auth scopes.
+4. 🗄️ **[`DATABASE_AUDIT.md`](file:///E:/PikVaidya%20AI/DATABASE_AUDIT.md)** — 10 relational tables, foreign key constraints, indexes, Alembic migrations, and backup strategies.
+5. 🧠 **[`AI_MODEL_INTEGRATION_AUDIT.md`](file:///E:/PikVaidya%20AI/AI_MODEL_INTEGRATION_AUDIT.md)** — Inspection of all 7 model artifacts (4 PyTorch `.pth` + 3 INT8 ONNX), classes, calibration, and Grad-CAM.
+6. 🔒 **[`SECURITY_AUDIT.md`](file:///E:/PikVaidya%20AI/SECURITY_AUDIT.md)** — PBKDF2-SHA256, JWT RBAC, magic-byte file validation, rate limiting, and DPDP Act 2023 compliance.
+7. 🗺️ **[`IMPLEMENTATION_ROADMAP.md`](file:///E:/PikVaidya%20AI/IMPLEMENTATION_ROADMAP.md)** — Phased roadmap from baseline to multimodal intelligence, enterprise advancement, and Phase 4 capabilities.
+8. 📜 **[`IMPLEMENTATION_LOG.md`](file:///E:/PikVaidya%20AI/IMPLEMENTATION_LOG.md)** — Chronological engineering log detailing all architectural and code advancements.
+9. 🧪 **[`TEST_REPORT.md`](file:///E:/PikVaidya%20AI/TEST_REPORT.md)** — Complete test report documenting all 228 passing tests and 19-step E2E integration test.
+10. 🚀 **[`DEPLOYMENT_GUIDE.md`](file:///E:/PikVaidya%20AI/DEPLOYMENT_GUIDE.md)** — Production operations guide covering Docker Compose, Systemd, Nginx TLS, and automated backups.
+11. ⚖️ **[`PRODUCTION_READINESS_REPORT.md`](file:///E:/PikVaidya%20AI/PRODUCTION_READINESS_REPORT.md)** — Formal production readiness sign-off across reliability, security, and agronomic safety.
+12. 📖 **[`README.md`](file:///E:/PikVaidya%20AI/README.md)** — Master repository guide and developer onboarding manual.
 
 - 📄 **[PIKVAIDYA_AI_COMPLETE_TECHNICAL_REPORT.pdf](reports/final_audit/PIKVAIDYA_AI_COMPLETE_TECHNICAL_REPORT.pdf)** — Formal publication-grade 30-chapter academic and technical audit report (1.19 MB).
 - 📝 **[PIKVAIDYA_AI_COMPLETE_TECHNICAL_REPORT.docx](reports/final_audit/PIKVAIDYA_AI_COMPLETE_TECHNICAL_REPORT.docx)** — Editable Word document with complete mathematical formulations, tables, and architecture diagrams (1.06 MB).

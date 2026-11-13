@@ -18,13 +18,22 @@ from app.api.routes.diseases import router as diseases_router
 from app.api.routes.crop_health import router as crop_health_router
 from app.core.config import settings
 from app.services.model_service import model_service
+from app.db.base import Base
+from app.db.session import engine
+import app.models
 
 logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Lifecycle manager: Pre-loads the primary ML model once at application startup."""
+    """Lifecycle manager: Pre-loads the primary ML model and verifies database schema at startup."""
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database schema verified/created successfully.")
+    except Exception as e:
+        logger.warning(f"Could not verify database schema at startup: {e}")
+
     try:
         model_service.load_model()
         logger.info(f"Model successfully loaded at application startup: {model_service.model_version}")
