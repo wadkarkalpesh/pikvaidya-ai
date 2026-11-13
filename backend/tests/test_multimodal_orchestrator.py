@@ -113,3 +113,4 @@ def test_multimodal_pdf_document_tool(client: TestClient):
     data = res.json()
     tool_names = [t["tool_name"] for t in data["tools_invoked"]]
     assert "document_analysis_tool" in tool_names
+
