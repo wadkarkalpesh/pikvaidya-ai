@@ -299,20 +299,30 @@ class LLMToolOrchestrator:
                 logger.warning("Could not decode PDF base64: %s", e)
 
         # ----------------------------------------------------------------------
-        # Modality Branch 2: Image Foliar Diagnosis
+        # Modality Branch 2: Image Foliar Diagnosis (Single & Multiple Images)
         # ----------------------------------------------------------------------
+        all_images = []
         if request.image_base64:
+            all_images.append((request.image_base64, request.image_filename or "foliar_scan.jpg"))
+        if getattr(request, "images_base64", None):
+            for idx, img_b64 in enumerate(request.images_base64):
+                all_images.append((img_b64, f"foliar_scan_{idx+1}.jpg"))
+
+        diag_results: List[Dict[str, Any]] = []
+        for img_b64, fname in all_images:
             try:
-                img_raw = base64.b64decode(request.image_base64)
+                img_raw = base64.b64decode(img_b64)
                 diag_data, diag_trace = await self.execute_crop_diagnosis_tool(
                     image_bytes=img_raw,
                     crop=session.active_crop,
-                    filename=request.image_filename or "foliar_scan.jpg",
+                    filename=fname,
                 )
                 tools_invoked.append(diag_trace)
                 if "disease_name_en" in diag_data:
-                    diag_result = diag_data
-                    session.active_disease = diag_data["disease_name_en"]
+                    diag_results.append(diag_data)
+                    if not diag_result or diag_data.get("confidence", 0) > diag_result.get("confidence", 0):
+                        diag_result = diag_data
+                        session.active_disease = diag_data["disease_name_en"]
             except Exception as e:
                 logger.warning("Could not decode image base64: %s", e)
 
@@ -322,7 +332,7 @@ class LLMToolOrchestrator:
         # Triggered if image uploaded, or user explicitly asks about weather/spray, or GPS supplied
         weather_keywords = {"weather", "spray", "rain", "temperature", "humidity", "हवामान", "फवारणी", "पाऊस", "तापमान", "मौसम", "छिड़काव"}
         msg_words = set(effective_message.lower().split())
-        needs_weather = bool(request.image_base64 or (msg_words & weather_keywords) or request.farm_id or request.latitude)
+        needs_weather = bool(len(all_images) > 0 or (msg_words & weather_keywords) or request.farm_id or request.latitude)
 
         if needs_weather:
             lat = request.latitude or session.latitude
@@ -386,6 +396,7 @@ class LLMToolOrchestrator:
             answer=synthesized_reply,
             tools_invoked=tools_invoked,
             diagnostic_result=diag_result,
+            diagnostic_results=diag_results,
             weather_result=weather_result,
             sources=rag_data.get("sources", []),
             retrieved_sources=rag_data.get("sources", []),

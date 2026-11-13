@@ -41,6 +41,7 @@ class ToolExecutionTrace(BaseModel):
 class MultimodalChatRequest(BaseModel):
     message: Optional[str] = Field(None, description="Farmer text query")
     image_base64: Optional[str] = Field(None, description="Base64 encoded JPEG/PNG foliar image")
+    images_base64: List[str] = Field(default_factory=list, description="List of multiple base64 encoded images")
     image_filename: Optional[str] = Field(None, description="Optional filename of uploaded image")
     pdf_base64: Optional[str] = Field(None, description="Base64 encoded PDF agricultural document or soil card")
     pdf_filename: Optional[str] = Field(None, description="Optional filename of uploaded PDF")
@@ -62,6 +63,7 @@ class MultimodalChatResponse(BaseModel):
     answer: str
     tools_invoked: List[ToolExecutionTrace] = Field(default_factory=list)
     diagnostic_result: Optional[Dict[str, Any]] = None
+    diagnostic_results: List[Dict[str, Any]] = Field(default_factory=list)
     weather_result: Optional[Dict[str, Any]] = None
     sources: List[Dict[str, str]] = Field(default_factory=list)
     retrieved_sources: List[Dict[str, str]] = Field(default_factory=list)
