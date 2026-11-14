@@ -1,10 +1,10 @@
 # PikVaidya AI — Comprehensive Automated Test Report
 
-**Test Execution Date:** November 13, 2026  
+**Test Execution Date:** November 14, 2026  
 **Test Framework:** Pytest 9.1.1 on Python 3.13.17 (win32)  
-**Overall Status:** **233 PASSED / 0 FAILED / 0 SKIPPED (100% Pass Rate)**  
-**Total Test Suites:** 36 Test Modules across `backend/tests/` and `tests/`  
-**Total Execution Time:** ~48 seconds  
+**Overall Status:** **240 PASSED / 0 FAILED / 0 SKIPPED (100% Pass Rate)**  
+**Total Test Suites:** 37 Test Modules across `backend/tests/` and `tests/`  
+**Total Execution Time:** ~70 seconds  
 
 ---
 
@@ -45,10 +45,11 @@
 | **`backend/tests/test_notifications.py`** | In-app alerts, severity levels, read status & unread counts | **2** | **PASSED** | **0.75s** |
 | **`backend/tests/test_experts_and_admin.py`** | Expert review workflow, triage queue, admin telemetry & audit logs | **5** | **PASSED** | **1.20s** |
 | **`backend/tests/test_end_to_end_farmer_workflow.py`** | 19-step End-to-End Farmer Workflow from auth to offline sync | **1** | **PASSED** | **3.26s** |
+| **`backend/tests/test_iot_telemetry.py`** | IoT device registry, SHA-256 auth, LoRaWAN webhook, in-situ RAG fusion | **7** | **PASSED** | **1.85s** |
 | `tests/test_calibration.py` | Temperature scaling optimization & ECE reduction | 5 | PASSED | 2.20s |
 | `tests/test_gradcam.py` | Forward/backward hook lifecycle & normalization | 7 | PASSED | 3.50s |
 | `tests/test_pipeline_trained.py` | Checkpoint parameter matching & finite probability checks | 3 | PASSED | 4.80s |
-| **TOTAL** | **Entire PikVaidya AI Test Corpus** | **233** | **100% PASSED** | **~48s** |
+| **TOTAL** | **Entire PikVaidya AI Test Corpus** | **240** | **100% PASSED** | **~70s** |
 
 ---
 

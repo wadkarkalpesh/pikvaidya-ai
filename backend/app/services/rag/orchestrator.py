@@ -112,10 +112,29 @@ class LLMToolOrchestrator:
         longitude: Optional[float] = None,
         district: Optional[str] = None,
         disease_name: Optional[str] = None,
+        farm_id: Optional[int] = None,
+        db: Optional[Session] = None,
     ) -> Tuple[Dict[str, Any], ToolExecutionTrace]:
-        """Tool 2: Ingests farm GPS or district, evaluates microclimate, and computes epidemiological risk."""
+        """Tool 2: Ingests farm GPS, district, or in-situ IoT telemetry, evaluates microclimate, and computes epidemiological risk."""
         start_t = time.perf_counter()
         try:
+            # 1. Check for live in-situ IoT hardware node if farm_id is provided
+            insitu_telemetry = None
+            if db and farm_id:
+                try:
+                    from app.services.iot_service import iot_service
+                    insitu_telemetry = iot_service.get_latest_farm_telemetry(db, farm_id)
+                    # Verify telemetry is live (within last 2 hours)
+                    if insitu_telemetry:
+                        r_ts = insitu_telemetry.timestamp
+                        if r_ts.tzinfo is None:
+                            r_ts = r_ts.replace(tzinfo=timezone.utc)
+                        age_secs = (datetime.now(timezone.utc) - r_ts).total_seconds()
+                        if age_secs > 7200:
+                            insitu_telemetry = None
+                except Exception as iot_err:
+                    logger.debug("Could not query in-situ IoT telemetry: %s", iot_err)
+
             # Resolve coordinates
             lat, lon, loc_name = 16.7050, 74.2433, "Kolhapur, Maharashtra"
             if latitude and longitude:
@@ -126,14 +145,22 @@ class LLMToolOrchestrator:
                 if loc:
                     lat, lon, loc_name = loc.latitude, loc.longitude, loc.name
 
-            # Fetch live weather
+            # Fetch weather telemetry
             w_data = await weather_service.get_current_weather(lat, lon)
             s_assess = weather_service.assess_spray_suitability(w_data)
 
             # Evaluate disease conduciveness from microclimate
-            is_conducive = (w_data.relative_humidity_pct > 75.0) and (20.0 <= w_data.temperature_c <= 32.0)
-            risk_tier = "CRITICAL" if (is_conducive and not s_assess.is_safe_to_spray) else ("HIGH" if is_conducive else ("MODERATE" if w_data.relative_humidity_pct > 60.0 else "LOW"))
-            cond_score = 0.88 if is_conducive else (0.55 if w_data.relative_humidity_pct > 60.0 else 0.25)
+            temp_eval = insitu_telemetry.ambient_temperature_c if insitu_telemetry else w_data.temperature_c
+            rh_eval = insitu_telemetry.ambient_humidity_pct if insitu_telemetry else w_data.relative_humidity_pct
+            wind_eval = insitu_telemetry.wind_speed_2m_kmh if insitu_telemetry else w_data.wind_speed_kmh
+            spray_safe = insitu_telemetry.spray_window_safe if insitu_telemetry else s_assess.is_safe_to_spray
+
+            is_conducive = (rh_eval > 75.0) and (20.0 <= temp_eval <= 32.0)
+            if insitu_telemetry and (insitu_telemetry.leaf_wetness_active or insitu_telemetry.leaf_wetness_minutes >= 15):
+                is_conducive = True
+
+            risk_tier = "CRITICAL" if (is_conducive and not spray_safe) else ("HIGH" if is_conducive else ("MODERATE" if rh_eval > 60.0 else "LOW"))
+            cond_score = 0.92 if (insitu_telemetry and insitu_telemetry.leaf_wetness_active) else (0.88 if is_conducive else (0.55 if rh_eval > 60.0 else 0.25))
 
             spray_rec = "Optimal spray conditions"
             if hasattr(s_assess, "advisory_recommendation") and isinstance(s_assess.advisory_recommendation, dict):
@@ -143,19 +170,28 @@ class LLMToolOrchestrator:
 
             duration_ms = (time.perf_counter() - start_t) * 1000.0
             result = {
-                "location": loc_name,
-                "temperature_c": w_data.temperature_c,
-                "relative_humidity_pct": w_data.relative_humidity_pct,
-                "wind_speed_kmh": w_data.wind_speed_kmh,
-                "is_safe_to_spray": s_assess.is_safe_to_spray,
+                "location": f"Farm #{farm_id} In-Situ IoT" if insitu_telemetry else loc_name,
+                "temperature_c": temp_eval,
+                "relative_humidity_pct": rh_eval,
+                "wind_speed_kmh": wind_eval,
+                "is_safe_to_spray": spray_safe,
                 "spray_recommendation": spray_rec,
                 "conduciveness_score": cond_score,
                 "risk_tier": risk_tier,
+                "is_insitu_iot": insitu_telemetry is not None,
+                "leaf_wetness_minutes": insitu_telemetry.leaf_wetness_minutes if insitu_telemetry else None,
+                "soil_moisture_pct": insitu_telemetry.soil_moisture_10cm_pct if insitu_telemetry else None,
             }
+
+            summary_msg = (
+                f"In-Situ IoT Node ({insitu_telemetry.device_id}): {temp_eval}°C, {rh_eval}% RH, Leaf Wetness: {insitu_telemetry.leaf_wetness_minutes}m. Spray: {'SAFE' if spray_safe else 'HOLD'}"
+                if insitu_telemetry else
+                f"Microclimate evaluated: {w_data.temperature_c}°C, {w_data.relative_humidity_pct}% RH. Spray status: {'SAFE' if s_assess.is_safe_to_spray else 'HOLD'}"
+            )
             trace = ToolExecutionTrace(
                 tool_name="weather_risk_tool",
                 status="SUCCESS",
-                summary=f"Microclimate evaluated: {w_data.temperature_c}°C, {w_data.relative_humidity_pct}% RH. Spray status: {'SAFE' if s_assess.is_safe_to_spray else 'HOLD'}",
+                summary=summary_msg,
                 latency_ms=round(duration_ms, 2),
             )
             return result, trace
@@ -341,7 +377,10 @@ class LLMToolOrchestrator:
                 crop=session.active_crop,
                 latitude=lat,
                 longitude=lon,
+                district=getattr(request, "district", None) or getattr(session, "district", None),
                 disease_name=session.active_disease,
+                farm_id=request.farm_id or getattr(session, "farm_id", None),
+                db=db,
             )
             tools_invoked.append(w_trace)
             if "temperature_c" in w_data:

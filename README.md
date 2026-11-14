@@ -1,7 +1,7 @@
 # PikVaidya AI (पीकवैद्य AI)
 ## An Explainable Multimodal AI Framework for Crop Disease Diagnosis & Context-Aware Smart Farming Recommendations
 
-[![Test Suite](https://img.shields.io/badge/pytest-233%2F233%20Passed%20(100%25)-15803D?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/wadkarkalpesh/pikvaidya-ai)
+[![Test Suite](https://img.shields.io/badge/pytest-240%2F240%20Passed%20(100%25)-15803D?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/wadkarkalpesh/pikvaidya-ai)
 [![Version](https://img.shields.io/badge/version-v2.0.0--Enterprise-0D233A?style=for-the-badge)](https://github.com/wadkarkalpesh/pikvaidya-ai)
 [![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -247,9 +247,9 @@ docker-compose up --build -d
 
 ---
 
-## 🧪 Automated Test Suite (145/145 Passing)
+## 🧪 Automated Test Suite (240/240 Passing)
 
-Execute the complete automated test suite verifying diagnostic serving, ONNX parity, RAG assistant, and database security:
+Execute the complete automated test suite verifying diagnostic serving, ONNX parity, RAG assistant, IoT telemetry gateway, and database security:
 
 ```bash
 # Run all backend tests
@@ -260,31 +260,47 @@ pytest tests/ -v
 ```
 
 ```
-Test Execution Summary (100% Pass Rate Across All Suites)
+Test Execution Summary (100% Pass Rate Across All 37 Suites)
 ---------------------------------------------------------------------------------
 backend/tests/test_advisory_endpoints.py           3 passed
 backend/tests/test_auth.py                        12 passed
 backend/tests/test_crops.py                        6 passed
 backend/tests/test_diagnostic_service.py           8 passed
-backend/tests/test_diagnostics.py                 19 passed
+backend/tests/test_diagnostics.py                 16 passed
 backend/tests/test_disease_database.py             7 passed
+backend/tests/test_document_pipeline.py            5 passed
 backend/tests/test_farmer.py                       4 passed
 backend/tests/test_farms.py                        8 passed
-backend/tests/test_frontend_serving.py             2 passed
-backend/tests/test_model_serving.py               12 passed (PyTorch + ONNX)
+backend/tests/test_frontend_serving.py             4 passed
+backend/tests/test_model_serving.py               11 passed
+backend/tests/test_multimodal_fusion.py           12 passed
+backend/tests/test_multimodal_orchestrator.py      5 passed (Multimodal Dispatch)
+backend/tests/test_offline_sync.py                 4 passed
+backend/tests/test_offline_phase8.py               7 passed (PWA & ONNX WASM)
 backend/tests/test_onion_multi_crop.py             6 passed (Onion Pathology)
 backend/tests/test_production_readiness.py         5 passed
-backend/tests/test_rag_assistant.py                7 passed (Trilingual RRF)
+backend/tests/test_quantization.py                 8 passed (INT8 Precision)
+backend/tests/test_rag_assistant.py               10 passed (Trilingual RRF)
 backend/tests/test_real_assets_integration.py      7 passed
 backend/tests/test_recommendation_engine.py        5 passed (Confidence Gating)
-backend/tests/test_segmentation_service.py         8 passed (Foliage Rejection)
+backend/tests/test_report_service.py               5 passed (PDF Reports)
+backend/tests/test_segmentation_service.py         9 passed (Foliage Rejection)
 backend/tests/test_tomato_multi_crop.py            7 passed (Tomato Pathology)
+backend/tests/test_weather_feature_engineer.py     4 passed
+backend/tests/test_weather_integration.py         12 passed
 backend/tests/test_weather_service.py              5 passed (Spray Gating)
+backend/tests/test_crop_health_unified.py          7 passed (Unified Multimodal)
+backend/tests/test_image_quality.py                3 passed (Laplacian Blur & Exposure)
+backend/tests/test_models_api.py                   5 passed (Catalog & Weights)
+backend/tests/test_notifications.py                2 passed (Alerts)
+backend/tests/test_experts_and_admin.py            5 passed (Admin & Triage)
+backend/tests/test_end_to_end_farmer_workflow.py   1 passed (19-Step Lifecycle)
+backend/tests/test_iot_telemetry.py                7 passed (IoT Telemetry Gateway)
 tests/test_calibration.py                          5 passed (Temperature Scaling)
 tests/test_gradcam.py                              7 passed (Saliency Hooks)
 tests/test_pipeline_trained.py                     3 passed
 ---------------------------------------------------------------------------------
-TOTAL PASSING TESTS: 145 / 145 (100% Green, Zero Regressions, 0 Skipped)
+TOTAL PASSING TESTS: 240 / 240 (100% Green, Zero Regressions, 0 Skipped)
 ```
 
 ---

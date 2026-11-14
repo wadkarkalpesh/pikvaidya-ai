@@ -53,6 +53,7 @@ class MultimodalChatRequest(BaseModel):
     language: Optional[str] = Field(None, description="Preferred language code ('mr', 'hi', 'en')")
     latitude: Optional[float] = Field(None, description="WGS84 GPS latitude")
     longitude: Optional[float] = Field(None, description="WGS84 GPS longitude")
+    district: Optional[str] = Field(None, description="Optional Maharashtra district name (e.g. Pune, Kolhapur)")
 
 
 class MultimodalChatResponse(BaseModel):

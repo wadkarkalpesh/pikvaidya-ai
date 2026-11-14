@@ -18,6 +18,7 @@ from app.api.routes import (
     admin,
     risk,
     sync,
+    iot,
 )
 
 api_router = APIRouter()
@@ -36,13 +37,14 @@ api_router.include_router(weather.router, tags=["Agricultural Microclimate & Wea
 api_router.include_router(multimodal.router, tags=["Multimodal Crop-Health Prediction Engine"])
 api_router.include_router(crop_health.router, prefix="/crop-health", tags=["Unified Multi-Crop Health Prediction"])
 
-# Expanded Advanced Enterprise Routes
+# Expanded Advanced Enterprise & Hardware IoT Routes
 api_router.include_router(models.router, prefix="/models", tags=["AI Models & Architecture"])
 api_router.include_router(notifications.router, prefix="/notifications", tags=["Notifications & Alerts"])
 api_router.include_router(experts.router, prefix="/experts", tags=["Expert Review & Verification"])
 api_router.include_router(admin.router, prefix="/admin", tags=["System Administration & Telemetry"])
 api_router.include_router(risk.router, prefix="/risk", tags=["Environmental Disease Risk"])
 api_router.include_router(sync.router, tags=["Offline Edge Synchronization"])
+api_router.include_router(iot.router, tags=["IoT & In-Situ Farm Telemetry"])
 
 
 @api_router.get("/health", tags=["System"])

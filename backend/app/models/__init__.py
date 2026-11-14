@@ -8,6 +8,8 @@ from app.models.weather_history import WeatherObservation
 from app.models.notification import Notification, NotificationType, NotificationSeverity
 from app.models.expert_review import ExpertReview, ReviewStatus
 from app.models.audit_log import AuditLog
+from app.models.iot_device import IoTDevice
+from app.models.iot_telemetry import IoTTelemetry
 
 __all__ = [
     "Base",
@@ -26,4 +28,6 @@ __all__ = [
     "ExpertReview",
     "ReviewStatus",
     "AuditLog",
+    "IoTDevice",
+    "IoTTelemetry",
 ]
