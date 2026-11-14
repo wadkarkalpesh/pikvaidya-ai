@@ -25,12 +25,12 @@ if (typeof window !== 'undefined') {
 // Model registry & class mappings
 const MODEL_CONFIG = {
   sugarcane: {
-    modelUrl: '/models/sugarcane_mobilenetv3_int8.onnx',
+    modelUrl: '/models/sugarcane/mobilenet_v3/model_int8.onnx',
     classes: ['Healthy', 'Mosaic', 'RedRot', 'Rust', 'Yellow'],
-    name: 'MobileNetV3-Small INT8 Sugarcane'
+    name: 'MobileNetV3 INT8 Sugarcane'
   },
   tomato: {
-    modelUrl: '/models/tomato_mobilenetv3_int8.onnx',
+    modelUrl: '/models/tomato/mobilenet_v3/model_int8.onnx',
     classes: [
       'Bacterial_spot',
       'Early_blight',
@@ -43,17 +43,17 @@ const MODEL_CONFIG = {
       'Target_Spot',
       'Yellow_Leaf_Curl_Virus'
     ],
-    name: 'MobileNetV3-Small INT8 Tomato'
+    name: 'MobileNetV3 INT8 Tomato'
   },
   onion: {
-    modelUrl: '/models/onion_mobilenetv3_large_int8.onnx',
+    modelUrl: '/models/onion/mobilenet_v3/model_int8.onnx',
     classes: [
       'Onion___healthy',
       'Onion___iris_yellow_virus',
       'Onion___purple_blotch',
       'Onion___stemphylium_blight'
     ],
-    name: 'MobileNetV3-Small INT8 Onion'
+    name: 'MobileNetV3 INT8 Onion'
   }
 };
 

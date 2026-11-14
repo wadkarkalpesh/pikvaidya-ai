@@ -48,6 +48,13 @@ MODELS_TO_EXPORT = [
         "checkpoint": PROJECT_ROOT / "models" / "tomato" / "mobilenet_v3" / "best_model.pth",
         "output_onnx": PROJECT_ROOT / "models" / "tomato" / "mobilenet_v3" / "model.onnx",
     },
+    {
+        "crop": "onion",
+        "arch": "mobilenet_v3",
+        "num_classes": 4,
+        "checkpoint": PROJECT_ROOT / "models" / "onion" / "mobilenet_v3" / "best_model.pth",
+        "output_onnx": PROJECT_ROOT / "models" / "onion" / "mobilenet_v3" / "model.onnx",
+    },
 ]
 
 
@@ -93,6 +100,7 @@ def export_and_verify(config: dict):
             "input": {0: "batch_size"},
             "output": {0: "batch_size"},
         },
+        dynamo=False,
     )
 
     # 2. Check ONNX Model Structure
