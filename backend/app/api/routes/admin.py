@@ -7,7 +7,10 @@ and access to immutable administrative audit trails. Restricted to ADMIN role.
 
 import sys
 import os
-import psutil
+try:
+    import psutil
+except ImportError:
+    psutil = None
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, ConfigDict
@@ -69,8 +72,16 @@ def get_system_telemetry(
     db: Session = Depends(get_db),
 ):
     """Returns runtime system vitals: memory, CPU, loaded models, and process uptime."""
-    process = psutil.Process(os.getpid())
-    mem_info = process.memory_info()
+    if psutil:
+        process = psutil.Process(os.getpid())
+        mem_info = process.memory_info()
+        cpu_pct = process.cpu_percent(interval=None)
+        rss_mb = round(mem_info.rss / (1024 * 1024), 2)
+        vms_mb = round(mem_info.vms / (1024 * 1024), 2)
+    else:
+        cpu_pct = 0.0
+        rss_mb = 0.0
+        vms_mb = 0.0
 
     return {
         "status": "OPERATIONAL",
@@ -78,9 +89,9 @@ def get_system_telemetry(
         "runtime": {
             "python_version": sys.version.split()[0],
             "pid": os.getpid(),
-            "cpu_percent": process.cpu_percent(interval=None),
-            "memory_rss_mb": round(mem_info.rss / (1024 * 1024), 2),
-            "memory_vms_mb": round(mem_info.vms / (1024 * 1024), 2),
+            "cpu_percent": cpu_pct,
+            "memory_rss_mb": rss_mb,
+            "memory_vms_mb": vms_mb,
         },
         "model_service": {
             "loaded": getattr(model_service, "is_loaded", False),

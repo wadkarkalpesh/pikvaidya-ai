@@ -81,15 +81,37 @@ class AgriculturalGroundingEngine:
             c = res.chunk
             fact_snippets.append(f"[{c.disease_name} - {c.section.upper()}]: {c.text}")
             refs = c.metadata.get("references", [])
+            if isinstance(refs, str):
+                refs = [refs]
+            elif not isinstance(refs, list):
+                refs = []
+
             for r in refs:
-                if r not in sources:
-                    sources.append(r)
+                if isinstance(r, dict):
+                    source_dict = {
+                        "source_name": str(r.get("source_name", "ICAR Package of Practices")),
+                        "organization": str(r.get("organization", "ICAR")),
+                        "citation": str(r.get("citation", r.get("source_name", "Technical Publication")))
+                    }
+                elif isinstance(r, str) and r.strip():
+                    source_dict = {
+                        "source_name": r.strip(),
+                        "organization": "ICAR-DOGR / MPKV" if c.crop == "onion" else "ICAR / CIBRC",
+                        "citation": r.strip()
+                    }
+                else:
+                    continue
+
+                if source_dict not in sources:
+                    sources.append(source_dict)
 
         if not sources:
+            default_org = "ICAR-DOGR, Rajgurunagar" if (retrieval_results and retrieval_results[0].chunk.crop == "onion") else "ICAR - Sugarcane Breeding Institute, Coimbatore"
+            default_name = "ICAR-DOGR Onion Pathology Guide" if (retrieval_results and retrieval_results[0].chunk.crop == "onion") else "ICAR-SBI Sugarcane Pathology Package of Practices"
             sources.append({
-                "source_name": "ICAR-SBI Sugarcane Pathology Package of Practices",
-                "organization": "ICAR - Sugarcane Breeding Institute, Coimbatore",
-                "citation": "Technical Bulletin on Cane Disease Management"
+                "source_name": default_name,
+                "organization": default_org,
+                "citation": "Technical Bulletin on Crop Disease Management"
             })
 
         # 3. Assemble Grounded Answer

@@ -60,7 +60,18 @@ ONION_DISEASE_SEEDS: List[Dict[str, Any]] = [
             "Chemical Treatments:\n"
             "- No chemical intervention warranted. Continue routine prophylactic monitoring."
         ),
-        "reference_sources": "ICAR-DOGR Package of Practices; MPKV Rahuri Vegetable Cultivation Guide.",
+        "reference_sources": [
+            {
+                "source_name": "ICAR-DOGR Package of Practices",
+                "organization": "ICAR - Directorate of Onion and Garlic Research, Rajgurunagar",
+                "citation": "DOGR Onion Production Technology Guide"
+            },
+            {
+                "source_name": "MPKV Rahuri Vegetable Cultivation Guide",
+                "organization": "Mahatma Phule Krishi Vidyapeeth, Rahuri",
+                "citation": "MPKV Krishi Darshani"
+            }
+        ],
         "last_verified": "2026-11-06"
     },
     {
@@ -86,7 +97,18 @@ ONION_DISEASE_SEEDS: List[Dict[str, Any]] = [
             "रासायनिक फवारणी:\n"
             "- पीक निरोगी असल्याने रासायनिक बुरशीनाशकांची आवश्यकता नाही."
         ),
-        "reference_sources": "भाकृअनुप - कांदा व लसूण संशोधन संचालनालय (ICAR-DOGR), राजगुरूनगर, पुणे.",
+        "reference_sources": [
+            {
+                "source_name": "ICAR-DOGR Package of Practices",
+                "organization": "ICAR - Directorate of Onion and Garlic Research, Rajgurunagar",
+                "citation": "DOGR Onion Production Technology Guide"
+            },
+            {
+                "source_name": "MPKV Rahuri Vegetable Cultivation Guide",
+                "organization": "Mahatma Phule Krishi Vidyapeeth, Rahuri",
+                "citation": "MPKV Krishi Darshani"
+            }
+        ],
         "last_verified": "2026-11-06"
     },
     {
@@ -105,7 +127,18 @@ ONION_DISEASE_SEEDS: List[Dict[str, Any]] = [
             "3. खेत को खरपतवार मुक्त रखें।"
         ),
         "management_methods": "जैविक उपाय जारी रखें। किसी रासायनिक छिड़काव की आवश्यकता नहीं है।",
-        "reference_sources": "आईसीएआर-डीओजीआर (ICAR-DOGR) राजगुरुनगर, पुणे।",
+        "reference_sources": [
+            {
+                "source_name": "ICAR-DOGR Package of Practices",
+                "organization": "ICAR - Directorate of Onion and Garlic Research, Rajgurunagar",
+                "citation": "DOGR Onion Production Technology Guide"
+            },
+            {
+                "source_name": "MPKV Rahuri Vegetable Cultivation Guide",
+                "organization": "Mahatma Phule Krishi Vidyapeeth, Rahuri",
+                "citation": "MPKV Krishi Darshani"
+            }
+        ],
         "last_verified": "2026-11-06"
     },
 
@@ -143,7 +176,18 @@ ONION_DISEASE_SEEDS: List[Dict[str, Any]] = [
             "- Propiconazole 25% EC @ 1.0 ml/L water. PHI: 14 days.\n\n"
             f"{PPE_NOTICE_EN}"
         ),
-        "reference_sources": "ICAR-DOGR Technical Bulletin on Onion Pathology; CIBRC Registered Fungicide Matrix.",
+        "reference_sources": [
+            {
+                "source_name": "ICAR-DOGR Technical Bulletin on Onion Pathology",
+                "organization": "ICAR - Directorate of Onion and Garlic Research, Rajgurunagar",
+                "citation": "DOGR Bulletin on Purple Blotch (Alternaria porri)"
+            },
+            {
+                "source_name": "CIBRC Registered Fungicide Matrix",
+                "organization": "Central Insecticide Board & Registration Committee",
+                "citation": "CIBRC Approved List of Fungicides for Onion"
+            }
+        ],
         "last_verified": "2026-11-06"
     },
     {
@@ -173,7 +217,18 @@ ONION_DISEASE_SEEDS: List[Dict[str, Any]] = [
             "- टेबुकोनॅझोल २५.९% ईसी @ १.५ मि.ली. प्रति लिटर पाणी (प्रतीक्षा काळ: १५ दिवस).\n\n"
             f"{PPE_NOTICE_MR}"
         ),
-        "reference_sources": "भाकृअनुप - कांदा व लसूण संशोधन संचालनालय (ICAR-DOGR), राजगुरूनगर.",
+        "reference_sources": [
+            {
+                "source_name": "ICAR-DOGR Technical Bulletin on Onion Pathology",
+                "organization": "ICAR - Directorate of Onion and Garlic Research, Rajgurunagar",
+                "citation": "DOGR Bulletin on Purple Blotch (Alternaria porri)"
+            },
+            {
+                "source_name": "CIBRC Registered Fungicide Matrix",
+                "organization": "Central Insecticide Board & Registration Committee",
+                "citation": "CIBRC Approved List of Fungicides for Onion"
+            }
+        ],
         "last_verified": "2026-11-06"
     },
     {
@@ -196,7 +251,18 @@ ONION_DISEASE_SEEDS: List[Dict[str, Any]] = [
             "- डाईफेनोकोनाजोल 25% EC @ 1 मिली/लीटर पानी।\n\n"
             f"{PPE_NOTICE_HI}"
         ),
-        "reference_sources": "आईसीएआर-डीओजीआर प्याज रोग प्रबंधन संदर्शिका।",
+        "reference_sources": [
+            {
+                "source_name": "ICAR-DOGR Technical Bulletin on Onion Pathology",
+                "organization": "ICAR - Directorate of Onion and Garlic Research, Rajgurunagar",
+                "citation": "DOGR Bulletin on Purple Blotch (Alternaria porri)"
+            },
+            {
+                "source_name": "CIBRC Registered Fungicide Matrix",
+                "organization": "Central Insecticide Board & Registration Committee",
+                "citation": "CIBRC Approved List of Fungicides for Onion"
+            }
+        ],
         "last_verified": "2026-11-06"
     },
 
@@ -233,7 +299,18 @@ ONION_DISEASE_SEEDS: List[Dict[str, Any]] = [
             "- Kresoxim-methyl 44.3% SC @ 1.0 ml/L water. PHI: 10 days.\n\n"
             f"{PPE_NOTICE_EN}"
         ),
-        "reference_sources": "ICAR-DOGR Leaf Blight Advisory; CIBRC Fungicide Compendium.",
+        "reference_sources": [
+            {
+                "source_name": "ICAR-DOGR Leaf Blight Advisory",
+                "organization": "ICAR - Directorate of Onion and Garlic Research, Rajgurunagar",
+                "citation": "DOGR Technical Circular on Stemphylium Blight"
+            },
+            {
+                "source_name": "CIBRC Fungicide Compendium",
+                "organization": "Central Insecticide Board & Registration Committee",
+                "citation": "CIBRC Registered Fungicides for Allium crops"
+            }
+        ],
         "last_verified": "2026-11-06"
     },
     {
@@ -263,7 +340,18 @@ ONION_DISEASE_SEEDS: List[Dict[str, Any]] = [
             "- पायराक्लोस्ट्रॉबिन २०% डब्ल्यूजी @ १ ग्रॅम प्रति लिटर पाणी (प्रतीक्षा काळ: १० दिवस).\n\n"
             f"{PPE_NOTICE_MR}"
         ),
-        "reference_sources": "भाकृअनुप - कांदा व लसूण संशोधन संचालनालय (ICAR-DOGR).",
+        "reference_sources": [
+            {
+                "source_name": "ICAR-DOGR Leaf Blight Advisory",
+                "organization": "ICAR - Directorate of Onion and Garlic Research, Rajgurunagar",
+                "citation": "DOGR Technical Circular on Stemphylium Blight"
+            },
+            {
+                "source_name": "CIBRC Fungicide Compendium",
+                "organization": "Central Insecticide Board & Registration Committee",
+                "citation": "CIBRC Registered Fungicides for Allium crops"
+            }
+        ],
         "last_verified": "2026-11-06"
     },
     {
@@ -283,7 +371,18 @@ ONION_DISEASE_SEEDS: List[Dict[str, Any]] = [
             "- क्लोरोथैलोनिल 75% WP @ 2 ग्राम/लीटर पानी।\n\n"
             f"{PPE_NOTICE_HI}"
         ),
-        "reference_sources": "आईसीएआर-डीओजीआर सब्जी रोग प्रबंधन।",
+        "reference_sources": [
+            {
+                "source_name": "ICAR-DOGR Leaf Blight Advisory",
+                "organization": "ICAR - Directorate of Onion and Garlic Research, Rajgurunagar",
+                "citation": "DOGR Technical Circular on Stemphylium Blight"
+            },
+            {
+                "source_name": "CIBRC Fungicide Compendium",
+                "organization": "Central Insecticide Board & Registration Committee",
+                "citation": "CIBRC Registered Fungicides for Allium crops"
+            }
+        ],
         "last_verified": "2026-11-06"
     },
 
@@ -322,7 +421,18 @@ ONION_DISEASE_SEEDS: List[Dict[str, Any]] = [
             "- Acetamiprid 20% SP @ 0.3 g/L water. PHI: 7 days.\n\n"
             f"{PPE_NOTICE_EN}"
         ),
-        "reference_sources": "ICAR-DOGR Technical Guide on Iris Yellow Spot Virus; MPKV Rahuri Thrips Advisory.",
+        "reference_sources": [
+            {
+                "source_name": "ICAR-DOGR Technical Guide on Iris Yellow Spot Virus",
+                "organization": "ICAR - Directorate of Onion and Garlic Research, Rajgurunagar",
+                "citation": "DOGR Virus & Vector Management Advisory"
+            },
+            {
+                "source_name": "MPKV Rahuri Thrips Advisory",
+                "organization": "Mahatma Phule Krishi Vidyapeeth, Rahuri",
+                "citation": "Integrated Thrips & Tospovirus Control Protocol"
+            }
+        ],
         "last_verified": "2026-11-06"
     },
     {
@@ -356,7 +466,18 @@ ONION_DISEASE_SEEDS: List[Dict[str, Any]] = [
             "- ॲसिटामिप्रीड २०% एसपी @ ०.३ ग्रॅम प्रति लिटर पाणी (प्रतीक्षा काळ: ७ दिवस).\n\n"
             f"{PPE_NOTICE_MR}"
         ),
-        "reference_sources": "भाकृअनुप - कांदा व लसूण संशोधन संचालनालय (ICAR-DOGR), राजगुरूनगर, पुणे.",
+        "reference_sources": [
+            {
+                "source_name": "ICAR-DOGR Package of Practices",
+                "organization": "ICAR - Directorate of Onion and Garlic Research, Rajgurunagar",
+                "citation": "DOGR Onion Production Technology Guide"
+            },
+            {
+                "source_name": "MPKV Rahuri Vegetable Cultivation Guide",
+                "organization": "Mahatma Phule Krishi Vidyapeeth, Rahuri",
+                "citation": "MPKV Krishi Darshani"
+            }
+        ],
         "last_verified": "2026-11-06"
     },
     {
@@ -379,7 +500,18 @@ ONION_DISEASE_SEEDS: List[Dict[str, Any]] = [
             "- स्पिनटोरम 11.7% SC @ 0.9 मिली/लीटर पानी।\n\n"
             f"{PPE_NOTICE_HI}"
         ),
-        "reference_sources": "आईसीएआर-डीओजीआर राजगुरुनगर पुणे।",
+        "reference_sources": [
+            {
+                "source_name": "आईसीएआर-डीओजीआर प्याज एवं लहसुन उत्पादन मार्गदर्शिका",
+                "organization": "भाकृअनुप - प्याज एवं लहसुन अनुसंधान निदेशालय (ICAR-DOGR), राजगुरूनगर, पुणे",
+                "citation": "आईवाईएसवी एवं थ्रिप्स प्रबंधन दिशानिर्देश"
+            },
+            {
+                "source_name": "सीआईबीआरसी अनुमोदित कीटनाशक सूची",
+                "organization": "केंद्रीय कीटनाशक बोर्ड एवं पंजीकरण समिति (CIBRC)",
+                "citation": "थ्रिप्स कीटनाशक लेबल क्लेम"
+            }
+        ],
         "last_verified": "2026-11-06"
     }
 ]
