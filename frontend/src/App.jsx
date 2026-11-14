@@ -198,7 +198,7 @@ export default function App() {
         const res = await fetch('/api/v1/weather/locations');
         if (res.ok) {
           const data = await res.json();
-          setDistrictsList(data.locations || []);
+          setDistrictsList(data.districts || data.locations || []);
         }
       } catch (err) {}
     }
@@ -340,10 +340,13 @@ export default function App() {
 
     try {
       const payload = {
-        crop: diagResult.crop || crop,
+        crop_name: diagResult.crop || crop || 'sugarcane',
+        crop: diagResult.crop || crop || 'sugarcane',
+        predicted_disease: diagResult.predicted_class,
         disease_name: diagResult.predicted_class,
         confidence: diagResult.confidence,
         severity: diagResult.details?.severity || 'MODERATE',
+        preferred_language: lang,
         language: lang,
         district: district,
         latitude: gpsLocation?.lat || null,
