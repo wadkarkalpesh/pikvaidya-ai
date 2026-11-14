@@ -29,6 +29,99 @@ class FoliarSegmentationService:
 
     # Minimum percentage of total image pixels that must match foliage color signature
     MIN_FOLIAGE_THRESHOLD: float = 0.05  # 5%
+    MIN_RESOLUTION_PX: int = 150
+    MAX_RESOLUTION_PX: int = 6000
+    BLUR_VARIANCE_THRESHOLD: float = 65.0  # Laplacian variance threshold
+
+    def evaluate_blur_score(self, image: Image.Image) -> float:
+        """Calculates sharpness using 2D discrete Laplacian variance in pure NumPy.
+        
+        A lower variance indicates a lack of high-frequency edges (blurry/out-of-focus image).
+        """
+        # Resize large image to standardized dimensions for consistent blur thresholding
+        resized = image.convert("L").resize((400, 400), Image.Resampling.BILINEAR)
+        gray = np.array(resized, dtype=float)
+        
+        # 3x3 Discrete Laplacian kernel [[0, 1, 0], [1, -4, 1], [0, 1, 0]]
+        laplacian = (
+            gray[:-2, 1:-1] + gray[2:, 1:-1] + gray[1:-1, :-2] + gray[1:-1, 2:]
+            - 4.0 * gray[1:-1, 1:-1]
+        )
+        return float(np.var(laplacian))
+
+    def evaluate_lighting(self, image: Image.Image) -> Tuple[bool, float, str]:
+        """Evaluates whether image lighting is sufficient for diagnostic pathology.
+        
+        Returns:
+            Tuple of (is_acceptable, mean_brightness, description)
+        """
+        gray = np.array(image.convert("L"), dtype=float)
+        mean_brightness = float(np.mean(gray) / 255.0)
+        underexposed_ratio = float(np.mean(gray < 30.0))
+        overexposed_ratio = float(np.mean(gray > 230.0))
+
+        if mean_brightness < 0.14 or underexposed_ratio > 0.72:
+            return False, mean_brightness, "Severe underexposure: The photo is too dark to resolve pathological symptoms. Please take the photo in well-lit natural daylight."
+        if mean_brightness > 0.89 or overexposed_ratio > 0.65:
+            return False, mean_brightness, "Severe overexposure: The photo is washed out by direct flash or glare. Please avoid direct sunlight reflections."
+
+        return True, mean_brightness, "Lighting is acceptable."
+
+    def validate_image_quality(self, image: Image.Image) -> Tuple[bool, str, dict]:
+        """Performs comprehensive responsible AI image quality assessment.
+        
+        Evaluates:
+        1. Dimension / Resolution boundaries
+        2. Blurriness / Camera focus via Laplacian edge variance
+        3. Lighting / Luminance distribution (avoiding severe underexposure/glare)
+        4. Foliar vegetation coverage via HSV / Excess Green Index
+        
+        Returns:
+            Tuple of (is_valid, message, metrics_dict)
+        """
+        width, height = image.size
+        metrics = {
+            "width": width,
+            "height": height,
+            "blur_variance": 0.0,
+            "mean_brightness": 0.0,
+            "foliage_coverage": 0.0,
+        }
+
+        # 1. Dimension validation
+        if width < self.MIN_RESOLUTION_PX or height < self.MIN_RESOLUTION_PX:
+            msg = (
+                f"Image resolution too low ({width}x{height}px). Minimum required is "
+                f"{self.MIN_RESOLUTION_PX}x{self.MIN_RESOLUTION_PX}px to discern foliar micro-lesions."
+            )
+            return False, msg, metrics
+        if width > self.MAX_RESOLUTION_PX or height > self.MAX_RESOLUTION_PX:
+            msg = f"Image dimensions ({width}x{height}px) exceed maximum allowed {self.MAX_RESOLUTION_PX}px."
+            return False, msg, metrics
+
+        # 2. Lighting validation
+        is_light_ok, brightness, light_msg = self.evaluate_lighting(image)
+        metrics["mean_brightness"] = round(brightness, 3)
+        if not is_light_ok:
+            return False, light_msg, metrics
+
+        # 3. Sharpness / Blur validation
+        blur_score = self.evaluate_blur_score(image)
+        metrics["blur_variance"] = round(blur_score, 2)
+        if blur_score < self.BLUR_VARIANCE_THRESHOLD:
+            msg = (
+                f"Image rejected: Photo appears blurry or out of focus (sharpness score {blur_score:.1f} < "
+                f"threshold {self.BLUR_VARIANCE_THRESHOLD}). Please retake a clear, steady close-up photo of the crop leaf."
+            )
+            return False, msg, metrics
+
+        # 4. Foliar vegetation presence validation
+        is_foliar, coverage, foliar_msg = self.validate_foliar_quality(image)
+        metrics["foliage_coverage"] = round(coverage, 3)
+        if not is_foliar:
+            return False, foliar_msg, metrics
+
+        return True, "Image passes all agricultural quality and foliar presence criteria.", metrics
 
     def validate_foliar_quality(self, image: Image.Image) -> Tuple[bool, float, str]:
         """Validates that the uploaded image contains legitimate foliar vegetation.

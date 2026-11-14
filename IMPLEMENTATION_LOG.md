@@ -1,10 +1,138 @@
 # PikVaidya AI — Implementation & Change Log
-**Log Entry Date:** November 9, 2026  
-**Engineering Leads:** Senior Computer Vision & Deep Learning Lead, Data Integrity Architect, ML Systems Integration Engineer, Calibration & Testing Lead
+
+**Log Entry Date:** November 14, 2026  
+**Engineering Leads:** Senior Software Architect, AI/ML Platform Engineer, Edge IoT Specialist, DevOps Lead  
+**System Milestone:** Phase 16 Complete (Automated IoT Sensor Telemetry Feed & In-Situ Farm Gateway)  
+**Verification Results:** 240 / 240 Tests Passing (100% Pass Rate across `backend/tests/` and `tests/`)  
 
 ---
 
-## Session Implementation Summary: Onion Dataset Expansion & Pathology Engine Upgrade
+## Session Implementation Summary: Phase 16 IoT Sensor Telemetry Feed & In-Situ Farm Gateway (November 14, 2026)
+
+### 1. IoT Relational Database Models
+- **Files Created:**
+  - `backend/app/models/iot_device.py`: `IoTDevice` model with `device_id`, `farm_id`, `device_type`, `hardware_model`, `api_key_hash`, `status`, battery/signal fields.
+  - `backend/app/models/iot_telemetry.py`: `IoTTelemetry` model for high-frequency time-series sensor observations (canopy and ambient temperature, relative humidity, leaf wetness duration/activity, soil moisture at 10cm and 30cm root depths, rainfall rate, wind speed, solar radiation, barometric pressure, in-situ spray safety, and fungal infection risk indices).
+- **Files Enhanced:**
+  - `backend/app/models/__init__.py`: Registered and exported `IoTDevice` and `IoTTelemetry` entities with metadata binding.
+
+### 2. Pydantic Schemas & Data Contracts
+- **File Created:** `backend/app/schemas/iot.py`
+  - Defines `IoTDeviceCreate`, `IoTDeviceUpdate`, `IoTDeviceResponse`, `IoTTelemetryIngest`, `LoRaWANUplinkPayload` (ChirpStack / TTN v3 compatible JSON), `IoTTelemetryResponse`, and `IoTTelemetrySummary` (24h rolling agronomic statistics).
+- **File Enhanced:** `backend/app/schemas/assistant.py`
+  - Added optional `district: Optional[str] = None` to `MultimodalChatRequest`.
+
+### 3. Business Logic & Security Services
+- **File Created:** `backend/app/services/iot_service.py`
+  - Cryptographic token generation and SHA-256 validation (`X-Device-Token` / Bearer).
+  - Telemetry range sanitization and agronomic physical plausibility validation (rejecting out-of-range physical readings).
+  - In-situ epidemiological risk evaluation (Fungal risk scoring based on hours of continuous leaf wetness combined with canopy temperature $18^\circ\text{C}-28^\circ\text{C}$; microclimate spray suitability checks).
+  - Universal LoRaWAN uplink parser decoding base64/hex payloads or JSON structures from The Things Network and ChirpStack gateways.
+  - 24-hour rolling canopy microclimate statistics aggregation.
+
+### 4. REST API Endpoints & Gateway Integration
+- **File Created:** `backend/app/api/routes/iot.py`
+  - Mounted under `/api/v1/iot`:
+    - `POST /devices` — Register new IoT sensor node with automatic API key generation.
+    - `GET /devices` — List registered devices with optional farm filtering.
+    - `GET /devices/{id}` — Fetch device status, battery, and telemetry count.
+    - `PATCH /devices/{id}` — Update device state or metadata.
+    - `DELETE /devices/{id}` — Decommission sensor node.
+    - `POST /telemetry` — Direct HTTPS sensor ingestion (authenticated via token).
+    - `POST /lorawan/uplink` — LoRaWAN webhook ingestion endpoint.
+    - `GET /farms/{farm_id}/latest` — Query latest real-time in-situ farm reading.
+    - `GET /farms/{farm_id}/history` — Query time-series telemetry with window filtering.
+    - `GET /farms/{farm_id}/summary` — Query 24h rolling summary with fungal risk metrics.
+- **File Enhanced:** `backend/app/api/routes/__init__.py`
+  - Mounted `iot.router` into the core API gateway.
+
+### 5. Multimodal RAG Orchestrator In-Situ Fusion
+- **File Enhanced:** `backend/app/services/rag/orchestrator.py`
+  - Extended `execute_weather_risk_tool` to check for active in-situ IoT telemetry on the farmer's registered estate.
+  - If fresh ($< 2$ hours old) sensor readings exist, canopy temperature, relative humidity, leaf wetness, and in-situ spray suitability are fused into the LLM context, overriding or complementing coarse regional satellite/reanalysis weather estimates.
+
+### 6. Automated Pytest Verification Suite
+- **File Created:** `backend/tests/test_iot_telemetry.py`
+  - 7 comprehensive tests:
+    1. `test_register_device_and_auth`
+    2. `test_direct_telemetry_ingestion`
+    3. `test_lorawan_uplink_ingest`
+    4. `test_farm_telemetry_queries_and_summary`
+    5. `test_iot_api_endpoints_via_client`
+    6. `test_orchestrator_in_situ_iot_enrichment`
+    7. `test_unauthenticated_ingest_rejected`
+- **Results:** 7/7 PASSED. Complete test suite: 240/240 PASSED (100% pass rate).
+
+---
+
+## Session Implementation Summary: Production Hardening, Responsible AI & Enterprise Advancements (November 13, 2026)
+
+### 1. Image Quality, Blur & Responsible AI Safeguards
+- **File Enhanced:** `backend/app/services/segmentation_service.py`
+- **Architectural Enhancements:**
+  - Implemented `evaluate_blur_score`: Pure NumPy discrete 2D Laplacian kernel convolution variance. Automatically flags and rejects out-of-focus and motion-blurred uploads where variance $< 65.0$.
+  - Implemented `evaluate_lighting`: Grayscale luminance evaluation identifying underexposure ($< 0.14$) and severe overexposure ($> 0.89$) to prevent false diagnoses caused by rural glare or darkness.
+  - Implemented `validate_image_quality`: Multi-tiered validation engine verifying resolution bounds ($150 \le \text{px} \le 6000$), file decodability, lighting, blur, and minimum plant-matter presence ($\ge 8\%$ foliage mask via HSV/ExG).
+- **Test Evidence:** `backend/tests/test_image_quality.py` (3 tests PASSED).
+
+### 2. Enterprise Database Models & Schema Expansion
+- **Files Created:**
+  - `backend/app/models/notification.py`: `Notification`, `NotificationType`, and `NotificationSeverity` entities supporting in-app alerting.
+  - `backend/app/models/expert_review.py`: `ExpertReview` and `ReviewStatus` entities facilitating agronomist verification of foliar scans.
+  - `backend/app/models/audit_log.py`: `AuditLog` entity for immutable auditing of security, sync, and expert actions.
+- **Files Enhanced:**
+  - `backend/app/models/__init__.py`: Registered and exported all new entities.
+  - `backend/app/main.py`: Lifespan event binds `Base.metadata.create_all(bind=engine)` ensuring tables are created automatically across all environments.
+
+### 3. REST API Expansion & New Domain Routers
+- **Files Created & Mounted in `backend/app/api/routes/`:**
+  - `models.py`: `GET /api/v1/models` and `GET /api/v1/models/{crop}` exposing active model catalog, weights, parameters, and accuracy.
+  - `notifications.py`: `GET /api/v1/notifications`, `GET /unread-count`, `POST /{id}/read`, and `POST /create`.
+  - `experts.py`: `POST /request-review`, `GET /pending-reviews`, and `POST /reviews/{id}/submit`.
+  - `admin.py`: `GET /telemetry` (real-time CPU, RAM via `psutil`, DB counts, model status), `GET /summary`, `GET /audit-logs`, and `GET /users`.
+  - `risk.py`: `POST /environmental` and `GET /districts` for standalone microclimate disease conduciveness.
+  - `sync.py`: `POST /push` and `GET /pull` for offline edge synchronization with IndexedDB.
+- **Files Enhanced:**
+  - `backend/app/api/routes/__init__.py`: Mounted all 6 new routers, added `/farmers` route alias, and implemented versioned `GET /api/v1/health` endpoint. Total OpenAPI paths increased to 55 (64 HTTP operations).
+
+### 4. Offline Edge Synchronization Architecture
+- **Files Created:** `backend/app/schemas/sync.py` and `backend/app/api/routes/sync.py`
+- **Capabilities:**
+  - Client edge nodes can batch-upload diagnoses captured while offline without cellular signal.
+  - Conflict detection, idempotency tracking, and server audit logging ensure zero data duplication.
+  - Master catalog hashes and model versions are exposed to allow edge PWA clients to verify cache validity.
+
+### 5. Automated 19-Step End-to-End Farmer Workflow Integration
+- **File Created:** `backend/tests/test_end_to_end_farmer_workflow.py`
+- **Verification:** Successfully executes all 19 lifecycle stages:
+  1. Farmer registration & JWT login.
+  2. Cadastral farm creation (Kolhapur estate, 3.5 acres).
+  3. Crop-cycle registration (Sugarcane Co 86032).
+  4. Leaf image synthesis & upload.
+  5. Image quality & blur validation.
+  6. Hierarchical crop gate routing.
+  7. MobileNetV3 disease inference.
+  8. Platt Softmax temperature scaling calibration.
+  9. Grad-CAM explainability heatmap generation.
+  10. Open-Meteo microclimate retrieval.
+  11. Environmental risk assessment.
+  12. Multilingual RAG assistant chat in Marathi.
+  13. CIBRC-compliant spray advisory synthesis.
+  14. Database persistence verification.
+  15. Farmer diagnostic history listing.
+  16. ReportLab field diagnostic PDF download.
+  17. Automated weather notification generation.
+  18. Human expert review escalation.
+  19. Offline synchronization push reconciliation.
+
+### 6. Test Suite Expansion & Validation
+- **Total Passing Tests:** 228 passing tests across 35 test files.
+- **Pass Rate:** 100.0%.
+- **Zero Regressions:** All existing tests for Sugarcane, Tomato, Onion, Quantization, Multimodal fusion, RAG, and Weather pass cleanly.
+
+---
+
+## Legacy Session Log: Onion Dataset Expansion & Pathology Engine Upgrade
 
 ### 1. Forensic Dataset Audit & Public Dataset Acquisition
 * **Legacy Dataset Audit:** Inspected `datasets/processed/onion/` (920 procedural/synthetic images, uniform 256x256, 0 corrupted, 137 pHash collisions). Proved domain failure on real-world foliar symptoms (31.49% accuracy, 0.0000 F1 on Purple Blotch and Stemphylium). Legacy data fully preserved.

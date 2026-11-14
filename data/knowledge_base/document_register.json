@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updated_at": "2026-11-13T06:42:12.062745",
+  "updated_at": "2026-11-14T01:47:10.094271",
   "documents": {
     "maharashtra_soils_irrigation_weather_risk_guide": {
       "document_id": "maharashtra_soils_irrigation_weather_risk_guide",
@@ -13,9 +13,9 @@
       "geographic_relevance": "Maharashtra, India",
       "source_file_path": "data\\knowledge_base\\general_maharashtra_agronomy\\maharashtra_soils_irrigation_weather_risk_guide.md",
       "file_format": "md",
-      "file_sha256": "a0520c557cbd67cea020ec3791eab78efd7ff8e702ef1ed14f8bea3556bb1134",
+      "file_sha256": "fb39a53a96ac48c710adad8db07b9c3dc6c78e582a583924988cccc7058df3a4",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T06:42:12.023026",
+      "ingestion_timestamp": "2026-11-14T01:47:10.047357",
       "chunk_count": 2
     },
     "onion_icar_dogr_mpkv_plant_protection_guide": {
@@ -29,9 +29,9 @@
       "geographic_relevance": "Maharashtra, India",
       "source_file_path": "data\\knowledge_base\\onion\\onion_icar_dogr_mpkv_plant_protection_guide.md",
       "file_format": "md",
-      "file_sha256": "f55026303921d9e53586a839d6e2975dc9392fd6ab821230fbbd3a4d90bd8c0f",
+      "file_sha256": "5b9821b9b00c469d8ef357ac4ab4b4a470fceaf901d668ccff87edaf1b7c3046",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T06:42:12.026437",
+      "ingestion_timestamp": "2026-11-14T01:47:10.054784",
       "chunk_count": 3
     },
     "onion_integrated_pest_disease_management": {
@@ -45,9 +45,9 @@
       "geographic_relevance": "Maharashtra, India",
       "source_file_path": "data\\knowledge_base\\onion\\onion_integrated_pest_disease_management.json",
       "file_format": "json",
-      "file_sha256": "43f4c45cdbe9ccd1759f635b64c9c2c7d834eb8f14dcedbafe2e6b4d68f86882",
+      "file_sha256": "a40583162b4e6aa6140754f1000b1d462333b843a75c466cdb063ae2af767022",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T06:42:12.029733",
+      "ingestion_timestamp": "2026-11-14T01:47:10.060352",
       "chunk_count": 7
     },
     "sugarcane_icar_bulletin": {
@@ -61,9 +61,9 @@
       "geographic_relevance": "Maharashtra, India",
       "source_file_path": "data\\knowledge_base\\sugarcane\\sugarcane_icar_bulletin.pdf",
       "file_format": "pdf",
-      "file_sha256": "5eccf73ef8d756159b61a47060c18dde88185e97aee461737bd7b521243eb4a0",
+      "file_sha256": "b5c9fa97bbcc31659887a3f68d663d2e4f84c2663c990f31e51b860b260d8ac7",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T06:42:12.032058",
+      "ingestion_timestamp": "2026-11-14T01:47:10.063507",
       "chunk_count": 1
     },
     "sugarcane_integrated_pest_disease_management": {
@@ -77,9 +77,9 @@
       "geographic_relevance": "Maharashtra, India",
       "source_file_path": "data\\knowledge_base\\sugarcane\\sugarcane_integrated_pest_disease_management.json",
       "file_format": "json",
-      "file_sha256": "58aa934dfe762751c9ad1a91c55e4dc24bb8cce487bfef282fe8c36ef8a80e2f",
+      "file_sha256": "419f0134e1b421b2743f4f3ce3fe8cd0e3625662ed1422b9aef79d207587b748",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T06:42:12.053545",
+      "ingestion_timestamp": "2026-11-14T01:47:10.078070",
       "chunk_count": 6
     },
     "sugarcane_mpkv_package_of_practices": {
@@ -93,9 +93,9 @@
       "geographic_relevance": "Maharashtra, India",
       "source_file_path": "data\\knowledge_base\\sugarcane\\sugarcane_mpkv_package_of_practices.md",
       "file_format": "md",
-      "file_sha256": "1b385cd4a601b48000d0b6739a42563f182277636ec74d91d5759dcdc20274b0",
+      "file_sha256": "9ea89a0152184162e4f6cd761d612167b60e9b4ca066aa1c6249cb2b4865f320",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T06:42:12.055747",
+      "ingestion_timestamp": "2026-11-14T01:47:10.081745",
       "chunk_count": 3
     },
     "tomato_integrated_pest_disease_management": {
@@ -109,9 +109,9 @@
       "geographic_relevance": "Maharashtra, India",
       "source_file_path": "data\\knowledge_base\\tomato\\tomato_integrated_pest_disease_management.json",
       "file_format": "json",
-      "file_sha256": "a458ca74cd0691ce9c4bf361757723b4d1ad37f3e051d12ef9973e9404d335c1",
+      "file_sha256": "7497792412355a18858c78374de91d2e7b40a975f3b2d624dc10b5fd25e1fc34",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T06:42:12.058826",
+      "ingestion_timestamp": "2026-11-14T01:47:10.087336",
       "chunk_count": 6
     },
     "tomato_maharashtra_cultivation_and_plant_protection": {
@@ -125,9 +125,9 @@
       "geographic_relevance": "Maharashtra, India",
       "source_file_path": "data\\knowledge_base\\tomato\\tomato_maharashtra_cultivation_and_plant_protection.md",
       "file_format": "md",
-      "file_sha256": "a32030db6e0ba83fd24ecfb838e2d106a46892a391974b2261d49b692e4f6a32",
+      "file_sha256": "4cc2c34ba66d420064728d0a52b440bbf86fca2ce054f94f001692e072f23b8c",
       "license": "Government Public Domain / University Extension",
-      "ingestion_timestamp": "2026-11-13T06:42:12.060762",
+      "ingestion_timestamp": "2026-11-14T01:47:10.091426",
       "chunk_count": 4
     }
   }

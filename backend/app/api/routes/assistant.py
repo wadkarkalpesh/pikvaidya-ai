@@ -7,18 +7,24 @@ Provides endpoints for interactive farmer Q&A grounded in verified ICAR/CIBRC kn
 3. GET  /api/v1/assistant/chunks - Catalog of indexed knowledge chunks
 """
 
+import json
+import asyncio
 import logging
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db
 from app.services.rag.assistant import rag_assistant
 from app.services.rag.indexer import rag_indexer
+from app.services.rag.orchestrator import llm_orchestrator
 from app.schemas.assistant import (
     ChatQueryRequest,
     ChatQueryResponse,
     KnowledgeChunkResponse,
+    MultimodalChatRequest,
+    MultimodalChatResponse,
 )
 
 logger = logging.getLogger(__name__)
@@ -79,6 +85,80 @@ async def query_assistant(
         db=db,
     )
     return ChatQueryResponse(**res)
+
+
+@router.post(
+    "/multimodal-chat",
+    response_model=MultimodalChatResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Multimodal Conversational AI & LLM Agent Orchestrator",
+    description=(
+        "Processes multimodal farmer inputs (Text, Image, PDF, Voice) through the LLM Orchestrator, "
+        "dispatching AI Model tools (foliar pathology), Weather tools (microclimate & spray safety), "
+        "and RAG tools (ICAR/MPKV knowledge) with full session memory and database telemetry binding."
+    ),
+)
+async def multimodal_chat(
+    request: MultimodalChatRequest,
+    db: Session = Depends(get_db),
+) -> MultimodalChatResponse:
+    """Dispatches multimodal input to specialized tools and synthesizes grounded agent response."""
+    return await llm_orchestrator.orchestrate(request=request, db=db)
+
+
+@router.post(
+    "/chat-stream",
+    summary="ChatGPT-Style Real-time Streaming Response (Server-Sent Events)",
+    description="Streams tokens, tool executions, and metadata word-by-word via text/event-stream.",
+)
+async def chat_stream(
+    request: MultimodalChatRequest,
+    db: Session = Depends(get_db),
+):
+    """Streams conversational AI tokens in real-time."""
+    async def event_generator():
+        try:
+            res = await llm_orchestrator.orchestrate(request=request, db=db)
+
+            # Emit tool execution notices
+            for t in res.tools_invoked:
+                yield f"event: tool\ndata: {json.dumps(t.model_dump())}\n\n"
+                await asyncio.sleep(0.02)
+
+            # Stream response word-by-word
+            words = res.reply.split(" ")
+            for i, w in enumerate(words):
+                token = w + (" " if i < len(words) - 1 else "")
+                yield f"event: token\ndata: {json.dumps({'token': token})}\n\n"
+                await asyncio.sleep(0.01)
+
+            # Emit final payload
+            done_payload = {
+                "session_id": res.session_id,
+                "diagnostic_result": res.diagnostic_result,
+                "diagnostic_results": res.diagnostic_results,
+                "weather_result": res.weather_result,
+                "sources": res.sources,
+                "key_recommendations": res.key_recommendations,
+                "statutory_disclaimer": res.statutory_disclaimer,
+                "language": res.language,
+                "active_crop": res.active_crop,
+                "active_disease": res.active_disease,
+            }
+            yield f"event: done\ndata: {json.dumps(done_payload)}\n\n"
+        except Exception as exc:
+            logger.error("Chat stream error: %s", exc)
+            yield f"event: error\ndata: {json.dumps({'error': str(exc)})}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 @router.get(

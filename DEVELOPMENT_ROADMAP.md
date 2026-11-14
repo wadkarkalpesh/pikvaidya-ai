@@ -23,13 +23,13 @@ Phase 13: Multimodal Crop-Health Prediction Engine (Completed)
 Phase 14: Unified Multi-Crop Prediction Platform & Automated Routing (Completed)
    │
    ▼
-Phase 15: Full Offline PWA & Local IndexedDB Cache Engine (Next Active Milestone)
+Phase 15: Full Offline PWA & Local IndexedDB Cache Engine (Completed)
    │
    ▼
-Phase 16: Automated IoT Sensor Telemetry Feed (LoRaWAN / MQTT)
+Phase 16: Automated IoT Sensor Telemetry Feed (LoRaWAN / MQTT / HTTP) (Completed)
    │
    ▼
-Phase 17: Expansion to Cotton & Soybean Crop Disease Pipelines
+Phase 17: Expansion to Cotton & Soybean Crop Disease Pipelines (Next Active Milestone)
 ```
 
 ---
@@ -51,21 +51,18 @@ Phase 17: Expansion to Cotton & Soybean Crop Disease Pipelines
 * **Phase 12: Edge INT8 Model Quantization:** Dynamic INT8 weight quantization achieving $r > 0.9999$ correlation and $<35$ ms CPU latency.
 * **Phase 13: Multimodal Crop-Health Prediction Engine:** Multi-window historical microclimate telemetry (24h, 3d, 7d, 14d), physiological stress quantification (heat, water deficit, waterlogging, wind), epidemiological disease-conduciveness models (Tom-Cast DSV, Wallin criteria, ICAR-SBI, ICAR-DOGR), Calibrated Bayesian evidence fusion, strict non-override guarantee ($c \ge 0.75$), environmental anomaly detection, composite crop health score (0-100), full frontend reactive UI, and dedicated pytest suites.
 * **Phase 14: Unified Multi-Crop Prediction Platform & Automated Routing:** Common prediction interface `POST /api/crop-health/predict` integrating Sugarcane, Tomato, and Onion models. Fine-tuned MobileNetV3 Crop Detector with 99.67% test accuracy across 300 test leaves for automated foliar routing, full epidemiological coverage across all 19 conditions in Sugarcane, Tomato, and Onion, multilingual PWA integration (`App.jsx`), and dedicated test suite (`test_crop_health_unified.py`). 193 total passing tests.
+* **Phase 15: Full Offline PWA & Local IndexedDB Cache:** Full W3C PWA with `manifest.webmanifest` and `dist/sw.js`. 4-Store IndexedDB architecture (`diagnosis_history`, `farm_information`, `advisory_cards`, `sync_queue`), QuotaExceeded error handling, JSON backup export. Edge ONNX Runtime Web WASM SIMD inference for Sugarcane, Tomato, and Onion INT8 models (2.35-2.66ms latency). Resilient background sync manager with exponential backoff and UUID idempotency.
+* **Phase 16: Automated IoT Sensor Telemetry Feed (LoRaWAN / MQTT / HTTP Webhook Gateway):** Ingests live in-situ microclimate telemetry directly from farm sensor nodes (temperature, canopy humidity, leaf wetness minutes, soil moisture at 10cm/30cm, rain rate, wind speed, solar radiation). Features SHA-256 token verification, LoRaWAN webhook parsing (TTN / ChirpStack), rolling 24h canopy microclimate summary, and seamless integration with the Multimodal RAG Orchestrator to prioritize in-situ sensor data over regional open-meteo weather models. 7 dedicated tests in `backend/tests/test_iot_telemetry.py` (240 total passing tests).
 
 ---
 
 ## 3. Upcoming Milestones
 
-### Phase 15: Full Offline PWA & Local IndexedDB Cache (Immediate Next)
-* **Goal:** Enable rural farmers to capture leaf images, run local diagnoses via WebAssembly/ONNX Runtime Web, and store results locally when cellular connectivity is absent.
-* **Key Tasks:**
-  1. Service Worker caching strategy for app shell and model assets (`sw.js`).
-  2. IndexedDB local diagnosis queue (`idb`) with automatic bi-directional sync upon reconnect.
-  3. UI offline status indicator and background sync worker.
-
-### Phase 16: Automated IoT Sensor Telemetry Feed
-* **Goal:** Ingest microclimate telemetry directly from in-situ farm sensor nodes (temperature, leaf wetness, soil matric potential) via MQTT/LoRaWAN gateway.
-
-### Phase 17: Cotton & Soybean Crop Expansion
+### Phase 17: Cotton & Soybean Crop Expansion (Immediate Next)
 * **Goal:** Expand vision dataset curation and transfer learning pipelines to Cotton (Pink Bollworm, Bacterial Blight) and Soybean (Rust, Mosaic).
+* **Key Tasks:**
+  1. Acquire and verify real field leaf datasets for Cotton and Soybean.
+  2. Implement group-stratified train/val/test data pipelines preventing data leakage.
+  3. Train, calibrate, and quantize MobileNetV3 backbones.
+  4. Expand CIBRC knowledge base and multimodal Bayesian fusion rules.
 
