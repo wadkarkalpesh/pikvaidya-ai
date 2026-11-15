@@ -21,7 +21,8 @@ htmlcov/
 *.log
 
 # Raw Datasets & Local artifacts (Do NOT bundle raw imagery in containers)
-data/
+data/raw/
+data/processed/
 datasets/
 outputs/
 checkpoints/

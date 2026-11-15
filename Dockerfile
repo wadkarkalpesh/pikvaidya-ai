@@ -48,6 +48,9 @@ COPY backend/ /app/backend/
 # Copy model artifacts
 COPY models/ /app/models/
 
+# Copy knowledge base and agronomic datasets
+COPY data/ /app/data/
+
 # Copy compiled frontend SPA from Stage 1
 COPY --from=frontend-builder /build/frontend/dist /app/frontend/dist
 
