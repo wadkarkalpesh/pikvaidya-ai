@@ -7,7 +7,9 @@ import {
   Cpu,
   X,
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  Mic,
+  MicOff
 } from 'lucide-react';
 
 export default function InputBar({
@@ -29,7 +31,9 @@ export default function InputBar({
   useEdgeAi,
   onToggleEdgeAi,
   lang,
-  t
+  t,
+  isListening,
+  onToggleVoice
 }) {
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
@@ -77,15 +81,17 @@ export default function InputBar({
         <textarea
           ref={textareaRef}
           rows={1}
-          className="claude-textarea"
+          className={`claude-textarea ${isListening ? 'listening-pulse' : ''}`}
           placeholder={
-            selectedImage
-              ? (lang === 'mr'
-                  ? 'पानाचे लक्षण किंवा फवारणीबद्दल विचारा...'
-                  : 'Ask about symptoms or click send for diagnosis...')
-              : (lang === 'mr'
-                  ? 'शेती, पीक रोग किंवा फवारणीबद्दल विचारा (मराठी/हिंदी/EN)...'
-                  : 'Ask an agronomic question or upload leaf photo...')
+            isListening
+              ? (t?.voiceListening || (lang === 'mr' ? 'ऐकत आहे... कृपया बोला (मराठी/हिंदी/EN)...' : 'Listening... speak now...'))
+              : selectedImage
+                ? (lang === 'mr'
+                    ? 'पानाचे लक्षण किंवा फवारणीबद्दल विचारा...'
+                    : 'Ask about symptoms or click send for diagnosis...')
+                : (lang === 'mr'
+                    ? 'शेती, पीक रोग किंवा फवारणीबद्दल विचारा (मराठी/हिंदी/EN)...'
+                    : 'Ask an agronomic question or upload leaf photo...')
           }
           value={text}
           onChange={(e) => onTextChange(e.target.value)}
@@ -172,20 +178,33 @@ export default function InputBar({
             </button>
           </div>
 
-          {/* Send / Diagnose Arrow Button */}
-          <button
-            type="button"
-            className="claude-send-btn"
-            onClick={onSend}
-            disabled={isLoading || (!text.trim() && !selectedImage)}
-            title={selectedImage ? "Run leaf diagnosis" : "Send message"}
-          >
-            {isLoading ? (
-              <span style={{ fontSize: '0.75rem' }}>⏳</span>
-            ) : (
-              <ArrowUp size={18} strokeWidth={2.4} />
-            )}
-          </button>
+          {/* Action Buttons: Voice Input & Send */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+            {/* Microphone Voice Input Button */}
+            <button
+              type="button"
+              className={`claude-mic-btn ${isListening ? 'listening' : ''}`}
+              onClick={onToggleVoice}
+              title={isListening ? (t?.stopReading || 'Stop Listening') : (t?.voiceInput || 'Voice Input')}
+            >
+              {isListening ? <MicOff size={16} /> : <Mic size={16} />}
+            </button>
+
+            {/* Send / Diagnose Arrow Button */}
+            <button
+              type="button"
+              className="claude-send-btn"
+              onClick={onSend}
+              disabled={isLoading || (!text.trim() && !selectedImage)}
+              title={selectedImage ? "Run leaf diagnosis" : "Send message"}
+            >
+              {isLoading ? (
+                <span style={{ fontSize: '0.75rem' }}>⏳</span>
+              ) : (
+                <ArrowUp size={18} strokeWidth={2.4} />
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -13,8 +13,14 @@ import {
   AlertTriangle,
   Info,
   Layers,
-  Columns
+  Columns,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
+import {
+  speakAgronomicText,
+  stopAgronomicSpeech
+} from '../utils/voiceAssistant';
 
 function normalizeImageUrl(path) {
   if (!path) return null;
@@ -40,6 +46,35 @@ export default function ArtifactPanel({
   const [activeTab, setActiveTab] = useState('xai'); // 'xai' | 'advisory' | 'weather' | 'kvk'
   const [comparisonMode, setComparisonMode] = useState('split'); // 'split' | 'slider'
   const [overlayOpacity, setOverlayOpacity] = useState(65); // 0 = only leaf, 100 = full heatmap
+  const [isArtifactSpeaking, setIsArtifactSpeaking] = useState(false);
+
+  const handleToggleArtifactAudio = () => {
+    if (isArtifactSpeaking) {
+      stopAgronomicSpeech();
+      setIsArtifactSpeaking(false);
+      return;
+    }
+
+    const overview = advisory.disease_overview?.[lang] || advisory.disease_overview?.en || '';
+    const cultural = (advisory.cultural_practices || []).join('. ');
+    const chemicals = diagResult.confidence >= 0.75
+      ? (advisory.chemical_prescriptions || []).map((c) => `${c.chemical_name}, प्रमाण: ${c.dosage}`).join('. ')
+      : '';
+    const textToSpeak = `${crop} पिकातील रोग: ${diseaseName}. ${overview}. ${cultural}. ${chemicals}`;
+
+    setIsArtifactSpeaking(true);
+    speakAgronomicText(textToSpeak, {
+      lang,
+      onEnd: () => setIsArtifactSpeaking(false),
+      onError: () => setIsArtifactSpeaking(false)
+    });
+  };
+
+  const handleClose = () => {
+    stopAgronomicSpeech();
+    setIsArtifactSpeaking(false);
+    onClose();
+  };
 
   if (!isOpen || !diagResult) return null;
 
@@ -59,7 +94,7 @@ export default function ArtifactPanel({
         <div className="artifact-header-title">
           <button
             className="artifact-back-btn"
-            onClick={onClose}
+            onClick={handleClose}
             title="Back to conversation"
           >
             <ArrowLeft size={18} />
@@ -78,6 +113,22 @@ export default function ArtifactPanel({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          {/* Audio Read Aloud Button */}
+          <button
+            className={`topbar-btn ${isArtifactSpeaking ? 'speaking' : ''}`}
+            onClick={handleToggleArtifactAudio}
+            style={{
+              background: isArtifactSpeaking ? '#EFF6FF' : 'var(--bg-secondary)',
+              color: isArtifactSpeaking ? '#1D4ED8' : 'var(--text-primary)',
+              borderColor: isArtifactSpeaking ? '#3B82F6' : 'var(--border-subtle)',
+              fontWeight: 600
+            }}
+            title={isArtifactSpeaking ? (t.stopReading || 'Stop Audio') : (t.readAloud || 'Read Aloud')}
+          >
+            {isArtifactSpeaking ? <VolumeX size={13} /> : <Volume2 size={13} />}
+            <span>{isArtifactSpeaking ? (lang === 'mr' ? 'थांबवा' : 'Stop') : (lang === 'mr' ? 'ऐका' : 'Listen')}</span>
+          </button>
+
           <button
             className="topbar-btn"
             onClick={onDownloadPdf}
@@ -96,7 +147,7 @@ export default function ArtifactPanel({
 
           <button
             className="modal-close-btn desktop-only"
-            onClick={onClose}
+            onClick={handleClose}
             title="Close Artifact Canvas"
           >
             <X size={18} />

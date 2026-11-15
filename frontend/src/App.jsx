@@ -37,8 +37,15 @@ import {
   Sparkles,
   ArrowRight,
   ShieldCheck,
-  Cpu
+  Cpu,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
+import {
+  IndicSpeechRecognizer,
+  speakAgronomicText,
+  stopAgronomicSpeech
+} from './utils/voiceAssistant';
 
 export default function App() {
   const [lang, setLang] = useState('mr'); // Default Marathi for regional farmers
@@ -115,6 +122,71 @@ export default function App() {
   const [showKvkModal, setShowKvkModal] = useState(false);
   const [showOfflineGuideModal, setShowOfflineGuideModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+
+  // Voice Assistant State (Speech-To-Text & Text-To-Speech)
+  const [isListening, setIsListening] = useState(false);
+  const [speakingMsgIdx, setSpeakingMsgIdx] = useState(null);
+  const recognizerRef = useRef(null);
+
+  // Clean up speech synthesis & recognizer on unmount or language change
+  useEffect(() => {
+    return () => {
+      stopAgronomicSpeech();
+      if (recognizerRef.current) {
+        recognizerRef.current.stop();
+      }
+    };
+  }, [lang]);
+
+  const handleToggleVoice = () => {
+    if (isListening) {
+      if (recognizerRef.current) {
+        recognizerRef.current.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
+    const recognizer = new IndicSpeechRecognizer({
+      lang,
+      onStart: () => setIsListening(true),
+      onEnd: () => setIsListening(false),
+      onError: (err) => {
+        console.warn('Speech recognition error:', err);
+        setIsListening(false);
+      },
+      onResult: ({ finalTranscript, interimTranscript }) => {
+        const spoken = finalTranscript || interimTranscript;
+        if (spoken) {
+          setInputText((prev) => {
+            const trimmed = prev.trim();
+            return trimmed ? `${trimmed} ${spoken}` : spoken;
+          });
+        }
+      }
+    });
+
+    recognizerRef.current = recognizer;
+    const started = recognizer.start();
+    if (!started) {
+      setIsListening(false);
+    }
+  };
+
+  const handleToggleSpeak = (idx, textToSpeak) => {
+    if (speakingMsgIdx === idx) {
+      stopAgronomicSpeech();
+      setSpeakingMsgIdx(null);
+      return;
+    }
+
+    setSpeakingMsgIdx(idx);
+    speakAgronomicText(textToSpeak, {
+      lang,
+      onEnd: () => setSpeakingMsgIdx(null),
+      onError: () => setSpeakingMsgIdx(null)
+    });
+  };
 
   const t = translations[lang] || translations.en;
   const feedEndRef = useRef(null);
@@ -1118,6 +1190,26 @@ export default function App() {
                               ))}
                             </div>
                           )}
+
+                          {/* Message Actions: Audio Read Aloud */}
+                          <div className="message-actions-strip">
+                            <button
+                              type="button"
+                              className={`message-audio-btn ${speakingMsgIdx === idx ? 'speaking' : ''}`}
+                              onClick={() => {
+                                const fullText = [
+                                  msg.text,
+                                  ...(msg.recommendations || []),
+                                  msg.disclaimer
+                                ].filter(Boolean).join('. ');
+                                handleToggleSpeak(idx, fullText);
+                              }}
+                              title={speakingMsgIdx === idx ? (t.stopReading || 'Stop Audio') : (t.readAloud || 'Read Aloud')}
+                            >
+                              {speakingMsgIdx === idx ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                              <span>{speakingMsgIdx === idx ? (t.stopReading || 'थांबवा') : (t.readAloud || 'ऐका')}</span>
+                            </button>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -1166,6 +1258,8 @@ export default function App() {
               onToggleEdgeAi={() => setUseEdgeAi(!useEdgeAi)}
               lang={lang}
               t={t}
+              isListening={isListening}
+              onToggleVoice={handleToggleVoice}
             />
           </div>
 

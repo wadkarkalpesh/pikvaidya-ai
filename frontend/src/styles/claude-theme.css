@@ -1089,6 +1089,88 @@ body {
   box-shadow: none;
 }
 
+/* Voice Input & TTS Action Buttons */
+.claude-mic-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.claude-mic-btn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  transform: scale(1.04);
+}
+
+.claude-mic-btn.listening {
+  background-color: #DC2626;
+  border-color: #EF4444;
+  color: #FFFFFF;
+  animation: pulse-recording 1.4s infinite;
+}
+
+@keyframes pulse-recording {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+}
+
+.claude-textarea.listening-pulse {
+  border-color: #EF4444;
+  background-color: #FEF2F2;
+}
+
+/* Audio Read Aloud Action Button on Assistant Turns */
+.message-actions-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.message-audio-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.message-audio-btn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.message-audio-btn.speaking {
+  background-color: #EFF6FF;
+  border-color: #3B82F6;
+  color: #1D4ED8;
+}
+
 /* ==========================================================================
    Modals (Farm Manager, Offline Guide, KVK Escalation)
    ========================================================================== */
